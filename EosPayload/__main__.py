@@ -5,11 +5,8 @@ import time
 from multiprocessing import Process
 
 from EosPayload.lib.driver_base import DriverBase
-import drivers
-
-
-def runner(cls) -> None:
-    cls().run()
+from EosPayload.lib.orcheostrator import runner
+import EosPayload.drivers as drivers
 
 
 if __name__ == '__main__':
