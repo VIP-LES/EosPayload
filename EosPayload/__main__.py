@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # initialize logger
     log_fmt = '[%(asctime)s.%(msecs)03d] %(name)s.%(levelname)s: %(message)s'
     date_fmt = '%Y-%m-%dT%H:%M:%S'
-    logging.basicConfig(filename='orcheostrator.log',
+    logging.basicConfig(filename='orchEOStrator.log',
                         filemode='a',
                         format=log_fmt,
                         datefmt=date_fmt,
@@ -31,7 +31,7 @@ if __name__ == '__main__':
         driver = getattr(drivers, attribute_name)
         if inspect.isclass(driver) and issubclass(driver, DriverBase) and driver.__name__ != "DriverBase"\
                 and driver.enabled():
-            if driver.get_device_id() == None:
+            if driver.get_device_id() is None:
                 logger.error(f"can't spawn process for device from class '{driver.__name__}'"
                              " because device id is not defined")
                 continue

@@ -57,8 +57,14 @@ class DriverBase(ABC):
         self.__command_thread.daemon = True
         self.__command_thread.start()
 
-        mqtt = Client(MQTT_HOST)
+        mqtt = None
         while self.is_healthy():
+            if mqtt is None:
+                try:
+                    mqtt = Client(MQTT_HOST)
+                    self.logger.info("mqtt connection established")
+                except ConnectionError as e:
+                    self.logger.warning(f"failed to establish mqtt connection: {e}")
             self.send_heartbeat(mqtt)
             time.sleep(10)
         self.logger.critical("device unhealthy: "
@@ -79,7 +85,7 @@ class DriverBase(ABC):
     @staticmethod
     def spin() -> None:
         while True:
-            time.sleep(1000000)
+            time.sleep(1)
 
     @staticmethod
     @abstractmethod
@@ -94,7 +100,9 @@ class DriverBase(ABC):
         return self.__read_thread.is_alive() and self.__command_thread.is_alive()
 
     def send_heartbeat(self, mqtt: Client) -> bool:
-        succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, self.get_device_id())
+        succeeded = False
+        if mqtt:
+            succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, self.get_device_id())
         if succeeded:
             self.logger.info("heartbeat sent")
         else:
