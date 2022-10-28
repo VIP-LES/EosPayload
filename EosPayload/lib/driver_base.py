@@ -18,12 +18,12 @@ class DriverBase(ABC):
     __logger = None
 
     def __init__(self):
-        self.__data_file = open(self.get_device_id() + '.dat', 'a')
+        self.__data_file = open(get_device_id() + '.dat', 'a')
 
         # set up logging
         log_fmt = '[%(asctime)s.%(msecs)03d] %(name)s.%(levelname)s: %(message)s'
         date_fmt = '%Y-%m-%dT%H:%M:%S'
-        logging.basicConfig(filename=self.get_device_id() + '.log',
+        logging.basicConfig(filename=get_device_id() + '.log',
                             filemode='a',
                             format=log_fmt,
                             datefmt=date_fmt,
@@ -32,7 +32,7 @@ class DriverBase(ABC):
         console.setLevel(logging.DEBUG)
         console.setFormatter(logging.Formatter(log_fmt, date_fmt))
         logging.getLogger('').addHandler(console)
-        self.logger = logging.getLogger(self.get_device_id())
+        self.logger = logging.getLogger(get_device_id())
         self.logger.info("logger initialized -- init complete")
 
     def __del__(self):
@@ -46,13 +46,13 @@ class DriverBase(ABC):
         self.setup()
         self.logger.info("setup complete")
 
-        read_logger = logging.getLogger(self.get_device_id() + '.device_read')
-        self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
+        read_logger = logging.getLogger(get_device_id() + '.device_read')
+        self.__read_thread = Thread(None, self.device_read, f"{get_device_id()}-read-thread",
                                     (), {"logger": read_logger})
         self.__read_thread.daemon = True
         self.__read_thread.start()
-        command_logger = logging.getLogger(self.get_device_id() + '.device_command')
-        self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
+        command_logger = logging.getLogger(get_device_id() + '.device_command')
+        self.__command_thread = Thread(None, self.device_command, f"{get_device_id()}-command-thread",
                                        (), {"logger": command_logger})
         self.__command_thread.daemon = True
         self.__command_thread.start()
@@ -102,7 +102,7 @@ class DriverBase(ABC):
     def send_heartbeat(self, mqtt: Client) -> bool:
         succeeded = False
         if mqtt:
-            succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, self.get_device_id())
+            succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, get_device_id())
         if succeeded:
             self.logger.info("heartbeat sent")
         else:
