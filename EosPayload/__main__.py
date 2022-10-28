@@ -31,13 +31,13 @@ if __name__ == '__main__':
         driver = getattr(drivers, attribute_name)
         if inspect.isclass(driver) and issubclass(driver, DriverBase) and driver.__name__ != "DriverBase"\
                 and driver.enabled():
-            if driver.get_device_id() is None:
+            if get_device_id() is None:
                 logger.error(f"can't spawn process for device from class '{driver.__name__}'"
                              " because device id is not defined")
                 continue
-            logger.info(f"spawning process for device id '{driver.get_device_id()}' from class '{driver.__name__}'")
+            logger.info(f"spawning process for device id '{get_device_id()}' from class '{driver.__name__}'")
             proc = Process(target=runner, args=(driver,))
-            processes[driver.get_device_id()] = proc
+            processes[get_device_id()] = proc
             proc.start()
 
     logger.info("sleeping")
