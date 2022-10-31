@@ -13,8 +13,11 @@ class CO2(DriverBase):
         return "C02"
 
     def device_read(self, logger: logging.Logger) -> None:
-        data = randint(0, 256)
-        time.sleep(3)
+        while True:
+            # this is where you would poll a device for data or whatever
+            data = randint(0, 256)
+            self.data_log([str(data), str(data * data)])
+            time.sleep(3)
 
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
