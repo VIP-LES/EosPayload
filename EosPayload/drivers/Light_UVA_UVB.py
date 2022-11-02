@@ -11,7 +11,6 @@ class LightUVAUVB(DriverBase):
     @staticmethod
     def get_device_id() -> str:
         return "Light UVA UVB"
-
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data or whatever
