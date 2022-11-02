@@ -5,7 +5,7 @@ from random import randint
 
 from EosPayload.lib.driver_base import DriverBase
 
-
+#ADC
 class LightUVAUVB(DriverBase):
 
     @staticmethod

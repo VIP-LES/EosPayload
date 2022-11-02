@@ -1,7 +1,7 @@
 import logging
 import time
 
-from random import randint
+from smbus2 import SMBus
 
 from EosPayload.lib.driver_base import DriverBase
 
@@ -14,8 +14,10 @@ class LightIR(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         while True:
-            # this is where you would poll a device for data or whatever
-            data = randint(0, 256)
+            # this is where you would poll a device for data
+            bus = SMBus(1)
+            b = bus.read_byte_data(80, 0)
+            data = b
             self.data_log([str(data), str(data * data)])
             time.sleep(3)
 
