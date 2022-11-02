@@ -23,3 +23,6 @@ class PressureDriver(DriverBase):
             data = b
             self.data_log([str(data), str(data * data)])
             time.sleep(3)
+
+    def device_command(self, logger: logging.Logger) -> None:
+        self.spin()

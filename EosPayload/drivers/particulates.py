@@ -26,3 +26,6 @@ class Particulates(DriverBase):
 
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
+
+    def device_command(self, logger: logging.Logger) -> None:
+        self.spin()
