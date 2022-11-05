@@ -4,4 +4,4 @@ class RadioDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         return 0
     def device_command(self, logger: logging.Logger) -> None:
-        return 0;
+        return 0
