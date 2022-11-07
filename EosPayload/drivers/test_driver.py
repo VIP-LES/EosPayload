@@ -19,5 +19,6 @@ class TestDriver(DriverBase):
             self.data_log([str(data), str(data*data)])
             time.sleep(3)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return False
