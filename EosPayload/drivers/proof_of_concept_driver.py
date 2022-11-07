@@ -6,7 +6,7 @@ from smbus2 import SMBus
 from EosPayload.lib.driver_base import DriverBase
 
 
-class TestDriver(DriverBase):
+class ProofOfConceptDriver(DriverBase):
 
     @staticmethod
     def get_device_id() -> str:
