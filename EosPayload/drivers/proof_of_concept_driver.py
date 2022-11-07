@@ -17,6 +17,7 @@ class ProofOfConceptDriver(DriverBase):
         while True:
             # this is where you would poll a device for data or whatever
             bus = SMBus(2)
-            b = bus.read_byte_data(0x77, 0)
-            self.data_log([str(b)])
+            b = bus.read_i2c_block_data(0x77, 0x88, 24)
+            str_b = list(map(str, b))
+            self.data_log(str_b)
             time.sleep(3)
