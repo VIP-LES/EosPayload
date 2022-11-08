@@ -1,17 +1,22 @@
-import datetime
+
+import EosLib.packet.packet
 
 from EosPayload.lib.driver_base import DriverBase
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 import logging
-import time
+
+import EosLib.packet.definitions
+import EosLib.packet.packet
+import EosLib.packet.transmit_header
 
 from EosPayload.lib import MQTT_HOST
 from EosPayload.lib.mqtt import Topic
 from EosPayload.lib.mqtt.client import Client
 
 PORT = "COM1"
+sequence_number = 0
 
 
 class RadioDriver(DriverBase):
@@ -23,7 +28,6 @@ class RadioDriver(DriverBase):
         self.port.open()
         self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("0013A20040XXXXXX"))
 
-
     @staticmethod
     def get_device_id() -> str:
         return "radio-driver-007"
@@ -31,24 +35,39 @@ class RadioDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         mqtt = Client(MQTT_HOST)
 
+        # Receives data from radio and sends it to MQTT
         def data_receive_callback(xbee_message):
             packet = xbee_message.decode()
             mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
 
-        self.port.add_data_received_callback(data_receive_callback)
+        # Receives data from MQTT and sends it down to ground station according to priority
+        def xbee_send_callback(client, userdata, message):
+            global sequence_number
 
-        while True:
-            time.sleep(1)
+            # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
+            transmit_packet = EosLib.packet.packet.Packet.decode_from_string(message.payload)
 
-        return 0
+            # append transmit header
+            new_transmit_header = EosLib.packet.transmit_header.TransmitHeader(sequence_number)
+            transmit_packet.transmit_header = new_transmit_header
 
-    def device_command(self, logger: logging.Logger) -> None:
-        mqtt = Client(MQTT_HOST)
+            # add packet to queue
+            priority = transmit_packet.data_header.priority
+            # This will likely be another thread
 
-        def send_via_xbee(transmit_packet):
+            # sends packet
             self.port.send_data_async(self.remote, transmit_packet)
 
-        mqtt.register_subscriber(Topic.RADIO_TRANSMIT, send_via_xbee)
+            # increments sequence_number
+            sequence_number = (sequence_number + 1) % 256  # sequence number can't exceed 255
 
-        return 0
+        mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
+        self.port.add_data_received_callback(data_receive_callback)
+        self.spin()
 
+
+'''
+    
+    def device_command(self, logger: logging.Logger) -> None:
+        mqtt = Client(MQTT_HOST)
+        '''
