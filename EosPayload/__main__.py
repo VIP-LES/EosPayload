@@ -35,8 +35,9 @@ if __name__ == '__main__':
                 logger.error(f"can't spawn process for device from class '{driver.__name__}'"
                              " because device id is not defined")
                 continue
-            logger.info(f"spawning process for device id '{driver.get_device_id()}' from class '{driver.__name__}'")
-            proc = Process(target=runner, args=(driver,))
+            logger.info(f"spawning process for device id {driver.get_device_id()} from class '{driver.__name__}'"
+                        f" ('{driver.get_device_pretty_id()}')")
+            proc = Process(target=runner, args=(driver,), daemon=True)
             processes[driver.get_device_id()] = proc
             proc.start()
 
@@ -44,5 +45,5 @@ if __name__ == '__main__':
     time.sleep(35)
     logger.info("terminating processes")
     for device, proc in processes.items():
-        logger.info("terminating process for " + device)
+        logger.info(f"terminating process for device id {device}")
         proc.terminate()

@@ -52,6 +52,7 @@ Prereq: Start the MQTT server by running mosquitto.  Use -v to allow it   (Windo
 - In your terminal in your venv, run `pip install <your dependency>`
 - Run `pip freeze` and compare the result to `requirements.txt`.  Add any new lines from the `pip freeze` output to the requirements.txt file
 - You should now be able to `import <your dependency>` in your EosPayload python files
+- To bump the EosLib version, run `pip install --upgrade --force-reinstall git+https://github.com/VIP-LES/EosLib@vX.Y.Z#egg=EosLib` (replace `X.Y.Z` with the version number)
 
 ### Debugging
 Pycharm allows you to set breakpoints and inspect variables mid-execution.  Reference the "Run From PyCharm" instructions above, but run the configuration in debug mode

@@ -15,7 +15,7 @@ class Client(mosquitto.Client):
         return self.loop_forever()
 
     def send(self, topic: Topic, payload: str) -> bool:
-        msg_info = self.publish(topic, payload, QOS.DELIVER_AT_MOST_ONCE)
+        msg_info = self.publish(topic, payload, QOS.DELIVER_AT_MOST_ONCE).wait_for_publish()
         if msg_info.rc != mosquitto.MQTT_ERR_SUCCESS:
             print("MQTT send failed with error code " + msg_info.rc)
             return False
