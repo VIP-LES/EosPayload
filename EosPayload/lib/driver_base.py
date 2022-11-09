@@ -216,8 +216,13 @@ class DriverBase(ABC):
         """
         succeeded = False
         if mqtt:
-            status = ','.join([str(self.get_device_id()), datetime.now().isoformat(), str(self.is_healthy()),
-                               str(self.__read_thread.is_alive()), str(self.__command_thread.is_alive())])
+            status = ','.join([
+                str(self.get_device_id()),
+                datetime.now().isoformat(),
+                str(int(self.is_healthy())),
+                str(int(self.__read_thread.is_alive())),
+                str(int(self.__command_thread.is_alive()))
+            ])
             succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, status)
         if succeeded:
             self.logger.info("heartbeat sent")

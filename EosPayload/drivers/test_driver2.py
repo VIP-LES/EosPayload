@@ -12,5 +12,6 @@ class TestDriver2(TestDriver):
         return Device.MISC_2
 
     # disabling this driver for now
+    @staticmethod
     def enabled() -> bool:
         return False
