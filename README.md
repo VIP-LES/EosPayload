@@ -16,7 +16,9 @@ Eos is the software platform for Georgia Tech's "Lightning from the Edge of Spac
 Note: to exit the venv, run `deactivate`
 
 ## Running EosPayload
-Prereq: Start the MQTT server by running mosquitto.  Use -v to allow it   (Windows Example: `C:\Program Files\mosquitto -v`)
+Prereq: Start the MQTT server by running mosquitto.  Use -v to log requests to console  (Windows Example: `C:\Program Files\mosquitto -v`)  
+Note: running mosquitto_sub can be useful for debugging: ` "C:\Program Files\mosquitto\mosquitto_sub.exe" -V 5 -q 2 -t # -v`    
+There is also mosquitto_pub which can be useful for testing MQTT message receive
 
 ### From Terminal
 1. Navigate to your EosPayload repository root using the `cd` command (all OS's)
