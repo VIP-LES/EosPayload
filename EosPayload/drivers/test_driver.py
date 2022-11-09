@@ -1,6 +1,7 @@
+from queue import Queue
+from random import randint
 import logging
 import time
-from random import randint
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -21,7 +22,7 @@ class TestDriver(DriverBase):
     def get_device_name() -> str:
         return "test-driver"
 
-    def device_read(self, logger: logging.Logger) -> None:
+    def device_read(self, logger: logging.Logger, shared_queue: Queue) -> None:
         logger.info("Initializing MQTT")
         mqtt = Client(MQTT_HOST)
         logger.info("Starting to poll for data!")

@@ -1,9 +1,11 @@
+import queue
+from abc import ABC, abstractmethod
+from datetime import datetime
+from queue import Queue
+from threading import Thread
 import logging
 import os
 import time
-from abc import ABC, abstractmethod
-from datetime import datetime
-from threading import Thread
 
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Device, Priority, Type
@@ -22,6 +24,7 @@ class DriverBase(ABC):
     #
     __read_thread = None
     __command_thread = None
+    _thread_queue = Queue()  # thread queue may be overriden by subclasses
     __data_file = None
     __logger = None
 
@@ -134,12 +137,12 @@ class DriverBase(ABC):
 
         read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
         self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
-                                    (), {"logger": read_logger})
+                                    (), {"logger": read_logger, "shared_queue": self._thread_queue})
         self.__read_thread.daemon = True
         self.__read_thread.start()
         command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
         self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
-                                       (), {"logger": command_logger})
+                                       (), {"logger": command_logger, "shared_queue": self._thread_queue})
         self.__command_thread.daemon = True
         self.__command_thread.start()
 
@@ -160,21 +163,23 @@ class DriverBase(ABC):
             self.__send_heartbeat(mqtt)
             time.sleep(10)
 
-    def device_read(self, logger: logging.Logger) -> None:
+    def device_read(self, logger: logging.Logger, shared_queue: Queue) -> None:
         """ [OPTIONAL] Main function for Driver Read Thread.
         Used to read from device.
         Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
 
         :param logger: can be used to log info / error messages to disk and console
+        :param shared_queue: a queue that can be used to communicate between threads
         """
         self.spin()
 
-    def device_command(self, logger: logging.Logger) -> None:
+    def device_command(self, logger: logging.Logger, shared_queue: Queue) -> None:
         """ [OPTIONAL] Main function for Driver Command Thread.
         Used to write to device.
         Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
 
         :param logger: can be used to log info / error messages to disk and console
+        :param shared_queue: a queue that can be used to communicate between threads
         """
         self.spin()
 
