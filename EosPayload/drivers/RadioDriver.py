@@ -31,7 +31,7 @@ class RadioDriver(DriverBase):
             try:
                 self.port = XBeeDevice(PORT, 9600)
                 self.port.open()
-                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("13A20041CB89AE"))
+                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("13A20041CB89AE")) # on the chip itself there is a number on the top right. It should be 3!
                 con = False
             except:
                 self.logger.info("radio port not open")
@@ -48,6 +48,7 @@ class RadioDriver(DriverBase):
         def data_receive_callback(xbee_message):
             packet = xbee_message.data.decode()
             mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
+
             self.logger.info("Packet received ~~~~~~")
             self.logger.info(packet)
 
@@ -76,9 +77,3 @@ class RadioDriver(DriverBase):
         self.port.add_data_received_callback(data_receive_callback)
         self.spin()
 
-
-'''
-    
-    def device_command(self, logger: logging.Logger) -> None:
-        mqtt = Client(MQTT_HOST)
-        '''
