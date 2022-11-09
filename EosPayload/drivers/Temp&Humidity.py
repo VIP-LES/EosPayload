@@ -11,7 +11,7 @@ class TempHumidity(DriverBase):
     @staticmethod
     def get_device_id() -> str:
         return "Temp + Humidity"
-
+    #I2C
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         while True:

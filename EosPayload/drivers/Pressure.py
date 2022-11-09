@@ -13,7 +13,7 @@ class PressureDriver(DriverBase):
     @staticmethod
     def get_device_id() -> str:
         return "Pressure"
-
+    #I2C
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         while True:

@@ -2,18 +2,17 @@ import logging
 import time
 from smbus2 import SMBus, i2c_msg
 
-
-
 from EosPayload.lib.driver_base import DriverBase
 
-#I2C
+
+
 class LightVisible(DriverBase):
 
     @staticmethod
     def get_device_id() -> str:
         return "Light visible uva"
 
-    #I2C
+    # I2C
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data
