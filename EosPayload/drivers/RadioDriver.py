@@ -1,4 +1,6 @@
 
+import time
+
 import EosLib.packet.packet
 
 from EosPayload.lib.driver_base import DriverBase
@@ -15,7 +17,7 @@ from EosPayload.lib import MQTT_HOST
 from EosPayload.lib.mqtt import Topic
 from EosPayload.lib.mqtt.client import Client
 
-PORT = "COM1"
+PORT = "COM8"
 sequence_number = 0
 
 
@@ -24,9 +26,16 @@ class RadioDriver(DriverBase):
     global PORT
 
     def setup(self) -> None:
-        self.port = XBeeDevice(PORT, 9600)
-        self.port.open()
-        self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("0013A20040XXXXXX"))
+        con = True
+        while con:
+            try:
+                self.port = XBeeDevice(PORT, 9600)
+                self.port.open()
+                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("13A20041CB89EE"))
+                con = False
+            except:
+                self.logger.info("radio port not open")
+                time.sleep(10)
 
     @staticmethod
     def get_device_id() -> str:
@@ -39,6 +48,7 @@ class RadioDriver(DriverBase):
         def data_receive_callback(xbee_message):
             packet = xbee_message.decode()
             mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
+            self.logger.info("Packet received")
 
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(client, userdata, message):
