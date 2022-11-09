@@ -6,6 +6,7 @@ from random import randint
 from EosPayload.lib.driver_base import DriverBase
 
 
+# ADC
 class LightUVAUVB(DriverBase):
 
     @staticmethod
@@ -18,5 +19,6 @@ class LightUVAUVB(DriverBase):
             data = randint(0, 256)
             self.data_log([str(data), str(data * data)])
             time.sleep(3)
+
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()

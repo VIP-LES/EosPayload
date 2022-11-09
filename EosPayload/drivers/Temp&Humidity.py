@@ -1,17 +1,18 @@
 import logging
 import time
+from smbus2 import SMBus
 
 from random import randint
 from smbus2 import SMBus
 from EosPayload.lib.driver_base import DriverBase
 
-
+#I2C
 class TempHumidity(DriverBase):
 
     @staticmethod
     def get_device_id() -> str:
         return "Temp + Humidity"
-
+    #I2C
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         while True:
@@ -21,5 +22,6 @@ class TempHumidity(DriverBase):
             str_b = list(map(str, b))
             self.data_log(str_b)
             time.sleep(3)
+
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
