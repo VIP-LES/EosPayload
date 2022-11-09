@@ -17,19 +17,15 @@ from EosPayload.lib import MQTT_HOST
 from EosPayload.lib.mqtt import Topic
 from EosPayload.lib.mqtt.client import Client
 
-PORT = "COM9"
 sequence_number = 0
 
-
 class RadioDriver(DriverBase):
-
-    global PORT
 
     def setup(self) -> None:
         con = True
         while con:
             try:
-                self.port = XBeeDevice(PORT, 9600)
+                self.port = XBeeDevice("/dev/ttyUSB2", 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("13A20041CB89AE")) # on the chip itself there is a number on the top right. It should be 3!
                 con = False
