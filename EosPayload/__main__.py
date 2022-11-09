@@ -41,7 +41,7 @@ if __name__ == '__main__':
             proc.start()
 
     logger.info("sleeping")
-    time.sleep(35)
+    time.sleep(45)
     logger.info("terminating processes")
     for device, proc in processes.items():
         logger.info("terminating process for " + device)
