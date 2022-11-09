@@ -260,7 +260,7 @@ class DriverBase(ABC):
             data_header=header,
         )
 
-        return mqtt.send(Topic.RADIO_TRANSMIT, packet.encode_to_string())
+        return mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
 
 class GenericDriverException(Exception):

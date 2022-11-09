@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 import paho.mqtt.client as mosquitto
 
@@ -18,7 +18,7 @@ class Client(mosquitto.Client):
         self.connect(host, port)
         self.loop_start()
 
-    def send(self, topic: Topic, payload: str) -> bool:
+    def send(self, topic: Topic, payload: Any) -> bool:
         """ Send an MQTT message.
             Async (Non-Blocking).
 
