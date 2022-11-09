@@ -9,7 +9,7 @@ from EosPayload.lib.driver_base import DriverBase
 
 class PressureDriver(DriverBase):
 
-    #I2C
+    #I2C.
     @staticmethod
     def get_device_id() -> str:
         return "Pressure"
@@ -19,10 +19,10 @@ class PressureDriver(DriverBase):
         while True:
             # this is where you would poll a device for data or whatever
             bus = SMBus(1)
-            b = bus.read_byte_data(80, 0)
-            data = b
-            self.data_log([str(data), str(data * data)])
+            b = bus.read_i2c_block_data(0x76, 0x88, 24)
+            str_b = list(map(str, b))
+            self.data_log(str_b)
             time.sleep(3)
 
     def device_command(self, logger: logging.Logger) -> None:
-        self.spin()
+        return 0

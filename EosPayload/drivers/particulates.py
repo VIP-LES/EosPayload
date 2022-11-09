@@ -25,7 +25,4 @@ class Particulates(DriverBase):
             time.sleep(3)
 
     def device_command(self, logger: logging.Logger) -> None:
-        self.spin()
-
-    def device_command(self, logger: logging.Logger) -> None:
-        self.spin()
+        return 0
