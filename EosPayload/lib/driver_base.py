@@ -9,8 +9,8 @@ from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Device, Priority, Type
 from EosLib.packet.packet import Packet
 
-from EosPayload.lib import MQTT_HOST
-from EosPayload.lib.mqtt import Topic
+from EosPayload.lib.logger import init_logging
+from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
 
 
@@ -84,21 +84,10 @@ class DriverBase(ABC):
         self.__data_file = open(self.get_device_pretty_id() + '.dat', 'a')
 
         # set up logging
-        log_fmt = '[%(asctime)s.%(msecs)03d] %(name)s.%(levelname)s: %(message)s'
-        date_fmt = '%Y-%m-%dT%H:%M:%S'
-        logging.basicConfig(filename=self.get_device_pretty_id() + '.log',
-                            filemode='a',
-                            format=log_fmt,
-                            datefmt=date_fmt,
-                            level=logging.DEBUG,
-                            force=True)
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        console.setFormatter(logging.Formatter(log_fmt, date_fmt))
-        logging.getLogger('').addHandler(console)
-        self.logger = logging.getLogger(self.get_device_pretty_id())
+        init_logging(self.get_device_pretty_id() + '.log')
+        self.__logger = logging.getLogger(self.get_device_pretty_id())
 
-        self.logger.info("logger initialized -- init complete")
+        self.__logger.info("logger initialized -- init complete")
 
     def setup(self) -> None:
         """ [OPTIONAL] Subclass-defined method to initialize any variables.
@@ -134,14 +123,14 @@ class DriverBase(ABC):
         """
 
         if not self.enabled():
-            self.logger.info("device is not enabled, terminating before startup")
+            self.__logger.info("device is not enabled, terminating before startup")
             return
 
-        self.logger.info("device starting up in " + os.getcwd())
+        self.__logger.info("device starting up in " + os.getcwd())
 
-        self.logger.info("running setup")
+        self.__logger.info("running setup")
         self.setup()
-        self.logger.info("setup complete")
+        self.__logger.info("setup complete")
 
         read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
         self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
@@ -157,7 +146,7 @@ class DriverBase(ABC):
         mqtt = None
         while True:
             if not self.is_healthy():
-                self.logger.critical(
+                self.__logger.critical(
                     f"device unhealthy:"
                     f"\n\tread_thread running: {self.__read_thread.is_alive()}"
                     f"\n\tcommand thread running: {self.__command_thread.is_alive()}"
@@ -165,9 +154,9 @@ class DriverBase(ABC):
             if mqtt is None:
                 try:
                     mqtt = Client(MQTT_HOST)
-                    self.logger.info("mqtt connection established")
+                    self.__logger.info("mqtt connection established")
                 except ConnectionError as e:
-                    self.logger.warning(f"failed to establish mqtt connection: {e}")
+                    self.__logger.warning(f"failed to establish mqtt connection: {e}")
             self.__send_heartbeat(mqtt)
             time.sleep(10)
 
@@ -217,7 +206,7 @@ class DriverBase(ABC):
         succeeded = False
         if mqtt:
             status = ','.join([
-                str(self.get_device_id()),
+                str(int(self.get_device_id())),
                 datetime.now().isoformat(),
                 str(int(self.is_healthy())),
                 str(int(self.__read_thread.is_alive())),
@@ -225,9 +214,9 @@ class DriverBase(ABC):
             ])
             succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, status)
         if succeeded:
-            self.logger.info("heartbeat sent")
+            self.__logger.info("heartbeat sent")
         else:
-            self.logger.warning("heartbeat failed to send")
+            self.__logger.warning("heartbeat failed to send")
         return succeeded
 
     def data_log(self, data: list[str]) -> bool:

@@ -3,8 +3,8 @@ import time
 from random import randint
 
 from EosLib.packet.definitions import Device
-from EosPayload.lib import MQTT_HOST
 from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client
 
 # This example shows a very basic polled driver that logs data to CSV and transmits it to ground

@@ -5,6 +5,7 @@ import os
 import time
 
 from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.logger import init_logging
 import EosPayload.drivers as drivers
 
 
@@ -19,17 +20,7 @@ class OrchEOStrator:
 
     def __init__(self):
         """ Constructor.  Initializes logger. """
-        log_fmt = '[%(asctime)s.%(msecs)03d] %(name)s.%(levelname)s: %(message)s'
-        date_fmt = '%Y-%m-%dT%H:%M:%S'
-        logging.basicConfig(filename='orchEOStrator.log',
-                            filemode='a',
-                            format=log_fmt,
-                            datefmt=date_fmt,
-                            level=logging.DEBUG)
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        console.setFormatter(logging.Formatter(log_fmt, date_fmt))
-        logging.getLogger('').addHandler(console)
+        init_logging('orchEOStrator.log')
         self._logger = logging.getLogger('orchEOStrator')
         self._logger.info("initialization complete")
         self._logger.info("beginning boot process in " + os.getcwd())
