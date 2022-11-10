@@ -1,14 +1,14 @@
-import queue
 from abc import ABC, abstractmethod
 from datetime import datetime
-from queue import Queue
 from threading import Thread
 import logging
 import os
 import time
 
+from paho.mqtt.client import MQTTMessageInfo
+
 from EosLib.packet.data_header import DataHeader
-from EosLib.packet.definitions import Device, Priority, Type
+from EosLib import Device, Priority, Type
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.logger import init_logging
@@ -24,9 +24,9 @@ class DriverBase(ABC):
     #
     __read_thread = None
     __command_thread = None
-    _thread_queue = Queue()  # thread queue may be overriden by subclasses
     __data_file = None
     __logger = None
+    _mqtt = None
 
     #
     # CONFIGURATION
@@ -42,7 +42,7 @@ class DriverBase(ABC):
 
         :return: the device name
         """
-        pass
+        raise NotImplementedError("Drivers must implement a get_device_id method")
 
     @staticmethod
     @abstractmethod
@@ -53,7 +53,7 @@ class DriverBase(ABC):
 
         :return: the device name
         """
-        pass
+        raise NotImplementedError("Drivers must implement a get_device_name method")
 
     @classmethod
     def get_device_pretty_id(cls) -> str:
@@ -90,12 +90,16 @@ class DriverBase(ABC):
         init_logging(self.get_device_pretty_id() + '.log')
         self.__logger = logging.getLogger(self.get_device_pretty_id())
 
-        self.__logger.info("logger initialized -- init complete")
+        # set up mqtt
+        self._mqtt = Client(MQTT_HOST)
+
+        self.__logger.info("init complete")
 
     def setup(self) -> None:
         """ [OPTIONAL] Subclass-defined method to initialize any variables.
         Executes in Driver Main Thread.
-        Read-only data can be stored to self.<name> for use in child threads
+        Read-only data can be stored to self.<name> for use in child threads.
+        Recommended to call super().setup() in first line of implementation.
         """
         pass
 
@@ -111,6 +115,7 @@ class DriverBase(ABC):
         """ [OPTIONAL] Subclass-defined method to do any clean-up / deinitialization on graceful shutdown.
         Executes in Driver Main Thread.
         This method will not execute on an unexpected termination and therefore shouldn't be heavily relied upon.
+        Recommended to call super().cleanup() in last line of implementation.
         """
         pass
 
@@ -137,16 +142,15 @@ class DriverBase(ABC):
 
         read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
         self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
-                                    (), {"logger": read_logger, "shared_queue": self._thread_queue})
+                                    (), {"logger": read_logger})
         self.__read_thread.daemon = True
         self.__read_thread.start()
         command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
         self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
-                                       (), {"logger": command_logger, "shared_queue": self._thread_queue})
+                                       (), {"logger": command_logger})
         self.__command_thread.daemon = True
         self.__command_thread.start()
 
-        mqtt = None
         while True:
             if not self.is_healthy():
                 self.__logger.critical(
@@ -154,33 +158,28 @@ class DriverBase(ABC):
                     f"\n\tread_thread running: {self.__read_thread.is_alive()}"
                     f"\n\tcommand thread running: {self.__command_thread.is_alive()}"
                 )
-            if mqtt is None:
-                try:
-                    mqtt = Client(MQTT_HOST)
-                    self.__logger.info("mqtt connection established")
-                except ConnectionError as e:
-                    self.__logger.warning(f"failed to establish mqtt connection: {e}")
-            self.__send_heartbeat(mqtt)
+
+            self.__send_heartbeat()
             time.sleep(10)
 
-    def device_read(self, logger: logging.Logger, shared_queue: Queue) -> None:
+    def device_read(self, logger: logging.Logger) -> None:
         """ [OPTIONAL] Main function for Driver Read Thread.
         Used to read from device.
         Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
 
         :param logger: can be used to log info / error messages to disk and console
-        :param shared_queue: a queue that can be used to communicate between threads
         """
+        logger.info("device_read not implemented for this driver")
         self.spin()
 
-    def device_command(self, logger: logging.Logger, shared_queue: Queue) -> None:
+    def device_command(self, logger: logging.Logger) -> None:
         """ [OPTIONAL] Main function for Driver Command Thread.
         Used to write to device.
         Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
 
         :param logger: can be used to log info / error messages to disk and console
-        :param shared_queue: a queue that can be used to communicate between threads
         """
+        logger.info("device_command not implemented for this driver")
         self.spin()
 
     #
@@ -201,15 +200,14 @@ class DriverBase(ABC):
 
         return self.__read_thread.is_alive() and self.__command_thread.is_alive()
 
-    def __send_heartbeat(self, mqtt: Client) -> bool:
+    def __send_heartbeat(self) -> bool:
         """ Dispatches a heartbeat message to MQTT.
         Should not be overriden or invoked by subclasses.
 
-        :param mqtt: a connected MQTT client
         :return: True if heartbeat successfully sent, False otherwise
         """
         succeeded = False
-        if mqtt:
+        if self._mqtt:
             status = ','.join([
                 str(int(self.get_device_id())),
                 datetime.now().isoformat(),
@@ -217,7 +215,7 @@ class DriverBase(ABC):
                 str(int(self.__read_thread.is_alive())),
                 str(int(self.__command_thread.is_alive()))
             ])
-            succeeded = mqtt.send(Topic.HEALTH_HEARTBEAT, status)
+            succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, status)
         if succeeded:
             self.__logger.info("heartbeat sent")
         else:
@@ -237,17 +235,12 @@ class DriverBase(ABC):
         self.__data_file.flush()
         return True
 
-    def data_transmit(self, mqtt: Client, data: list[str], telemetry: bool = False) -> bool:
-        """ Sends row of data to the ground station
+    def data_transmit(self, data: list[str], telemetry: bool = False) -> MQTTMessageInfo:
+        """ Sends row of simple CSV data to the ground station
 
-        :param mqtt: a connected MQTT client
         :param data: an array of strings
         :param telemetry: optional, defaults to False.  Set to True if this is telemetry data.
-        :return: True on success, False otherwise
         """
-
-        if not mqtt:
-            raise GenericDriverException("connected mqtt client must be provided")
 
         header = DataHeader(
             data_type=Type.TELEMETRY if telemetry else Type.DATA,
@@ -260,7 +253,7 @@ class DriverBase(ABC):
             data_header=header,
         )
 
-        return mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+        return self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
 
 class GenericDriverException(Exception):

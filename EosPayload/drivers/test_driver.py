@@ -1,12 +1,9 @@
-from queue import Queue
 from random import randint
 import logging
 import time
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
-from EosPayload.lib.mqtt import MQTT_HOST
-from EosPayload.lib.mqtt.client import Client
 
 # This example shows a very basic polled driver that logs data to CSV and transmits it to ground
 
@@ -22,9 +19,7 @@ class TestDriver(DriverBase):
     def get_device_name() -> str:
         return "test-driver"
 
-    def device_read(self, logger: logging.Logger, shared_queue: Queue) -> None:
-        logger.info("Initializing MQTT")
-        mqtt = Client(MQTT_HOST)
+    def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data or whatever
@@ -39,7 +34,7 @@ class TestDriver(DriverBase):
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(mqtt, csv_row)
+                self.data_transmit(csv_row)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 

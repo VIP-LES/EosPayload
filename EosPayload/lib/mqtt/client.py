@@ -18,20 +18,20 @@ class Client(mosquitto.Client):
         self.connect(host, port)
         self.loop_start()
 
-    def send(self, topic: Topic, payload: Any) -> bool:
-        """ Send an MQTT message.
+    def __del__(self):
+        """ cleans up MQTT thread on shutdown """
+        self.loop_stop()
+        super(Client, self).__del__()
+
+    def send(self, topic: Topic, payload: Any) -> mosquitto.MQTTMessageInfo:
+        """ Send an MQTT message.  Will internally queue messages even if not connected.  Will not notify on error.
             Async (Non-Blocking).
 
         :param topic: the topic to send
         :param payload: the stringified message body
-        :return: True on success, False otherwise
+        :return: MQTTMessageInfo object, which has a wait_for_publish() method if you want to block on this message
         """
-        msg_info = self.publish(topic, payload, QOS.DELIVER_AT_MOST_ONCE)
-        msg_info.wait_for_publish()
-        if msg_info.rc != mosquitto.MQTT_ERR_SUCCESS:
-            print("MQTT send failed with error code " + msg_info.rc)
-            return False
-        return True
+        return self.publish(topic, payload, QOS.DELIVER_AT_MOST_ONCE)
 
     def register_subscriber(self, topic: Topic, callback: Callable) -> None:
         """ Receive an MQTT message.
