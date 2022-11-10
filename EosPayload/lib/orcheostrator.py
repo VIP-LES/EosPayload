@@ -3,6 +3,7 @@ import inspect
 import logging
 import os
 import time
+import traceback
 
 from EosPayload.lib.driver_base import DriverBase
 from EosPayload.lib.logger import init_logging
@@ -70,19 +71,23 @@ class OrchEOStrator:
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
             if self.valid_driver(driver):
-                if driver.get_device_id() is None:
-                    self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"
-                                       " because device id is not defined")
-                    continue
-                if not driver.enabled():
-                    self._logger.warning(f"skipping device '{driver.get_device_pretty_id()}' from"
-                                         f" class '{driver.__name__}' because it is not enabled")
-                    continue
-                self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
-                                  f" class '{driver.__name__}'")
-                proc = Process(target=self._driver_runner, args=(driver,), daemon=True)
-                self._processes[driver.get_device_id()] = proc
-                proc.start()
+                try:
+                    if driver.get_device_id() is None:
+                        self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"
+                                           " because device id is not defined")
+                        continue
+                    if not driver.enabled():
+                        self._logger.warning(f"skipping device '{driver.get_device_pretty_id()}' from"
+                                             f" class '{driver.__name__}' because it is not enabled")
+                        continue
+                    self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
+                                      f" class '{driver.__name__}'")
+                    proc = Process(target=self._driver_runner, args=(driver,), daemon=True)
+                    self._processes[driver.get_device_id()] = proc
+                    proc.start()
+                except Exception as e:
+                    self._logger.critical("A fatal exception occurred when attempting to load driver from"
+                                          f" class '{driver.__name__}': {e}\n{traceback.format_exc()}")
         self._logger.info("Done Spawning Drivers")
 
     @staticmethod
