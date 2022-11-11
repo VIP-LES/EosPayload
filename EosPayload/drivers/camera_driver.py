@@ -1,33 +1,63 @@
 import datetime
 import logging
 import os
-import time
 import cv2
-
+from EosLib import Device
 from EosPayload.lib.driver_base import DriverBase
 
 
 class CameraDriver(DriverBase):
+
+    @staticmethod
+    def get_device_name() -> str:
+        return "camera-1-driver"
+
+    @staticmethod
+    def get_device_id() -> Device:
+        return Device.CAMERA_1
+
+    def video_writer_setup(self):
+        return cv2.VideoWriter(os.path.join(self.path, self.video_name_format.format(self.video_num)),
+                               self.fourcc, self.camera_fps, self.camera_res)
+
+    def find_next_file_num(self, filename: str) -> int:
+        if filename.format(0) == filename:
+            raise ValueError("Filename must be format compatible string")
+        file_num = 0
+        while True:
+            if not os.path.exists(os.path.join(self.path, filename.format(file_num))):
+                return file_num
+            else:
+                file_num += 1
 
     def __init__(self):
         super().__init__()
         self.cap = None
         self.out = None
         self.path = "video/"
-        self.still_capture_interval = datetime.timedelta(seconds=5)
+        self.still_capture_interval = datetime.timedelta(minutes=5)
+        self.video_capture_length = datetime.timedelta(minutes=1)
+        self.camera_num = 2
+        self.fourcc = cv2.VideoWriter_fourcc(*'YUY2')
+        self.camera_fps = 60
+        self.camera_res = (640, 480)
+        self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
+        self.video_name_format = "camera-{camera}-video-{num}.avi".format(camera=self.camera_num, num='{}')
+        self.video_num = self.find_next_file_num(self.video_name_format)
+        self.still_num = self.find_next_file_num(self.still_name_format)
+
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-    @staticmethod
-    def get_device_id() -> str:
-        return "camera-driver-002"
-
     def setup(self) -> None:
-        self.cap = cv2.VideoCapture(0)
+        self.video_num = self.find_next_file_num(self.video_name_format)
+
+        self.still_num = self.find_next_file_num(self.still_name_format)
+
+        self.cap = cv2.VideoCapture(self.camera_num)
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 32)
         self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
-        fourcc = cv2.VideoWriter_fourcc(*'YUY2')
-        self.out = cv2.VideoWriter(os.path.join(self.path, 'output.avi'), fourcc, 30, (640, 480))
+        self.out = self.video_writer_setup()
 
     def cleanup(self):
         self.cap.release()
@@ -35,20 +65,30 @@ class CameraDriver(DriverBase):
         cv2.destroyAllWindows()
 
     def device_read(self, logger: logging.Logger) -> None:
-        frame_num = 0
+        logger.info("Starting at video number {}".format(self.video_num))
+        logger.info("Starting at still number {}".format(self.still_num))
+
         last_still_time = datetime.datetime.now()
+        video_start_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
-        while True:
-            while self.cap.isOpened():
-                ret, frame = self.cap.read()
-                if not ret:
-                    print("Can't receive frame (stream end?). Exiting ...")
-                    break
-                if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
-                    cv2.imwrite(os.path.join(self.path, "still_image_%s.jpg") % frame_num, frame)
-                    frame_num += 1
-                    last_still_time = datetime.datetime.now()
-                self.out.write(frame)
+        while self.cap.isOpened():
+            if (datetime.datetime.now() - video_start_time) > self.video_capture_length:
+                self.video_num += 1
+                logger.info("Starting video {}".format(self.video_num))
+                video_start_time = datetime.datetime.now()
+                self.out.release()
+                self.out = self.video_writer_setup()
+
+            ret, frame = self.cap.read()
+            if not ret:
+                logger.warning("Video frame capture failed")
+                break
+            if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
+                cv2.imwrite(os.path.join(self.path, self.still_name_format.format(self.still_num)), frame)
+                logger.info("Saving still image {}".format(self.still_num))
+                self.still_num += 1
+                last_still_time = datetime.datetime.now()
+            self.out.write(frame)
 
 
 if __name__ == '__main__':
