@@ -1,5 +1,6 @@
 from enum import Enum
 
+MQTT_HOST = 'localhost'
 
 # MQTT Constants
 class QOS(int, Enum):
