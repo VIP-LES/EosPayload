@@ -28,7 +28,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -47,6 +47,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2022"
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
+        data_dict['LAT'].replace('N', '').replace('S', '')
+        data_dict['LONG'].replace('E', '').replace('W', '')
 
         return list_data, data_dict
 

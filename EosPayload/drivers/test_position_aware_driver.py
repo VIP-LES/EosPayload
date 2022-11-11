@@ -29,7 +29,7 @@ class TestPositionAwareDriver(PositionAwareDriverBase):
     def device_command(self, logger: logging.Logger) -> None:
         old_position = Position()
         while True:
-            time.sleep(3)
+            time.sleep(0.1)
             if old_position.timestamp != self.latest_position.timestamp:
                 logger.info("New position found at {}. Is valid: {}".format(self.latest_position.timestamp,
                                                                             self.latest_position.valid))
