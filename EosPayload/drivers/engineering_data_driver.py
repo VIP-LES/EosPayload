@@ -47,9 +47,9 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2022"
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
-        data_dict['LAT'].replace('N', '').replace('S', '')
+        data_dict['LAT'] = data_dict['LAT'].replace('N', '').replace('S', '')
         print(data_dict['LAT'])
-        data_dict['LONG'].replace('E', '').replace('W', '').replace('N', '').replace('S', '')
+        data_dict['LONG'] = data_dict['LONG'].replace('E', '').replace('W', '').replace('N', '').replace('S', '')
 
         return list_data, data_dict
 
