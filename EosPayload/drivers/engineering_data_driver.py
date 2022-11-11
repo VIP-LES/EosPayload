@@ -56,7 +56,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.ser_connection = serial.Serial(self.esp_port, self.esp_baud)
 
     def fetch_data(self) -> str:  # This function might seem weird, but it exists to make mocking easier
-        return self.ser_connection.readline().decode()
+        return self.ser_connection.readline().decode()[:-1]
 
     def is_alive(self):
         return self.ser_connection.isOpen()
