@@ -57,7 +57,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return self.ser_connection.readline()
 
     def is_alive(self):
-        return self.ser_connection.isopen()
+        return self.ser_connection.isOpen()
 
     def emit_data(self, data_dict, logger):
         gps_packet = EosLib.packet.packet.Packet()
