@@ -1,3 +1,4 @@
+import time
 from random import randint
 import logging
 
@@ -13,6 +14,11 @@ from EosPayload.lib.mqtt import MQTT_HOST, Topic
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
+
+    def setup(self) -> None:
+
+        print("callback registered")
+
     @staticmethod
     def enabled() -> bool:
         return True
@@ -25,5 +31,10 @@ class TestPositionAwareDriver(PositionAwareDriverBase):
     def get_device_name() -> str:
         return "position-aware-driver"
 
-    def continue_callback(self, client_info, message):
-        self.__logger.info("New position time is: {}".format(self.latest_position.timestamp))
+    def device_command(self, logger: logging.Logger) -> None:
+        old_position = Position()
+        while True:
+            time.sleep(3)
+            if old_position.timestamp != self.latest_position.timestamp:
+                logger.info("New position found at {}".format(self.latest_position.timestamp))
+                old_position = self.latest_position

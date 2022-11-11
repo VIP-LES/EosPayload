@@ -58,7 +58,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     def is_alive(self):
         return self.ser_connection.isopen()
 
-    def emit_data(self, data_dict):
+    def emit_data(self, data_dict, logger):
         gps_packet = EosLib.packet.packet.Packet()
         gps_packet.data_header = EosLib.packet.packet.DataHeader()
         gps_packet.data_header.sender = Device.GPS
@@ -70,6 +70,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                                                    float(data_dict['speed']), int(data_dict['#ofSatellites']))
 
         self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+        logger.info("Emitting position")
 
     def device_read(self, logger: logging.Logger) -> None:
         last_emit_time = datetime.datetime.now()
@@ -79,8 +80,9 @@ class EngineeringDataDriver(PositionAwareDriverBase):
             incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
             self.data_log(incoming_processed_data)
             if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
-                self.emit_data(incoming_data_dict)
-                logger.info("Emitting position")
+                last_emit_time = datetime.datetime.now()
+                self.emit_data(incoming_data_dict, logger)
+
 
     def cleanup(self):
         self.ser_connection.close()
