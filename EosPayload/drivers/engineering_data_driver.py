@@ -1,16 +1,18 @@
 from random import randint
 import logging
-import time
 
 import EosLib.packet.packet
 import serial
 import datetime
 
 from EosLib.packet.definitions import Device, Type, Priority
-from EosPayload.lib.driver_base import DriverBase
+
+import EosPayload
+from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase, Position
+from EosPayload.lib.mqtt import MQTT_HOST, Topic
 
 
-class EngineeringDataDriver(DriverBase):
+class EngineeringDataDriver(PositionAwareDriverBase):
     esp_data_format = ["HR:MM:SEC", "MONTH/DAY", "LAT", "LONG", "speed", "altitude", "#ofSatellites", "accInX",
                        "accInY", "accInZ", "gyroX", "gyroY", "gyroZ", "IMU-temp", "pressure", "BME-temp",
                        "humidity"]
@@ -25,7 +27,7 @@ class EngineeringDataDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -56,6 +58,19 @@ class EngineeringDataDriver(DriverBase):
     def is_alive(self):
         return self.ser_connection.isopen()
 
+    def emit_data(self, data_dict):
+        gps_packet = EosLib.packet.packet.Packet()
+        gps_packet.data_header = EosLib.packet.packet.DataHeader()
+        gps_packet.data_header.sender = Device.GPS
+        gps_packet.data_header.data_type = Type.TELEMETRY
+        gps_packet.data_header.priority = Priority.TELEMETRY
+
+        gps_packet.body = Position.encode_position(float(data_dict['datetime']), float(data_dict['LAT']),
+                                                   float(data_dict['LONG']), float(data_dict['altitude']),
+                                                   float(data_dict['speed']), int(data_dict['#ofSatellites']))
+
+        self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+
     def device_read(self, logger: logging.Logger) -> None:
         last_emit_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
@@ -63,6 +78,9 @@ class EngineeringDataDriver(DriverBase):
             incoming_raw_data = self.fetch_data()
             incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
             self.data_log(incoming_processed_data)
+            if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
+                self.emit_data(incoming_data_dict)
+                logger.info("Emitting position")
 
     def cleanup(self):
         self.ser_connection.close()
