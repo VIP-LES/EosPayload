@@ -40,7 +40,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
     @staticmethod
     def process_raw_esp_data(raw_data) -> ([str], dict):
-        list_data = raw_data.split(',')
+        list_data = raw_data.replace('\x00', '').split(',')
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
         # TODO: Find a better solution for the year before 2023 please

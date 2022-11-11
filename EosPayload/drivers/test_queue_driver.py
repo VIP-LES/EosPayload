@@ -13,6 +13,10 @@ class TestQueueDriver(DriverBase):
     _thread_queue = PriorityQueue()
 
     @staticmethod
+    def enabled() -> bool:
+        return False
+
+    @staticmethod
     def get_device_id() -> Device:
         return Device.MISC_3
 

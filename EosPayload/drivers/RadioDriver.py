@@ -5,3 +5,6 @@ class RadioDriver(DriverBase):
         return 0
     def device_command(self, logger: logging.Logger) -> None:
         return 0
+    @staticmethod
+    def enabled() -> bool:
+        return False
