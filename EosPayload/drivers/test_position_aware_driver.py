@@ -14,14 +14,9 @@ from EosPayload.lib.mqtt import MQTT_HOST, Topic
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
-
-    def setup(self) -> None:
-
-        print("callback registered")
-
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
