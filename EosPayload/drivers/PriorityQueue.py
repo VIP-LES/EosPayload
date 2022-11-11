@@ -4,13 +4,12 @@ from datetime import datetime
 import logging
 import time
 
-from EosLib.packet.definitions import Device
-from EosPayload.lib.driver_base import DriverBase
+#from EosLib.packet.definitions import Device
+#from EosPayload.lib.driver_base import DriverBase
 
 
 pq = []                         # list of entries arranged in a heap
 counter = itertools.count()     # unique sequence count
-
 
 
 

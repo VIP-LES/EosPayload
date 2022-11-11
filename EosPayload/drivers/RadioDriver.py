@@ -1,8 +1,7 @@
-
 import time
 
 import EosLib.packet.packet
-import PriorityQueue
+#import PriorityQueue
 from EosPayload.lib.driver_base import DriverBase
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
@@ -19,15 +18,38 @@ from EosPayload.lib.mqtt.client import Client
 
 sequence_number = 0
 
+import itertools
+import heapq
+from datetime import datetime
+
+pq = []                         # list of entries arranged in a heap
+counter = itertools.count()     # unique sequence count
+
+def add_packet(priority, packet):
+    'Add a new task or update the priority of an existing task'
+    entry = [priority, datetime.now(), packet]
+    heapq.heappush(pq, entry)
+
+
+def pop_packet():
+    'Remove and return the lowest priority task. Raise KeyError if empty.'
+    if len(pq) != 0:
+        priority, time, packet = heapq.heappop(pq)
+        return packet
+    #else:
+    #   raise KeyError('pop from an empty priority queue')
+
 class RadioDriver(DriverBase):
 
     def setup(self) -> None:
         con = True
         while con:
             try:
-                self.port = XBeeDevice("/dev/ttyUSB2", 9600)
+                #self.port = XBeeDevice("/dev/ttyUSB2", 9600)
+                self.port = XBeeDevice("COM8", 9600)
                 self.port.open()
-                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("13A20041CB89AE")) # on the chip itself there is a number on the top right. It should be 3!
+                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
+                    "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
                 con = False
             except:
                 self.logger.info("radio port not open")
@@ -61,7 +83,7 @@ class RadioDriver(DriverBase):
 
             # add packet to queue
             priority = transmit_packet.data_header.priority
-            PriorityQueue.add_packet(priority)
+            add_packet(priority)
 
             # This will likely be another thread
 
@@ -75,13 +97,14 @@ class RadioDriver(DriverBase):
         self.port.add_data_received_callback(data_receive_callback)
         self.spin()
 
-        def popStack:
-            while True:
-                packet = PriorityQueue.pop_packet()
-                transmit_packet = packet
+    # queue thread stuff
+    def device_command(self, logger: logging.Logger) -> None:
 
-                # sends packet
-                self.port.send_data_async(self.remote, transmit_packet)
 
-        popStack()
 
+        while True:
+            packet = pop_packet()
+            transmit_packet = packet
+            #transmit_packet_en = EosLib.packet.packet.Packet.encode()
+            # sends packet
+            self.port.send_data_async(self.remote, transmit_packet.encode())
