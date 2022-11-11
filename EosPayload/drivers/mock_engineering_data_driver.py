@@ -16,7 +16,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_name() -> str:
