@@ -78,6 +78,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         last_emit_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
+        self.fetch_data()  # Make sure we don't get half of a line on startup
         while self.is_alive():
             incoming_raw_data = self.fetch_data()
             incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
