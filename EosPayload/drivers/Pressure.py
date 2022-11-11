@@ -18,11 +18,15 @@ class PressureDriver(DriverBase):
         logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data or whatever
-            bus = SMBus(1)
+            bus = SMBus(2)
             b = bus.read_i2c_block_data(0x76, 0x88, 24)
             str_b = list(map(str, b))
             self.data_log(str_b)
             time.sleep(3)
 
     def device_command(self, logger: logging.Logger) -> None:
+        while True:
+            bus = SMBus(2)
+            b = bus.read_i2c_block_data(0x76, 0x88, 24)
+            bus.write_i2c_block_data(0x76, 0, b)
         return 0
