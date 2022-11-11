@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import time
@@ -13,6 +14,7 @@ class CameraDriver(DriverBase):
         self.cap = None
         self.out = None
         self.path = "video/"
+        self.still_capture_interval = datetime.timedelta(seconds=5)
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
@@ -34,7 +36,7 @@ class CameraDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         frame_num = 0
-
+        last_still_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
         while True:
             while self.cap.isOpened():
@@ -42,11 +44,11 @@ class CameraDriver(DriverBase):
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break
-                if frame_num % 200 == 0:
-                    cv2.imwrite(os.path.join(self.path, "frame%s.jpg") % frame_num, frame)
+                if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
+                    cv2.imwrite(os.path.join(self.path, "still_image_%s.jpg") % frame_num, frame)
+                    frame_num += 1
+                    last_still_time = datetime.datetime.now()
                 self.out.write(frame)
-                #  cv2.imshow('frame', frame)
-                frame_num += 1
 
 
 if __name__ == '__main__':
