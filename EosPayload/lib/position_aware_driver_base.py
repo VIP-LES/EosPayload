@@ -34,7 +34,7 @@ class Position:
 
     # TODO: figure out a more legitimate way to check validity
     def set_validity(self):
-        if (self.number_of_satellites < 4 or
+        if (self.number_of_satellites < 3 or
                 self.latitude == 0 or
                 self.longitude == 0):
             self.valid = False
