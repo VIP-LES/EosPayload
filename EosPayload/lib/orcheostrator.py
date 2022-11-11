@@ -19,9 +19,16 @@ class OrchEOStrator:
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self):
-        """ Constructor.  Initializes logger. """
-        init_logging('orchEOStrator.log')
+    def __init__(self, output_directory: str):
+        """ Constructor.  Initializes output location and logger. """
+        self.output_directory = output_directory
+        if not os.path.exists(self.output_directory):
+            raise ValueError(f"output location '{output_directory}' does not exist")
+        self._output_mkdir('artifacts')
+        self._output_mkdir('data')
+        self._output_mkdir('logs')
+
+        init_logging(os.path.join(self.output_directory, 'logs', 'orchEOStrator.log'))
         self._logger = logging.getLogger('orchEOStrator')
         self._logger.info("initialization complete")
         self._logger.info("beginning boot process in " + os.getcwd())
@@ -82,7 +89,7 @@ class OrchEOStrator:
                         continue
                     self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
                                       f" class '{driver.__name__}'")
-                    proc = Process(target=self._driver_runner, args=(driver,), daemon=True)
+                    proc = Process(target=self._driver_runner, args=(driver, self.output_directory), daemon=True)
                     self._processes[driver.get_device_id()] = proc
                     proc.start()
                 except Exception as e:
@@ -91,15 +98,24 @@ class OrchEOStrator:
         self._logger.info("Done Spawning Drivers")
 
     @staticmethod
-    def _driver_runner(cls) -> None:
+    def _driver_runner(cls, output_directory: str) -> None:
         """ Wrapper to execute driver run() method.
 
         :param cls: the driver class.  Must have a run() method
+        :param output_directory: the location to store output (logs, data, etc.)
         """
-        cls().run()
+        cls(output_directory).run()
 
     @staticmethod
     def _spin() -> None:
         """ Spins to keep the software alive.  Never returns. """
         while True:
             time.sleep(1)
+
+    def _output_mkdir(self, subdirectory: str) -> None:
+        """ Make a subdirectory of the output location (if it doesn't already exist)
+
+        :param subdirectory: the name of the subdirectory
+        """
+        if not os.path.exists(os.path.join(self.output_directory, subdirectory)):
+            os.mkdir(os.path.join(self.output_directory, subdirectory))
