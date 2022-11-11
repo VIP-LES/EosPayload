@@ -8,6 +8,7 @@ from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
 
 class MockEngineeringDataDriver(EngineeringDataDriver):
+    # TODO: Move everything out of init
     def __init__(self):
         super().__init__()
         self.data_file_path = "mock_esp_data.csv"

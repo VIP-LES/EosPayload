@@ -80,6 +80,7 @@ class PositionAwareDriverBase(DriverBase, ABC):
     def enabled() -> bool:
         return False
 
+    # TODO: Move everything out of init
     def __init__(self):
         super().__init__()
         self.latest_position = Position()

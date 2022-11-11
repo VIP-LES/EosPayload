@@ -18,6 +18,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                        "humidity"]
     esp_data_time_format = "%H:%M:%S %m/%d/%Y"
 
+    # TODO: Move everything out of init
     def __init__(self):
         super().__init__()
         self.esp_port = "/dev/ttyUSB0"
@@ -82,7 +83,6 @@ class EngineeringDataDriver(PositionAwareDriverBase):
             if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
                 last_emit_time = datetime.datetime.now()
                 self.emit_data(incoming_data_dict, logger)
-
 
     def cleanup(self):
         self.ser_connection.close()
