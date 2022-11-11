@@ -16,7 +16,9 @@ Eos is the software platform for Georgia Tech's "Lightning from the Edge of Spac
 Note: to exit the venv, run `deactivate`
 
 ## Running EosPayload
-Prereq: Start the MQTT server by running mosquitto.  Use -v to allow it   (Windows Example: `C:\Program Files\mosquitto -v`)
+Prereq: Start the MQTT server by running mosquitto.  Use -v to log requests to console  (Windows Example: `C:\Program Files\mosquitto -v`)  
+Note: running mosquitto_sub can be useful for debugging: ` "C:\Program Files\mosquitto\mosquitto_sub.exe" -V 5 -q 2 -t # -v`    
+There is also mosquitto_pub which can be useful for testing MQTT message receive
 
 ### From Terminal
 1. Navigate to your EosPayload repository root using the `cd` command (all OS's)
@@ -52,6 +54,7 @@ Prereq: Start the MQTT server by running mosquitto.  Use -v to allow it   (Windo
 - In your terminal in your venv, run `pip install <your dependency>`
 - Run `pip freeze` and compare the result to `requirements.txt`.  Add any new lines from the `pip freeze` output to the requirements.txt file
 - You should now be able to `import <your dependency>` in your EosPayload python files
+- To bump the EosLib version, run `pip install --upgrade --force-reinstall git+https://github.com/VIP-LES/EosLib@vX.Y.Z#egg=EosLib` (replace `X.Y.Z` with the version number)
 
 ### Debugging
 Pycharm allows you to set breakpoints and inspect variables mid-execution.  Reference the "Run From PyCharm" instructions above, but run the configuration in debug mode
