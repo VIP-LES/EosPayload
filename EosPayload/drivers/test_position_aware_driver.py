@@ -16,7 +16,7 @@ from EosPayload.lib.mqtt import MQTT_HOST, Topic
 class TestPositionAwareDriver(PositionAwareDriverBase):
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_id() -> Device:
@@ -31,5 +31,6 @@ class TestPositionAwareDriver(PositionAwareDriverBase):
         while True:
             time.sleep(3)
             if old_position.timestamp != self.latest_position.timestamp:
-                logger.info("New position found at {}".format(self.latest_position.timestamp))
+                logger.info("New position found at {}. Is valid: {}".format(self.latest_position.timestamp,
+                                                                            self.latest_position.valid))
                 old_position = self.latest_position
