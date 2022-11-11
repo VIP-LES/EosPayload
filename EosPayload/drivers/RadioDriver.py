@@ -2,7 +2,7 @@
 import time
 
 import EosLib.packet.packet
-
+import PriorityQueue
 from EosPayload.lib.driver_base import DriverBase
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
@@ -61,6 +61,8 @@ class RadioDriver(DriverBase):
 
             # add packet to queue
             priority = transmit_packet.data_header.priority
+            PriorityQueue.add_packet(priority)
+
             # This will likely be another thread
 
             # sends packet
@@ -72,4 +74,14 @@ class RadioDriver(DriverBase):
         mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
         self.port.add_data_received_callback(data_receive_callback)
         self.spin()
+
+        def popStack:
+            while True:
+                packet = PriorityQueue.pop_packet()
+                transmit_packet = packet
+
+                # sends packet
+                self.port.send_data_async(self.remote, transmit_packet)
+
+        popStack()
 
