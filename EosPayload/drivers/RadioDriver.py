@@ -1,46 +1,46 @@
 import time
 
-import EosLib.packet.packet
-#import PriorityQueue
+from EosLib.packet.packet import Packet
 from EosPayload.lib.driver_base import DriverBase
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 import logging
+from EosLib.packet.transmit_header import TransmitHeader
 
 import EosLib.packet.definitions
 import EosLib.packet.packet
 import EosLib.packet.transmit_header
 
-from EosPayload.lib import MQTT_HOST
 from EosPayload.lib.mqtt import Topic
 from EosPayload.lib.mqtt.client import Client
+from queue import PriorityQueue
 
-sequence_number = 0
+
 
 import itertools
-import heapq
+# import heapq
 from datetime import datetime
 
-pq = []                         # list of entries arranged in a heap
-counter = itertools.count()     # unique sequence count
+# pq = []                         # list of entries arranged in a heap
+# counter = itertools.count()     # unique sequence count
 
-def add_packet(priority, packet):
-    'Add a new task or update the priority of an existing task'
-    entry = [priority, datetime.now(), packet]
-    heapq.heappush(pq, entry)
+# def add_packet(priority, packet):
+#     'Add a new task or update the priority of an existing task'
+#     entry = [priority, datetime.now(), packet]
+#     heapq.heappush(pq, entry)
+#
+#
+# def pop_packet():
+#     'Remove and return the lowest priority task. Raise KeyError if empty.'
+#     if len(pq) != 0:
+#         priority, time, packet = heapq.heappop(pq)
+#         return packet
 
 
-def pop_packet():
-    'Remove and return the lowest priority task. Raise KeyError if empty.'
-    if len(pq) != 0:
-        priority, time, packet = heapq.heappop(pq)
-        return packet
-    #else:
-    #   raise KeyError('pop from an empty priority queue')
 
 class RadioDriver(DriverBase):
-
+    _thread_queue = PriorityQueue()
     def setup(self) -> None:
         con = True
         while con:
@@ -59,8 +59,14 @@ class RadioDriver(DriverBase):
     def get_device_id() -> str:
         return "radio-driver-007"
 
+
+    @staticmethod
+    def sequence_number(self):
+        self.sequence_number = 0
+
+
     def device_read(self, logger: logging.Logger) -> None:
-        mqtt = Client(MQTT_HOST)
+        mqtt = Client(self._mqtt)
 
         # Receives data from radio and sends it to MQTT
         def data_receive_callback(xbee_message):
@@ -72,26 +78,19 @@ class RadioDriver(DriverBase):
 
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(client, userdata, message):
-            global sequence_number
 
             # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
-            transmit_packet = EosLib.packet.packet.Packet.decode_from_string(message.payload)
+            transmit_packet = Packet.decode_from_string(message.payload)
 
             # append transmit header
-            new_transmit_header = EosLib.packet.transmit_header.TransmitHeader(sequence_number)
+            new_transmit_header = TransmitHeader(self.sequence_number)
             transmit_packet.transmit_header = new_transmit_header
 
             # add packet to queue
             priority = transmit_packet.data_header.priority
-            add_packet(priority)
+            self._thread_queue.put((priority, datetime.now(), transmit_packet,))
 
-            # This will likely be another thread
-
-            # sends packet
-            self.port.send_data_async(self.remote, transmit_packet)
-
-            # increments sequence_number
-            sequence_number = (sequence_number + 1) % 256  # sequence number can't exceed 255
+            self.sequence_number = (self.sequence_number + 1) % 256  # sequence number can't exceed 255
 
         mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
         self.port.add_data_received_callback(data_receive_callback)
@@ -99,12 +98,9 @@ class RadioDriver(DriverBase):
 
     # queue thread stuff
     def device_command(self, logger: logging.Logger) -> None:
-
-
-
         while True:
-            packet = pop_packet()
-            transmit_packet = packet
-            #transmit_packet_en = EosLib.packet.packet.Packet.encode()
+            (priority, timestamp, packet) = self._thread_queue.get()
             # sends packet
-            self.port.send_data_async(self.remote, transmit_packet.encode())
+            self.port.send_data_async(self.remote, packet)
+
+
