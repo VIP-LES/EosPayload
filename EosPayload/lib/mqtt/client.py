@@ -42,4 +42,5 @@ class Client(mosquitto.Client):
         :param callback: a function taking 3 parameters: (client, userdata, message)
         """
         self.message_callback_add(topic, callback)
+        self.subscribe(topic)
 

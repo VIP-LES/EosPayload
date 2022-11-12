@@ -20,6 +20,10 @@ class TestQueueDriver(DriverBase):
     def get_device_name() -> str:
         return "test-queue-driver"
 
+    @staticmethod
+    def enabled() -> bool:
+        return False
+
     def device_read(self, logger: logging.Logger) -> None:
 
         counter = 0
