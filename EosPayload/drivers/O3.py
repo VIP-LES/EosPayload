@@ -2,9 +2,7 @@ import logging
 import time
 
 from random import randint
-import Adafruit_BBIO.ADC as ADC
 
-ADC.setup()
 from EosPayload.lib.driver_base import DriverBase
 
 
@@ -17,8 +15,8 @@ class O3(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data or whatever
-            value = ADC.read_raw("P9_40")
-            data = value
+
+            data = 0
             self.data_log([str(data), str(data * data)])
             time.sleep(3)
 
