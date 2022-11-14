@@ -1,9 +1,8 @@
 import logging
 import time
 
-import Adafruit_BBIO.ADC as ADC
+import adafruit_ads1x15.ads1015 as ADS
 
-ADC.setup()
 
 
 from random import randint

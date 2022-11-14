@@ -15,6 +15,7 @@ class LightIR(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data
+            logger.info("Starting to poll for data!")
             bus = SMBus(4)
             b = bus.read_i2c_block_data(0x29, 0x88, 24)
             str_b = list(map(str, b))

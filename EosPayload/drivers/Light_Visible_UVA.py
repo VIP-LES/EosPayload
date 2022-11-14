@@ -5,7 +5,6 @@ from smbus2 import SMBus, i2c_msg
 from EosPayload.lib.driver_base import DriverBase
 
 
-
 class LightVisible(DriverBase):
 
     @staticmethod
@@ -14,6 +13,7 @@ class LightVisible(DriverBase):
 
     # I2C
     def device_read(self, logger: logging.Logger) -> None:
+        logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data
             bus = SMBus(5)
