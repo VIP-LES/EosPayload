@@ -6,6 +6,7 @@ import Adafruit_BBIO.ADC as ADC
 ADC.setup()
 
 
+
 class O3(DriverBase):
 
     @staticmethod
@@ -19,7 +20,7 @@ class O3(DriverBase):
             value = ADC.read_raw("P9_37")
             data = value
             self.data_log([str(data), str(data * data)])
-            time.sleep(3)
+            time.sleep(1)
 
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
