@@ -1,7 +1,7 @@
 import logging
 import time
 from random import randint
-from smbus2 import SMBus, i2c_msg
+from smbus2 import SMBus
 
 from EosPayload.lib.driver_base import DriverBase
 

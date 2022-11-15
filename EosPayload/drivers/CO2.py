@@ -1,14 +1,9 @@
 import logging
 import time
-
+from EosPayload.lib.driver_base import DriverBase
 import Adafruit_BBIO.ADC as ADC
 
 ADC.setup()
-
-
-from random import randint
-
-from EosPayload.lib.driver_base import DriverBase
 
 
 class CO2(DriverBase):
@@ -16,7 +11,8 @@ class CO2(DriverBase):
     @staticmethod
     def get_device_id() -> str:
         return "C02"
-    #analog
+
+    # analog
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data or whatever
