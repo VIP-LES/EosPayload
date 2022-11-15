@@ -1,15 +1,23 @@
 import datetime
 import struct
 from abc import ABC
+from enum import IntEnum
 
 import EosLib.packet.packet
 from EosLib import Device
 
 from EosPayload.lib.driver_base import DriverBase
 
-
 # TODO: Move this entire thing to EosLib
 from EosPayload.lib.mqtt import Topic
+
+
+class FlightState(IntEnum):
+    NOT_SET = 0
+    UNKNOWN = 1
+    ON_GROUND = 2
+    ASCENT = 3
+    DESCENT = 4
 
 
 class Position:
@@ -20,7 +28,8 @@ class Position:
                         "d" \
                         "d" \
                         "d" \
-                        "H"
+                        "H" \
+                        "B"
 
     def __init__(self):
         self.local_time = None
@@ -31,6 +40,7 @@ class Position:
         self.speed = None
         self.number_of_satellites = None
         self.valid = False
+        self.flight_state = FlightState.NOT_SET
 
     # TODO: figure out a more legitimate way to check validity
     def set_validity(self):
@@ -56,15 +66,16 @@ class Position:
         new_position.altitude = unpacked_tuple[3]
         new_position.speed = unpacked_tuple[4]
         new_position.number_of_satellites = unpacked_tuple[5]
+        new_position.flight_state = unpacked_tuple[6]
         new_position.set_validity()
 
         return new_position
 
     @staticmethod
     def encode_position(timestamp: float, latitude: float, longitude: float, altitude: float, speed: float,
-                        number_of_satellites: int) -> bytes:
+                        number_of_satellites: int, flight_state: FlightState) -> bytes:
         return struct.pack(Position.gps_struct_string, timestamp, latitude, longitude, altitude, speed,
-                           number_of_satellites)
+                           number_of_satellites, flight_state)
 
 
 class PositionAwareDriverBase(DriverBase, ABC):
@@ -89,8 +100,8 @@ class PositionAwareDriverBase(DriverBase, ABC):
 
     def position_callback(self, client, userdata, message):
         incoming_packet = EosLib.packet.packet.Packet.decode(message.payload)
-        if (not isinstance(incoming_packet, EosLib.packet.packet.Packet)) or\
-                incoming_packet.data_header is None or\
+        if (not isinstance(incoming_packet, EosLib.packet.packet.Packet)) or \
+                incoming_packet.data_header is None or \
                 incoming_packet.data_header.sender != Device.GPS:
             return
         else:
