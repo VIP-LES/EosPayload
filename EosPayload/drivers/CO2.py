@@ -20,3 +20,6 @@ class CO2(DriverBase):
 
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
+
+    def enabled(self) -> bool:
+        return False

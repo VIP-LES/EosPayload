@@ -41,3 +41,6 @@ class PressureDriver(DriverBase):
             b = bus.read_i2c_block_data(0x76, 0x88, 24)
             bus.write_i2c_block_data(0x76, 0, b)
         return 0
+
+    def enabled(self) -> bool:
+        return False
