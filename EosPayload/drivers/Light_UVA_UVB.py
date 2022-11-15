@@ -1,9 +1,9 @@
 import logging
 import time
 from EosPayload.lib.driver_base import DriverBase
-import Adafruit_BBIO.ADC as ADC
+# import Adafruit_BBIO.ADC as ADC
 
-ADC.setup()
+#ADC.setup()
 
 
 
@@ -17,8 +17,8 @@ class LightUVAUVB(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             # this is where you would poll a device for data or whatever
-            value = ADC.read_raw("P9_39")
-            data = value
+            #value = ADC.read_raw("P9_39")
+            data = 0
             self.data_log([str(data), str(data * data)])
             time.sleep(3)
 
