@@ -51,7 +51,8 @@ class TempHumidity(DriverBase):
     #         bus.write_i2c_block_data(0x44, 0x88, 24)
     #         time.sleep(0.5)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return True
 
 
@@ -98,7 +99,8 @@ class Pressure(DriverBase):
     #         bus.write_i2c_block_data(0x76, 0x88, 24)
     #         time.sleep(0.5)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return True
 
 
@@ -145,7 +147,8 @@ class Particulates(DriverBase):
     #         bus.write_i2c_block_data(0x69, 0x88, 24)
     #         time.sleep(0.5)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return True
 
 
@@ -192,7 +195,8 @@ class IRLight(DriverBase):
     #         bus.write_i2c_block_data(0x29, 0x88, 24)
     #         time.sleep(0.5)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return True
 
 
@@ -239,5 +243,6 @@ class LightVisibleUVA(DriverBase):
     #         bus.write_i2c_block_data(0x53, 0x88, 24)
     #         time.sleep(0.5)
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return True

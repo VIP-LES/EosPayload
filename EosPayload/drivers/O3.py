@@ -25,5 +25,6 @@ class O3(DriverBase):
     def device_command(self, logger: logging.Logger) -> None:
         self.spin()
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return False

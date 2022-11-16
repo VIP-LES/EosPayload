@@ -40,5 +40,6 @@ class LightIR(DriverBase):
             bus.write_i2c_block_data(0x29, 0, b)
         return 0
 
-    def enabled(self) -> bool:
+    @staticmethod
+    def enabled() -> bool:
         return False
