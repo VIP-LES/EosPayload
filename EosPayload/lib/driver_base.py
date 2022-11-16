@@ -253,6 +253,7 @@ class DriverBase(ABC):
             data_type=Type.TELEMETRY if telemetry else Type.DATA,
             sender=self.get_device_id(),
             priority=Priority.TELEMETRY if telemetry else Priority.DATA,
+            destination=Device.RADIO,  # TODO: remove patch for EosLib 0.2.0
         )
 
         packet = Packet(
