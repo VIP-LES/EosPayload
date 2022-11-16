@@ -23,11 +23,11 @@ class I2CDriver(DriverBase):
         while True:
             # this is where you would poll a device for data or whatever
             bus = SMBus(0)
-            th = bus.read_i2c_block_data(0x44, 0x88, 24)      # Temperature & Humidity
-            pr = bus.read_i2c_block_data(0x76, 0x88, 24)      # Pressure, alternative address: 0x40
-            pa = bus.read_i2c_block_data(0x69, 0x88, 24)      # Particulates
-            irv = bus.read_i2c_block_data(0x29, 0x88, 24)     # Light (IR Visible), alternative address: 0x28
-            vuva = bus.read_i2c_block_data(0x53, 0x88, 24)    # Light (Visible UVA)
+            th = bus.read_i2c_block_data(0x44, 0x88, 24)  # Temperature & Humidity
+            pr = bus.read_i2c_block_data(0x76, 0x88, 24)  # Pressure, alternative address: 0x40
+            pa = bus.read_i2c_block_data(0x69, 0x88, 24)  # Particulates
+            irv = bus.read_i2c_block_data(0x29, 0x88, 24)  # Light (IR Visible), alternative address: 0x28
+            vuva = bus.read_i2c_block_data(0x53, 0x88, 24)  # Light (Visible UVA)
             str_th = list(map(str, th))
             str_pr = list(map(str, pr))
             str_pa = list(map(str, pa))
