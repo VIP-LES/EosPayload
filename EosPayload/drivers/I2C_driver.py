@@ -22,7 +22,7 @@ class I2CDriver(DriverBase):
         logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data or whatever
-            bus = SMBus(0)
+            bus = SMBus(2)
             th = bus.read_i2c_block_data(0x44, 0x88, 24)  # Temperature & Humidity
             pr = bus.read_i2c_block_data(0x76, 0x88, 24)  # Pressure, alternative address: 0x40
             pa = bus.read_i2c_block_data(0x69, 0x88, 24)  # Particulates
@@ -70,7 +70,7 @@ class I2CDriver(DriverBase):
     #     logger.info("Starting to send command to device!")
     #     while True:
     #         # this is where you would send command to device
-    #         bus = SMBus(1)
+    #         bus = SMBus(2)
     #         bus.write_i2c_block_data(0x44, 0x88, 24)
     #         time.sleep(0.5)
 
