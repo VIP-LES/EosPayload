@@ -39,3 +39,7 @@ class TestDriver(DriverBase):
                 logger.error(f"unable to transmit data: {e}")
 
             time.sleep(3)
+
+    @staticmethod
+    def enabled() -> bool:
+        return False
