@@ -37,7 +37,7 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get pressure data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                irv = bus.read_i2c_block_data(0x29, 0x88, 24)  # Light (IR Visible), alternative address: 0x28
+                irv = bus.read_i2c_block_data(0x29, 0x00, 24)  # Light (IR Visible), alternative address: 0x28
             except Exception as e:
                 irv = -1
                 logger.critical("A fatal exception occurred when attempting to get Light (IR Visible) data"
@@ -49,14 +49,14 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            csv_row2 = [str(i) for i in th]
+            csv_row3 = [str(i) for i in th]
             # csv_row2 = [str(i) for i in pr]
             # csv_row3 = [str(i) for i in irv]
             # csv_row4 = [str(i) for i in vuva]
 
             # this saves data to a file
             try:
-                self.data_log(csv_row2)
+                self.data_log(csv_row3)
                 # self.data_log(csv_row2)
                 # self.data_log(csv_row3)
                 # self.data_log(csv_row4)
@@ -65,7 +65,7 @@ class I2CDriver(DriverBase):
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row2)
+                self.data_transmit(csv_row3)
                 # self.data_transmit(csv_row2)
                 # self.data_transmit(csv_row3)
                 # self.data_transmit(csv_row4)
