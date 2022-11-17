@@ -25,7 +25,7 @@ class I2CDriver(DriverBase):
             # this is where you would poll a device for data or whatever
             bus = SMBus(2)
             try:
-                th = bus.read_i2c_block_data(0x76, 0x00, 24)  # Temperature & Humidity
+                th = bus.read_i2c_block_data(0x76, 0x88, 24)  # Temperature & Humidity
             except Exception as e:
                 th = -1
                 logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
@@ -53,9 +53,9 @@ class I2CDriver(DriverBase):
             # str_pr = list(map(str, pr))
             # str_irv = list(map(str, irv))
             # str_vuva = list(map(str, vuva))
-            # csv_row1 = [str(i) for i in th]
+            csv_row1 = [str(i) for i in th]
             # csv_row2 = [str(i) for i in pr]
-            csv_row3 = [str(i) for i in irv]
+            # csv_row3 = [str(i) for i in irv]
             # csv_row4 = [str(i) for i in vuva]
 
             # csv_row1 = list(map(str, th))
@@ -66,9 +66,9 @@ class I2CDriver(DriverBase):
             # this saves data to a file
             try:
                 # self.data_log(csv_row)
-                # self.data_log(csv_row1)
+                self.data_log(csv_row1)
                 # self.data_log(csv_row2)
-                self.data_log(csv_row3)
+                # self.data_log(csv_row3)
                 # self.data_log(csv_row4)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
@@ -76,9 +76,9 @@ class I2CDriver(DriverBase):
             # this sends data to the radio to get relayed to the ground station
             try:
                 # self.data_transmit(csv_row)
-                # self.data_transmit(csv_row1)
+                self.data_transmit(csv_row1)
                 # self.data_transmit(csv_row2)
-                self.data_transmit(csv_row3)
+                # self.data_transmit(csv_row3)
                 # self.data_transmit(csv_row4)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
