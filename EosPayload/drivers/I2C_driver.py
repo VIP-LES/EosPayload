@@ -35,29 +35,32 @@ class I2CDriver(DriverBase):
             str_vuva = list(map(str, vuva))
             # now = datetime.now()
             # dt_string = now.strftime(" %d/%m/%Y %H:%M:%S ")   str(dt_string),
-            # csv_row = [str(str_th), str(str_pr), str(str_pa), str(str_irv), str(str_vuva)]
-            csv_row1 = [str_th]
-            csv_row2 = [str_pr]
-            csv_row3 = [str_pa]
-            csv_row4 = [str_irv]
-            csv_row5 = [str_vuva]
+            csv_row = [str(str_th), str(str_pr), str(str_pa), str(str_irv), str(str_vuva)]
+            # csv_row1 = [str_th]
+            # csv_row2 = [str_pr]
+            # csv_row3 = [str_pa]
+            # csv_row4 = [str_irv]
+            # csv_row5 = [str_vuva]
+            
             # this saves data to a file
             try:
-                self.data_log(csv_row1)
-                self.data_log(csv_row2)
-                self.data_log(csv_row3)
-                self.data_log(csv_row4)
-                self.data_log(csv_row5)
+                self.data_log(csv_row)
+                # self.data_log(csv_row1)
+                # self.data_log(csv_row2)
+                # self.data_log(csv_row3)
+                # self.data_log(csv_row4)
+                # self.data_log(csv_row5)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row1)
-                self.data_transmit(csv_row2)
-                self.data_transmit(csv_row3)
-                self.data_transmit(csv_row4)
-                self.data_transmit(csv_row5)
+                self.data_transmit(csv_row)
+                # self.data_transmit(csv_row1)
+                # self.data_transmit(csv_row2)
+                # self.data_transmit(csv_row3)
+                # self.data_transmit(csv_row4)
+                # self.data_transmit(csv_row5)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
