@@ -53,10 +53,10 @@ class I2CDriver(DriverBase):
             # str_pr = list(map(str, pr))
             # str_irv = list(map(str, irv))
             # str_vuva = list(map(str, vuva))
-            csv_row1 = [str(i) for i in th]
-            # csv_row2 = [str(pr)]
-            # csv_row4 = [str(irv)]
-            # csv_row5 = [str(vuva)]
+            # csv_row1 = [str(i) for i in th]
+            # csv_row2 = [str(i) for i in pr]
+            csv_row3 = [str(i) for i in irv]
+            # csv_row4 = [str(i) for i in vuva]
 
             # csv_row1 = list(map(str, th))
             # csv_row2 = list(map(str, pr))
@@ -66,22 +66,20 @@ class I2CDriver(DriverBase):
             # this saves data to a file
             try:
                 # self.data_log(csv_row)
-                self.data_log(csv_row1)
+                # self.data_log(csv_row1)
                 # self.data_log(csv_row2)
-                # self.data_log(csv_row3)
+                self.data_log(csv_row3)
                 # self.data_log(csv_row4)
-                # self.data_log(csv_row5)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
             try:
                 # self.data_transmit(csv_row)
-                self.data_transmit(csv_row1)
+                # self.data_transmit(csv_row1)
                 # self.data_transmit(csv_row2)
-                # self.data_transmit(csv_row3)
+                self.data_transmit(csv_row3)
                 # self.data_transmit(csv_row4)
-                # self.data_transmit(csv_row5)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
