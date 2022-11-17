@@ -55,17 +55,17 @@ class I2CDriver(DriverBase):
             # str_irv = list(map(str, irv))
             # str_vuva = list(map(str, vuva))
             # csv_row = [str_th, str_pr, str_pa, str_irv, str_vuva]
-            csv_row = [str(th), str(pr), str(irv), str(vuva)]
-            # csv_row1 = [str_th]
-            # csv_row2 = [str_pr]
-            # csv_row3 = [str_pa]
-            # csv_row4 = [str_irv]
-            # csv_row5 = [str_vuva]
+            # csv_row = [str(th), str(pr), str(irv), str(vuva)]
+            csv_row1 = [str(th)]
+            # csv_row2 = [str(pr)]
+            # csv_row3 = [str(pa)]
+            # csv_row4 = [str(irv)]
+            # csv_row5 = [str(vuva)]
 
             # this saves data to a file
             try:
-                self.data_log(csv_row)
-                # self.data_log(csv_row1)
+                # self.data_log(csv_row)
+                self.data_log(csv_row1)
                 # self.data_log(csv_row2)
                 # self.data_log(csv_row3)
                 # self.data_log(csv_row4)
@@ -75,8 +75,8 @@ class I2CDriver(DriverBase):
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row)
-                # self.data_transmit(csv_row1)
+                # self.data_transmit(csv_row)
+                self.data_transmit(csv_row1)
                 # self.data_transmit(csv_row2)
                 # self.data_transmit(csv_row3)
                 # self.data_transmit(csv_row4)
