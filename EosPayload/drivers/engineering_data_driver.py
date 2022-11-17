@@ -8,7 +8,7 @@ import datetime
 from EosLib.packet.definitions import Device, Type, Priority
 
 import EosPayload
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase, Position
+from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase, Position, FlightState
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 
 
@@ -25,10 +25,12 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.esp_baud = 115200
         self.ser_connection = None
         self.emit_rate = datetime.timedelta(seconds=1)
+        self.current_flight_state = FlightState.UNKNOWN
+        self.old_position = None
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -52,6 +54,12 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
         return list_data, data_dict
 
+    def get_current_flight_state(self) -> FlightState:
+        if self.latest_position.altitude < 5000:
+            return FlightState.ON_GROUND
+
+        return FlightState.UNKNOWN
+
     def setup(self) -> None:
         self.ser_connection = serial.Serial(self.esp_port, self.esp_baud)
 
@@ -70,7 +78,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
         gps_packet.body = Position.encode_position(float(data_dict['datetime']), float(data_dict['LAT']),
                                                    float(data_dict['LONG']), float(data_dict['altitude']),
-                                                   float(data_dict['speed']), int(data_dict['#ofSatellites']))
+                                                   float(data_dict['speed']), int(data_dict['#ofSatellites']),
+                                                   FlightState.NOT_SET)
 
         self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
         logger.info("Emitting position")

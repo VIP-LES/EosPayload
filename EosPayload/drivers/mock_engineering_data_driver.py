@@ -16,7 +16,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_name() -> str:
@@ -30,7 +30,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
         self.data_file = open(self.data_file_path, 'r')
 
     def fetch_data(self) -> str:
-        time.sleep(0.1)
+        time.sleep(0.01)
         return ','.join(self.data_file.readline().strip().replace('\x00', '').split(',')[:-1])
 
     def is_alive(self):

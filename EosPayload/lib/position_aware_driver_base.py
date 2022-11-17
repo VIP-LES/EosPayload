@@ -106,4 +106,5 @@ class PositionAwareDriverBase(DriverBase, ABC):
             return
         else:
             new_position = Position.decode_position(incoming_packet)
-            self.latest_position = new_position
+            if new_position.valid:
+                self.latest_position = new_position
