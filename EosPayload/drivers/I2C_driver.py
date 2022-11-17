@@ -55,14 +55,13 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            str_th = list(map(str, th))
-            str_pr = list(map(str, pr))
-            str_pa = list(map(str, pa))
-            str_irv = list(map(str, irv))
-            str_vuva = list(map(str, vuva))
-            # now = datetime.now()
-            # dt_string = now.strftime(" %d/%m/%Y %H:%M:%S ")   str(dt_string),
-            csv_row = [str_th, str_pr, str_pa, str_irv, str_vuva]
+            # str_th = list(map(str, th))
+            # str_pr = list(map(str, pr))
+            # str_pa = list(map(str, pa))
+            # str_irv = list(map(str, irv))
+            # str_vuva = list(map(str, vuva))
+            # csv_row = [str_th, str_pr, str_pa, str_irv, str_vuva]
+            csv_row = [str(th), str(pr), str(pa), str(irv), str(vuva)]
             # csv_row1 = [str_th]
             # csv_row2 = [str_pr]
             # csv_row3 = [str_pa]
@@ -72,7 +71,7 @@ class I2CDriver(DriverBase):
             # this saves data to a file
             try:
                 self.data_log(csv_row)
-                # self.data_log(csv_row1)1
+                # self.data_log(csv_row1)
                 # self.data_log(csv_row2)
                 # self.data_log(csv_row3)
                 # self.data_log(csv_row4)
