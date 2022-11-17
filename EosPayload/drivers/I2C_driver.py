@@ -55,7 +55,7 @@ class I2CDriver(DriverBase):
             # str_irv = list(map(str, irv))
             # str_vuva = list(map(str, vuva))
             # csv_row = [str_th, str_pr, str_pa, str_irv, str_vuva]
-            csv_row = [str(th), str(pr), str(pa), str(irv), str(vuva)]
+            csv_row = [str(th), str(pr), str(irv), str(vuva)]
             # csv_row1 = [str_th]
             # csv_row2 = [str_pr]
             # csv_row3 = [str_pa]
