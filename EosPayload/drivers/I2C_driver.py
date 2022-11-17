@@ -25,7 +25,7 @@ class I2CDriver(DriverBase):
             # this is where you would poll a device for data or whatever
             bus = SMBus(2)
             try:
-                th = bus.read_i2c_block_data(0x40, 0x00, 24)  # Temperature & Humidity
+                th = bus.read_i2c_block_data(0x44, 0x00, 24)  # Temperature & Humidity
             except Exception as e:
                 th = -1
                 logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
