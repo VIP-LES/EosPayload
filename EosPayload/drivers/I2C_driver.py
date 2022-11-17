@@ -51,16 +51,17 @@ class I2CDriver(DriverBase):
 
             # str_th = list(map(str, th))
             # str_pr = list(map(str, pr))
-            # str_pa = list(map(str, pa))
             # str_irv = list(map(str, irv))
             # str_vuva = list(map(str, vuva))
-            # csv_row = [str_th, str_pr, str_pa, str_irv, str_vuva]
-            # csv_row = [str(th), str(pr), str(irv), str(vuva)]
-            csv_row1 = [str(th)]
+            csv_row1 = [str(i) for i in th]
             # csv_row2 = [str(pr)]
-            # csv_row3 = [str(pa)]
             # csv_row4 = [str(irv)]
             # csv_row5 = [str(vuva)]
+
+            # csv_row1 = list(map(str, th))
+            # csv_row2 = list(map(str, pr))
+            # csv_row3 = list(map(str, irv))
+            # csv_row4 = list(map(str, vuva))
 
             # this saves data to a file
             try:
