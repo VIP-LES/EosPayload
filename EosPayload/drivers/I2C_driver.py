@@ -43,7 +43,7 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (IR Visible) data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                vuva = bus.read_i2c_block_data(0x53, 0x53, 24)  # Light (Visible UVA)
+                vuva = bus.read_i2c_block_data(0x53, 0x00, 24)  # Light (Visible UVA)
             except Exception as e:
                 vuva = -1
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
