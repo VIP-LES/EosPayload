@@ -23,7 +23,7 @@ class I2CDriver(DriverBase):
         logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data or whatever
-            bus = SMBus(1)
+            bus = SMBus(2)
             try:
                 th = bus.read_i2c_block_data(0x76, 0x00, 24)  # Temperature & Humidity
             except Exception as e:
