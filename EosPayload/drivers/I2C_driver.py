@@ -51,7 +51,7 @@ class I2CDriver(DriverBase):
 
             # csv_row1 = [str(i) for i in th]
             # csv_row2 = [str(i) for i in pr]
-            csv_row3 = [str(i) for i in irv]
+            csv_row3 = [str(i) for i in range(irv)]
             # csv_row4 = [str(i) for i in vuva]
 
             # this saves data to a file
