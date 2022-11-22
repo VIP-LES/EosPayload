@@ -31,7 +31,7 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                pr = bus.read_i2c_block_data(0x76, 0x00, 24)  # Pressure, alternative address: 0x40
+                pr = bus.read_i2c_block_data(0x76, 0xF5, 24)  # Pressure, alternative address: 0x40
             except Exception as e:
                 pr = -1
                 logger.critical("A fatal exception occurred when attempting to get pressure data"
