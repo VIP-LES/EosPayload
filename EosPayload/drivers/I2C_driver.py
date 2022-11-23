@@ -25,25 +25,27 @@ class I2CDriver(DriverBase):
             # this is where you would poll a device for data or whatever
             bus = SMBus(2)
             try:
-                th = bus.read_i2c_block_data(0x76, 0x00, 24)  # Temperature & Humidity
+                th = bus.read_i2c_block_data(0x40, 0xF5, 16)  # Relative Humidity RH
             except Exception as e:
                 th = -1
                 logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                pr = bus.read_i2c_block_data(0x76, 0xF5, 24)  # Pressure, alternative address: 0x40
+                pr = bus.read_i2c_block_data(0x76, 0x00, 24)  # Pressure & Temperature
             except Exception as e:
                 pr = -1
                 logger.critical("A fatal exception occurred when attempting to get pressure data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                irv = bus.read_i2c_block_data(0x29, 0x00, 24)  # Light (IR Visible), alternative address: 0x28
+                irv_low_byte = bus.read_i2c_block_data(0x29, 0x14, 16)  # Light (IR Visible), alternative address: 0x28
+                irv_high_byte = bus.read_i2c_block_data(0x29, 0x15, 16)
+                irv = (irv_high_byte << 16) + irv_low_byte
             except Exception as e:
                 irv = -1
                 logger.critical("A fatal exception occurred when attempting to get Light (IR Visible) data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
-                vuva = bus.read_i2c_block_data(0x53, 0x00, 24)  # Light (Visible UVA)
+                vuva = bus.read_i2c_block_data(0x53, 0xA7, 20)  # Light (Visible UVA)
             except Exception as e:
                 vuva = -1
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
