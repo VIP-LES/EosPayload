@@ -37,7 +37,7 @@ class CameraDriver(DriverBase):
         self.path = "video/"
         self.still_capture_interval = datetime.timedelta(minutes=5)
         self.video_capture_length = datetime.timedelta(minutes=1)
-        self.camera_num = 2
+        self.camera_num = -1
         self.fourcc = cv2.VideoWriter_fourcc(*'YUY2')
         self.camera_fps = 60
         self.camera_res = (640, 480)
