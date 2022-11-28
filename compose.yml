@@ -10,25 +10,11 @@ services:
       - mosquitto
     network_mode: "host"
     volumes:
-      - data:/usr/src/app/eos_artifacts
-      - code:/usr/src/app:ro
+      - ./eos_artifacts:/usr/src/app/eos_artifacts
+      - .:/usr/src/app:ro
 
   mosquitto:
     image: eclipse-mosquitto:2
     network_mode: "host"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-
-volumes:
-  code:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: .
-  data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./eos_artifacts
