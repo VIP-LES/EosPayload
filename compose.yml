@@ -1,9 +1,10 @@
-version: '3'
+version: '3.4'
 
 services:
   eos_payload:
     build:
       context: .
+      network: host
       dockerfile: Dockerfile
     privileged: true
     depends_on:
