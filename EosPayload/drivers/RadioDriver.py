@@ -17,12 +17,17 @@ class RadioDriver(DriverBase):
     _thread_queue = PriorityQueue()
     sequence_number = 0
 
+    # mapping from destination to mqtt topic
+    device_map = {
+        Device.RADIO: Topic.RADIO_TRANSMIT
+    }
+
     def setup(self) -> None:
         con = True
         while con:
             try:
                 #self.port = XBeeDevice("/dev/ttyUSB2", 9600)
-                self.port = XBeeDevice("COM7", 9600)
+                self.port = XBeeDevice("COM9", 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
@@ -42,8 +47,10 @@ class RadioDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
         def data_receive_callback(xbee_message):
-            packet = xbee_message.data.decode()
-            self._mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
+            packet = xbee_message.data
+            packet_object = Packet.decode(packet)
+            mqtt_topic = self.device_map[packet_object.data_header.destination]
+            self._mqtt.send(mqtt_topic, packet)
 
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
