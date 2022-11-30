@@ -7,11 +7,15 @@ from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
+import EosLib.packet.data_header
+import EosLib.packet.definitions
+
 from EosLib import Device
 from EosLib.packet.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
 from EosPayload.lib.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
+
 
 class RadioDriver(DriverBase):
     _thread_queue = PriorityQueue()
@@ -26,7 +30,7 @@ class RadioDriver(DriverBase):
         con = True
         while con:
             try:
-                #self.port = XBeeDevice("/dev/ttyUSB2", 9600)
+                # self.port = XBeeDevice("/dev/ttyUSB2", 9600)
                 self.port = XBeeDevice("COM9", 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
@@ -57,7 +61,6 @@ class RadioDriver(DriverBase):
 
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(client, userdata, message):
-
             # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
             packet_from_mqtt = Packet.decode(message.payload)
 
@@ -81,5 +84,15 @@ class RadioDriver(DriverBase):
         while True:
             (priority, timestamp, packet) = self._thread_queue.get()
             # sends packet
-            logger.info(f"Sending packet seq={packet.transmit_header.send_seq_num} to ground")
+            #logger.info(f"Sending packet seq={packet.transmit_header.send_seq_num} to ground")
+            logger.info(f":: = {packet.body}")
+
+            # temp
+            #packet = EosLib.packet.packet.Packet()
+            #packet.data_header = EosLib.packet.data_header.DataHeader(sender=EosLib.packet.definitions.Device.RADIO)
+            #packet.data_header.data_type = EosLib.packet.definitions.Type.TELEMETRY
+            #packet.data_header.priority = EosLib.packet.definitions.Priority.DATA
+            #packet.data_header.sender = EosLib.packet.definitions.Device.RADIO
+            #packet.data_header.generate_time = datetime.now()
+
             self.port.send_data_async(self.remote, packet.encode())
