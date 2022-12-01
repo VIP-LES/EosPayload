@@ -8,7 +8,7 @@ from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
 
 
-class I2CDriver(DriverBase):
+class ADCDriver(DriverBase):
     ADC.setup()
 
     @staticmethod
