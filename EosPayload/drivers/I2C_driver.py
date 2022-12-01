@@ -27,7 +27,7 @@ class I2CDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         i2c = board.I2C()
-        ms = MS8607(i2c)
+        # ms = MS8607(i2c)
         tsl = TSL2591(i2c)
         ltr = LTR390(i2c)
         while True:
