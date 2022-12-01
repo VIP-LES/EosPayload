@@ -39,27 +39,27 @@ class I2CDriver(DriverBase):
             #     print("Temperature: %.2f C" % sensor.temperature)
             #     print("Humidity: %.2f %% rH" % sensor.relative_humidity)
 
-            try:
-                # th = bus.read_i2c_block_data(0x40, 0xF5, 16)  # Relative Humidity RH (MS8607)
-                rh = ms.relative_humidity
-                rh_str = str(round(rh, 3))
-            except Exception as e:
-                # th = -1
-                rh_str = '-1'
-                logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
-                                f": {e}\n{traceback.format_exc()}")
-            try:
-                # pr = bus.read_i2c_block_data(0x76, 0x00, 24)  # Pressure & Temperature (MS8607)
-                pres = ms.pressure
-                temp = ms.temperature
-                pres_str = str(round(pres, 3))
-                temp_str = str(round(temp, 3))
-            except Exception as e:
-                # pr = -1
-                pres_str = '-1'
-                temp_str = '-1'
-                logger.critical("A fatal exception occurred when attempting to get pressure data"
-                                f": {e}\n{traceback.format_exc()}")
+            # try:
+            #     # th = bus.read_i2c_block_data(0x40, 0xF5, 16)  # Relative Humidity RH (MS8607)
+            #     rh = ms.relative_humidity
+            #     rh_str = str(round(rh, 3))
+            # except Exception as e:
+            #     # th = -1
+            #     rh_str = '-1'
+            #     logger.critical("A fatal exception occurred when attempting to get temp & humidity data"
+            #                     f": {e}\n{traceback.format_exc()}")
+            # try:
+            #     # pr = bus.read_i2c_block_data(0x76, 0x00, 24)  # Pressure & Temperature (MS8607)
+            #     pres = ms.pressure
+            #     temp = ms.temperature
+            #     pres_str = str(round(pres, 3))
+            #     temp_str = str(round(temp, 3))
+            # except Exception as e:
+            #     # pr = -1
+            #     pres_str = '-1'
+            #     temp_str = '-1'
+            #     logger.critical("A fatal exception occurred when attempting to get pressure data"
+            #                     f": {e}\n{traceback.format_exc()}")
             try:
                 # irv_low_byte = bus.read_i2c_block_data(0x29, 0x14, 16)  # Light (IR Visible), alternative address: 0x28
                 # irv_high_byte = bus.read_i2c_block_data(0x29, 0x15, 16) # (TSL2591)
