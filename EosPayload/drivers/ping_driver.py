@@ -1,6 +1,7 @@
-import time
 from enum import Enum, unique
 import logging
+import time
+import traceback
 
 from EosLib import Device, Priority, Type
 from EosLib.packet.data_header import DataHeader
@@ -48,40 +49,58 @@ class PingDriver(DriverBase):
 
     @staticmethod
     def ping_reply(client, user_data, message):
-        packet = None
         try:
-            packet = Packet.decode(message.payload)
-        except Exception as e:
-            user_data['logger'].error(f"failed to decode packet sent to {Topic.PING_COMMAND.value}: {e}")
-            return
+            packet = None
+            try:
+                packet = Packet.decode(message.payload)
+            except Exception as e:
+                user_data['logger'].error(f"failed to decode packet sent to {Topic.PING_COMMAND.value}: {e}")
+                return
 
-        command, param = packet.body.decode('utf8').split(' ', 1)
-        if command not in [cmd.value for cmd in PingDriver.Commands]:
-            user_data['logger'].warning(f"received invalid command '{command}'"
-                                        f" from device '{packet.data_header.sender}'")
-            response_command = PingDriver.Commands.ERR.value + f" invalid command '{command}': '{str(packet.body)}'"
-            response_header = DataHeader(
-                data_type=Type.WARNING,
-                sender=PingDriver.get_device_id(),
-                priority=Priority.TELEMETRY,
-                destination=packet.data_header.sender
-            )
-            response = Packet(bytes(response_command, 'utf8'), response_header)
-            client.send(Topic.RADIO_TRANSMIT, response.encode())
-        elif command == PingDriver.Commands.PING:
-            user_data['logger'].info(f"received PING command from device '{packet.data_header.sender}'")
-            response_command = PingDriver.Commands.ACK.value + (f" {param}" if param else '')
-            response_header = DataHeader(
-                data_type=Type.TELEMETRY,
-                sender=PingDriver.get_device_id(),
-                priority=Priority.TELEMETRY,
-                destination=packet.data_header.sender
-            )
-            response = Packet(bytes(response_command, 'utf8'), response_header)
-            client.send(Topic.RADIO_TRANSMIT, response.encode())
-        elif command == PingDriver.Commands.ERR:
-            user_data['logger'].warning(f"received error message from device '{packet.data_header.sender}':"
-                                        f" \"{param}\"")
+            command = packet.body.decode('utf8')
+            param = ""
+            if ' ' in command:
+                command, param = packet.body.decode('utf8').split(' ', 1)
+
+            if command not in [cmd.value for cmd in PingDriver.Commands]:
+                user_data['logger'].warning(f"received invalid command '{command}'"
+                                            f" from device '{packet.data_header.sender}'")
+                response_command = PingDriver.Commands.ERR.value + f" invalid command '{command}': '{packet.body.decode('utf8')}'"
+                response_header = DataHeader(
+                    data_type=Type.WARNING,
+                    sender=PingDriver.get_device_id(),
+                    priority=Priority.TELEMETRY,
+                    destination=packet.data_header.sender
+                )
+                command_bytes = bytes(response_command, 'utf8')
+                if len(command_bytes) > Packet.radio_body_max_bytes:
+                    user_data['logger'].warning(f"truncating reply because it exceeds max packet body size")
+                    command_bytes = command_bytes[0:Packet.radio_body_max_bytes - 1]
+                response = Packet(command_bytes, response_header)
+                client.send(Topic.RADIO_TRANSMIT, response.encode())
+            elif command == PingDriver.Commands.PING:
+                user_data['logger'].info(f"received PING command from device '{packet.data_header.sender}'"
+                                         f" with param '{param}'")
+                response_command = PingDriver.Commands.ACK.value + (f" {param}" if param else '')
+                response_header = DataHeader(
+                    data_type=Type.TELEMETRY,
+                    sender=PingDriver.get_device_id(),
+                    priority=Priority.TELEMETRY,
+                    destination=packet.data_header.sender
+                )
+                response = Packet(bytes(response_command, 'utf8'), response_header)
+                client.send(Topic.RADIO_TRANSMIT, response.encode())
+            elif command == PingDriver.Commands.ERR:
+                user_data['logger'].warning(f"received error message from device '{packet.data_header.sender}':"
+                                            f" \"{param}\"")
+            elif command == PingDriver.Commands.ACK:
+                user_data['logger'].info(f"received ACK for ping from device '{packet.data_header.sender}'"
+                                         f" with param '{param}'")
+
+        except Exception as e:
+            # this is needed b/c apparently an exception in a callback kills the mqtt thread
+            user_data['logger'].error(f"an unhandled exception occurred while processing ping_reply: {e}"
+                                      f"\n{traceback.format_exc()}")
 
     def ping_ground(self, counter: int, logger: logging.Logger):
         command = f"{PingDriver.Commands.PING.value} {counter}"
@@ -89,8 +108,7 @@ class PingDriver(DriverBase):
         header = DataHeader(
             data_type=Type.TELEMETRY,
             sender=PingDriver.get_device_id(),
-            priority=Priority.TELEMETRY,
-            destination=Device.RADIO,  # TODO: remove patch for EosLib 0.2.0
+            priority=Priority.TELEMETRY
         )
         packet = Packet(bytes(command, 'utf8'), header)
         self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())

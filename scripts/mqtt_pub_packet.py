@@ -41,6 +41,7 @@ if __name__ == "__main__":
     packet = Packet(body, data_header, transmit_header)
 
     mqtt = Client(MQTT_HOST)
+    print("sending...")
     mqtt.send(topic, packet.encode())
     time.sleep(3)  # give packet time to send
     print("done")
