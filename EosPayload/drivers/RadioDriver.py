@@ -51,13 +51,16 @@ class RadioDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
         def data_receive_callback(xbee_message):
-            packet = xbee_message.data
-            packet_object = Packet.decode(packet)
-            mqtt_topic = self.device_map[packet_object.data_header.destination]
-            self._mqtt.send(mqtt_topic, packet)
-
+            packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
+            packet_object = Packet.decode(packet)   # convert packet bytearray to packet object
+            dest = packet_object.data_header.destination  # packet object
+            if dest in self.device_map:  # mapping from device to mqtt topic
+                mqtt_topic = self.device_map[dest]
+                self._mqtt.send(mqtt_topic, packet)
+            else:
+                logger.info("no mqtt destination mapping")
 
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(client, userdata, message):
@@ -83,16 +86,5 @@ class RadioDriver(DriverBase):
     def device_command(self, logger: logging.Logger) -> None:
         while True:
             (priority, timestamp, packet) = self._thread_queue.get()
-            # sends packet
-            #logger.info(f"Sending packet seq={packet.transmit_header.send_seq_num} to ground")
             logger.info(f":: = {packet.body}")
-
-            # temp
-            #packet = EosLib.packet.packet.Packet()
-            #packet.data_header = EosLib.packet.data_header.DataHeader(sender=EosLib.packet.definitions.Device.RADIO)
-            #packet.data_header.data_type = EosLib.packet.definitions.Type.TELEMETRY
-            #packet.data_header.priority = EosLib.packet.definitions.Priority.DATA
-            #packet.data_header.sender = EosLib.packet.definitions.Device.RADIO
-            #packet.data_header.generate_time = datetime.now()
-
             self.port.send_data_async(self.remote, packet.encode())
