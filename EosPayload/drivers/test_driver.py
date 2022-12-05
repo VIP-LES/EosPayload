@@ -10,6 +10,9 @@ from EosPayload.lib.driver_base import DriverBase
 
 class TestDriver(DriverBase):
 
+    @staticmethod
+    def enabled() -> bool:
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
