@@ -3,6 +3,7 @@ import re
 import logging
 import serial
 import datetime
+import pyudev
 
 from EosLib.packet.definitions import Device, Type, Priority
 from EosLib.packet.packet import DataHeader, Packet
@@ -21,7 +22,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     # TODO: Move everything out of init
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
-        self.esp_port = "/dev/ttyUSB0"
+        self.esp_id = "Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_de1ea05ac21bec119a14cb79f01c6278"
         self.esp_baud = 115200
         self.ser_connection = None
         self.emit_rate = datetime.timedelta(seconds=1)
@@ -33,7 +34,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_id() -> Device:
@@ -77,7 +78,20 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return list_data, data_dict
 
     def setup(self) -> None:
-        self.ser_connection = serial.Serial(self.esp_port, self.esp_baud)
+        context = pyudev.Context()
+        devices = context.list_devices(subsystem='tty', ID_SERIAL=self.esp_id)
+        device_list = []
+        for device in devices:
+            device_list.append(device)
+        print(device_list)
+        if len(device_list) != 1:
+            self._logger.error("Could not find device")
+            raise EnvironmentError()
+
+        esp = device_list[0]
+
+        self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
+        self.ser_connection.readline()  # Flush any incomplete lines in buffer
 
     def fetch_data(self) -> str:  # This function might seem weird, but it exists to make mocking easier
         return self.ser_connection.readline().decode()[:-1]
@@ -117,7 +131,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                 last_emit_time = datetime.datetime.now()
                 self.emit_data(incoming_data_dict, logger)
             if (datetime.datetime.now() - last_state_update_time) > self.state_update_rate:
-                if self.old_position is None:
+                if self.old_position is None or self.latest_position.local_time is None:
                     self.old_position = self.latest_position
                 elif (datetime.datetime.now() - self.latest_position.local_time) > self.position_timeout:
                     self.current_flight_state = FlightState.UNKNOWN

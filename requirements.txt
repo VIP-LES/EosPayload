@@ -11,3 +11,5 @@ pytest==7.1.3
 tomli==2.0.1
 
 pyserial~=3.5
+DateTime~=4.7
+pyudev~=0.24.0

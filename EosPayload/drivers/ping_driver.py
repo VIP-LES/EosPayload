@@ -24,6 +24,10 @@ from EosPayload.lib.mqtt import Topic
 
 class PingDriver(DriverBase):
 
+    @staticmethod
+    def enabled() -> bool:
+        return False
+
     @unique
     class Commands(str, Enum):
         PING = "PING"
