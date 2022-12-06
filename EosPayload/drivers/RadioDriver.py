@@ -23,15 +23,16 @@ class RadioDriver(DriverBase):
 
     # mapping from destination to mqtt topic
     device_map = {
-        Device.RADIO: Topic.RADIO_TRANSMIT
+        Device.RADIO: Topic.RADIO_TRANSMIT,
+        Device.MISC_RADIO_1: Topic.PING_COMMAND
     }
 
     def setup(self) -> None:
         con = True
         while con:
             try:
-                # self.port = XBeeDevice("/dev/ttyUSB2", 9600)
-                self.port = XBeeDevice("COM9", 9600)
+                self.port = XBeeDevice("/dev/cu.usbserial-8", 9600)
+                # self.port = XBeeDevice("COM9", 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
