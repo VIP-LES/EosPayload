@@ -123,7 +123,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                     self.current_flight_state = FlightState.UNKNOWN
                 elif self.latest_position.altitude < 1000:
                     self.current_flight_state = FlightState.ON_GROUND
-                elif self.latest_position.altitude > self.old_position.altitude:
+                elif self.latest_position.altitude >= self.old_position.altitude:
                     self.current_flight_state = FlightState.ASCENT
                 elif self.latest_position.altitude < self.old_position.altitude:
                     self.current_flight_state = FlightState.DESCENT
