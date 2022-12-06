@@ -70,3 +70,12 @@ Prereq: Start the MQTT server by running mosquitto (see above)
 
 ### Debugging
 Pycharm allows you to set breakpoints and inspect variables mid-execution.  Reference the "Run From PyCharm" instructions above, but run the configuration in debug mode
+
+### Docker Installation/Use
+If you plan to install/use EosPayload via docker, you can ignore all the above steps. Instead, follow these:
+
+1. Install Docker (Instructions [here](https://docs.docker.com/get-docker/))
+2. Install Docker compose (Instructions [here](https://docs.docker.com/compose/install/))
+3. Clone the repo: `git clone https://github.com/VIP-LES/EosPayload.git`
+4. Run `docker compose up`
+5. Everything should install and run automatically

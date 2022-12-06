@@ -1,0 +1,4 @@
+# Before you kill me, I've tested this and it works.
+*
+!requirements.txt
+!EosPayload/*
