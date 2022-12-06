@@ -39,8 +39,8 @@ class CameraDriver(DriverBase):
         self.video_capture_length = datetime.timedelta(minutes=1)
         self.camera_num = 0
         self.fourcc = cv2.VideoWriter_fourcc(*'YUY2')
-        self.camera_fps = 60
-        self.camera_res = (640, 480)
+        self.camera_fps = 30
+        self.camera_res = (320, 180)
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
         self.video_name_format = "camera-{camera}-video-{num}.avi".format(camera=self.camera_num, num='{}')
         self.video_num = self.find_next_file_num(self.video_name_format)
@@ -58,6 +58,9 @@ class CameraDriver(DriverBase):
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 32)
         self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
         self.out = self.video_writer_setup()
+
+        assert self.cap.isOpened()
+        assert self.out.isOpened()
 
     def cleanup(self):
         self.cap.release()
