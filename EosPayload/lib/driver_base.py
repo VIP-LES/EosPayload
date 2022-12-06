@@ -20,13 +20,17 @@ class DriverBase(ABC):
 
     #
     # CLASS PROPERTIES
-    # these fields should never be referenced by subclasses
     #
+
+    # private -- these variables should never be referenced by subclasses
     __read_thread = None
     __command_thread = None
     __data_file = None
-    __logger = None
+
+    # protected -- these variables may be referenced by subclasses.  see restrictions below.
+    _logger = None  # may be referenced by subclasses only in methods that run in the main thread (setup, cleanup, etc)
     _mqtt = None
+    _output_directory = None
 
     #
     # CONFIGURATION
@@ -74,7 +78,7 @@ class DriverBase(ABC):
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self):
+    def __init__(self, output_directory: str):
         """ Driver constructor.  Responsible for initialization tasks.
         Should never be overriden by subclasses.  Use the setup() method instead.
         Should only ever be invoked by orchEOStrator.
@@ -84,16 +88,19 @@ class DriverBase(ABC):
         if not (self.get_device_name().isascii() and self.get_device_name().replace('-', '').isalnum()):
             raise GenericDriverException("Driver names may only contain alphanumeric characters and hyphens.")
 
-        self.__data_file = open(self.get_device_pretty_id() + '.dat', 'a')
+        # set up output location and data file
+        self._output_directory = output_directory
+        # i don't think there's a need for validation here since orchEOStrator guarantees it's set up
+        self.__data_file = open(os.path.join(self._output_directory, 'data', self.get_device_pretty_id() + '.dat'), 'a')
 
         # set up logging
-        init_logging(self.get_device_pretty_id() + '.log')
-        self.__logger = logging.getLogger(self.get_device_pretty_id())
+        init_logging(os.path.join(self._output_directory, 'logs', self.get_device_pretty_id() + '.log'))
+        self._logger = logging.getLogger(self.get_device_pretty_id())
 
         # set up mqtt
         self._mqtt = Client(MQTT_HOST)
 
-        self.__logger.info("init complete")
+        self._logger.info("init complete")
 
     def setup(self) -> None:
         """ [OPTIONAL] Subclass-defined method to initialize any variables.
@@ -131,14 +138,14 @@ class DriverBase(ABC):
         """
 
         if not self.enabled():
-            self.__logger.info("device is not enabled, terminating before startup")
+            self._logger.info("device is not enabled, terminating before startup")
             return
 
-        self.__logger.info("device starting up in " + os.getcwd())
+        self._logger.info("device starting up in " + os.getcwd())
 
-        self.__logger.info("running setup")
+        self._logger.info("running setup")
         self.setup()
-        self.__logger.info("setup complete")
+        self._logger.info("setup complete")
 
         read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
         self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
@@ -153,7 +160,7 @@ class DriverBase(ABC):
 
         while True:
             if not self.is_healthy():
-                self.__logger.critical(
+                self._logger.critical(
                     f"device unhealthy:"
                     f"\n\tread_thread running: {self.__read_thread.is_alive()}"
                     f"\n\tcommand thread running: {self.__command_thread.is_alive()}"
@@ -217,9 +224,9 @@ class DriverBase(ABC):
             ])
             succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, status)
         if succeeded:
-            self.__logger.info("heartbeat sent")
+            self._logger.info("heartbeat sent")
         else:
-            self.__logger.warning("heartbeat failed to send")
+            self._logger.warning("heartbeat failed to send")
         return succeeded
 
     def data_log(self, data: list[str]) -> bool:
@@ -249,7 +256,7 @@ class DriverBase(ABC):
         )
 
         packet = Packet(
-            body=bytes(','.join(data), encoding='ascii'),
+            body=bytes(','.join(data), encoding='utf8'),
             data_header=header,
         )
 

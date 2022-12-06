@@ -15,10 +15,22 @@ Eos is the software platform for Georgia Tech's "Lightning from the Edge of Spac
 
 Note: to exit the venv, run `deactivate`
 
+## Mosquitto MQTT
+EosPayload relies on the mosquitto MQTT broker for communication between devices.  When you install mosquitto you get 3 command line tools:
+- `mosquitto` - run the server.  Use -v to log requests to console.  
+Windows Example: `C:\Program Files\mosquitto -v`  
+Mac Example: `brew services start mosquitto -v`
+- `mosquitto_sub` - a simple topic subscriber tool that is useful for seeing what MQTT messages are being published.  
+Windows example: `"C:\Program Files\mosquitto\mosquitto_sub.exe" -V 5 -q 2 -t # -v`
+- `mosquitto_pub` - a simple message publish tool that is also useful for sending test MQTT messages to your device.
+Windows example: `"C:\Program Files\mosquitto\mosquitto_pub.exe" -t "health/heartbeat" -m "yo" -q 2`  
+
+Note: for the sub/pub tools to work on mac you may need to run `brew link mosquitto` first  
+
+More info on the command line tools can be found here: https://mosquitto.org/man/
+
 ## Running EosPayload
-Prereq: Start the MQTT server by running mosquitto.  Use -v to log requests to console  (Windows Example: `C:\Program Files\mosquitto -v`)  
-Note: running mosquitto_sub can be useful for debugging: ` "C:\Program Files\mosquitto\mosquitto_sub.exe" -V 5 -q 2 -t # -v`    
-There is also mosquitto_pub which can be useful for testing MQTT message receive
+Prereq: Start the MQTT server by running mosquitto (see above)
 
 ### From Terminal
 1. Navigate to your EosPayload repository root using the `cd` command (all OS's)
@@ -58,3 +70,12 @@ There is also mosquitto_pub which can be useful for testing MQTT message receive
 
 ### Debugging
 Pycharm allows you to set breakpoints and inspect variables mid-execution.  Reference the "Run From PyCharm" instructions above, but run the configuration in debug mode
+
+### Docker Installation/Use
+If you plan to install/use EosPayload via docker, you can ignore all the above steps. Instead, follow these:
+
+1. Install Docker (Instructions [here](https://docs.docker.com/get-docker/))
+2. Install Docker compose (Instructions [here](https://docs.docker.com/compose/install/))
+3. Clone the repo: `git clone https://github.com/VIP-LES/EosPayload.git`
+4. Run `docker compose up`
+5. Everything should install and run automatically
