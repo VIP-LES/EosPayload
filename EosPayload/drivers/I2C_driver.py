@@ -38,6 +38,20 @@ class I2CDriver(DriverBase):
             #     print("Temperature: %.2f C" % sensor.temperature)
             #     print("Humidity: %.2f %% rH" % sensor.relative_humidity)
 
+            # try:
+            #     rh = ms.relative_humidity
+            #     pres = ms.pressure
+            #     temp = ms.temperature
+            #     rh_str = str(round(rh, 3))
+            #     pres_str = str(round(pres, 3))
+            #     temp_str = str(round(temp, 3))
+            # except Exception as e:
+            #     rh_str = '-1'
+            #     pres_str = '-1'
+            #     temp_str = '-1'
+            #     logger.critical("A fatal exception occurred when attempting to get temp/humidity/pressure data"
+            #                     f": {e}\n{traceback.format_exc()}")
+
             try:
                 lux = tsl.lux
                 infrared = tsl.infrared
@@ -65,11 +79,10 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            csv_row = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]  # array of data
+            csv_row = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]
 
             # this saves data to a file
             try:
-                # csv_row = [str(i) for i in a]  # data into string array
                 self.data_log(csv_row)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")

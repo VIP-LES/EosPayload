@@ -63,29 +63,32 @@ class ADCDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get O3 temperature data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            csv_row1 = [uvb_str]
-            csv_row2 = [co2_str]
-            csv_row3 = [o3_gas_str]
-            csv_row4 = [o3_reference_str]
-            csv_row5 = [o3_temp_str]
+            # csv_row1 = [uvb_str]
+            # csv_row2 = [co2_str]
+            # csv_row3 = [o3_gas_str]
+            # csv_row4 = [o3_reference_str]
+            # csv_row5 = [o3_temp_str]
+            csv_row = [uvb_str, co2_str, o3_gas_str, o3_reference_str, o3_temp_str]
 
             # this saves data to a file
             try:
-                self.data_log(csv_row1)
-                self.data_log(csv_row2)
-                self.data_log(csv_row3)
-                self.data_log(csv_row4)
-                self.data_log(csv_row5)
+                # self.data_log(csv_row1)
+                # self.data_log(csv_row2)
+                # self.data_log(csv_row3)
+                # self.data_log(csv_row4)
+                # self.data_log(csv_row5)
+                self.data_log(csv_row)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row1)
-                self.data_transmit(csv_row2)
-                self.data_transmit(csv_row3)
-                self.data_transmit(csv_row4)
-                self.data_transmit(csv_row5)
+                # self.data_transmit(csv_row1)
+                # self.data_transmit(csv_row2)
+                # self.data_transmit(csv_row3)
+                # self.data_transmit(csv_row4)
+                # self.data_transmit(csv_row5)
+                self.data_transmit(csv_row)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
