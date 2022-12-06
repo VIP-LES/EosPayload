@@ -35,6 +35,7 @@ class ADCDriver(DriverBase):
             try:
                 co2 = ADC.read("P9_40")
                 co2_convert = co2 * 42 / 18
+                co2_str = str(co2_convert)
 
                 # CALCULATING CO2 CONCENTRATION
                 actual_co2_concentration = pow(400, ((1500 - co2_convert * 1000) / 600))
@@ -70,7 +71,7 @@ class ADCDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get O3 concentration"
                                 f": {e}\n{traceback.format_exc()}")
 
-            csv_row = [actual_uvb_str, actual_co2_concentration_str, o3_gas_str,
+            csv_row = [actual_uvb_str, co2_str, actual_co2_concentration_str, o3_gas_str,
                        o3_reference_str, o3_temp_str, actual_o3_gas_concentration_str]
 
             # this saves data to a file
