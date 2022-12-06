@@ -1,4 +1,4 @@
-git+https://github.com/VIP-LES/EosLib@v0.1.0#egg=EosLib
+git+https://github.com/VIP-LES/EosLib@v0.4.0#egg=EosLib
 attrs==22.1.0
 colorama==0.4.5
 iniconfig==1.1.1

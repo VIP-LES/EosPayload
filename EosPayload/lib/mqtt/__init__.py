@@ -2,6 +2,7 @@ from enum import Enum
 
 MQTT_HOST = 'localhost'
 
+
 # MQTT Constants
 class QOS(int, Enum):
     DELIVER_NO_ACK = 0
@@ -13,4 +14,5 @@ class QOS(int, Enum):
 class Topic(str, Enum):
     RADIO_TRANSMIT = 'radio/transmit'
     HEALTH_HEARTBEAT = 'health/heartbeat'
+    POSITION_UPDATE = 'position/update'
     # register new topics by appending them to the above list

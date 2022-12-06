@@ -1,22 +1,18 @@
 import time
-from random import randint
 import logging
 
 import EosLib.packet.packet
-import serial
-import datetime
+import EosLib.format.Position
 
-from EosLib.packet.definitions import Device, Type, Priority
+from EosLib.packet.definitions import Device
 
-import EosPayload
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase, Position
-from EosPayload.lib.mqtt import MQTT_HOST, Topic
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -29,8 +25,11 @@ class TestPositionAwareDriver(PositionAwareDriverBase):
     def device_command(self, logger: logging.Logger) -> None:
         old_position = Position()
         while True:
-            time.sleep(0.1)
+            time.sleep(1)
             if old_position.timestamp != self.latest_position.timestamp:
-                logger.info("New position found at {}. Is valid: {}".format(self.latest_position.timestamp,
-                                                                            self.latest_position.valid))
+                flight_state_str = EosLib.format.Position.FlightState(self.latest_position.flight_state).name
+                logger.info("New position found at {}. Is valid: {}. "
+                            "Flight state: {}".format(self.latest_position.timestamp,
+                                                      self.latest_position.valid,
+                                                      flight_state_str))
                 old_position = self.latest_position
