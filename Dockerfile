@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM thomasmholder/eos-base
 
 WORKDIR /usr/src/app
 

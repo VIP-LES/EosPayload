@@ -30,14 +30,14 @@ class CameraDriver(DriverBase):
             else:
                 file_num += 1
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
         self.cap = None
         self.out = None
-        self.path = "video/"
+        self.path = output_directory + "/artifacts/video/"
         self.still_capture_interval = datetime.timedelta(minutes=5)
         self.video_capture_length = datetime.timedelta(minutes=1)
-        self.camera_num = -1
+        self.camera_num = 0
         self.fourcc = cv2.VideoWriter_fourcc(*'YUY2')
         self.camera_fps = 60
         self.camera_res = (640, 480)
@@ -92,7 +92,7 @@ class CameraDriver(DriverBase):
 
 
 if __name__ == '__main__':
-    cd = CameraDriver()
+    cd = CameraDriver("eos_artifacts")
     print("Running setup")
     cd.setup()
     cd.cleanup()
