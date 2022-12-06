@@ -31,6 +31,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.current_flight_state = FlightState.UNKNOWN
         self.old_position = None
         self.read_queue = queue.Queue(maxsize=10)
+        self.gotten_first_fix = False
 
     @staticmethod
     def enabled() -> bool:
@@ -60,7 +61,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
     @staticmethod
     def process_raw_esp_data(raw_data) -> ([str], dict):
-        list_data = raw_data.replace('\x00', '').split(',')
+        list_data = raw_data.replace('\x00', '').replace('\r', '').split(',')
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
         # TODO: Find a better solution for the year before 2023 please
@@ -83,13 +84,11 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         device_list = []
         for device in devices:
             device_list.append(device)
-        print(device_list)
         if len(device_list) != 1:
             self._logger.error("Could not find device")
             raise EnvironmentError()
 
         esp = device_list[0]
-
         self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
         self.ser_connection.readline()  # Flush any incomplete lines in buffer
 
@@ -106,6 +105,12 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                                                   self.current_flight_state)
 
         gps_packet = Packet(position_bytes, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
+
+        if self.gotten_first_fix is False:
+            position = Position.decode_position(gps_packet)
+            if position.valid:
+                self.gotten_first_fix = True
+                logger.info("Got first GPS fix")
 
         self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
         self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
@@ -126,6 +131,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         while True:
             incoming_raw_data = self.read_queue.get()
             incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
+            incoming_processed_data.append(str(self.gotten_first_fix))
             self.data_log(incoming_processed_data)
             if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
                 last_emit_time = datetime.datetime.now()
