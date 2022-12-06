@@ -65,30 +65,18 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            # csv_row1 = [rh_str]
-            # csv_row2 = [pres_str, temp_str]
-            csv_row3 = [lux_str, infrared_str, visible_str, full_spectrum_str]
-            csv_row4 = [uv_str, amb_light_str]
+            csv_row = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]  # array of data
 
             # this saves data to a file
             try:
-                # self.data_log(csv_row1)
-                # self.data_log(csv_row2)
-                self.data_log(csv_row3)
-                self.data_log(csv_row4)
-                # a = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]  # array of data
                 # csv_row = [str(i) for i in a]  # data into string array
-                # self.data_log(csv_row)  # puts row into csv
+                self.data_log(csv_row)
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                # self.data_transmit(csv_row1)
-                # self.data_transmit(csv_row2)
-                self.data_transmit(csv_row3)
-                self.data_transmit(csv_row4)
-                # self.data_transmit(csv_row)
+                self.data_transmit(csv_row)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
