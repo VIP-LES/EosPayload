@@ -8,7 +8,7 @@ from EosLib import Device
 from EosPayload.lib.driver_base import DriverBase
 
 
-class CameraDriver(DriverBase):
+class Camera1Driver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
@@ -41,7 +41,7 @@ class CameraDriver(DriverBase):
         self.video_capture_length = datetime.timedelta(minutes=1)
         self.camera_num = 0
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        self.camera_fps = 30
+        self.camera_fps = 5
         self.camera_res = (320, 180)
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
         self.video_name_format = "camera-{camera}-video-{num}.avi".format(camera=self.camera_num, num='{}')
@@ -102,7 +102,7 @@ class CameraDriver(DriverBase):
 
 
 if __name__ == '__main__':
-    cd = CameraDriver("eos_artifacts")
+    cd = Camera1Driver("eos_artifacts")
     print("Running setup")
     cd.setup()
     cd.cleanup()
