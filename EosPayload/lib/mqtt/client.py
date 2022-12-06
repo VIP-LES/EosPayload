@@ -43,4 +43,5 @@ class Client(mosquitto.Client):
         """
         # TODO: either have this also subscribe to the given topic, or document that it needs to be done manually
         self.message_callback_add(topic, callback)
+        self.subscribe(topic, QOS.DELIVER_AT_MOST_ONCE)
 

@@ -256,7 +256,7 @@ class DriverBase(ABC):
         )
 
         packet = Packet(
-            body=bytes(','.join(data), encoding='ascii'),
+            body=bytes(','.join(data), encoding='utf8'),
             data_header=header,
         )
 
