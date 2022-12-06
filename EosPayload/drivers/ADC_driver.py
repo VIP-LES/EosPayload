@@ -37,7 +37,7 @@ class ADCDriver(DriverBase):
                 co2_convert = co2 * 42 / 18
 
                 # CALCULATING CO2 CONCENTRATION
-                actual_co2_concentration = pow(400, ((1500 - co2_convert) / 600))
+                actual_co2_concentration = pow(400, ((1500 - co2_convert * 1000) / 600))
                 actual_co2_concentration_str = str(round(actual_co2_concentration, 3))
             except Exception as e:
                 actual_co2_concentration_str = '-1'
