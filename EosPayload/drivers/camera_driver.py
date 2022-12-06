@@ -61,6 +61,8 @@ class CameraDriver(DriverBase):
         self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_res[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.camera_res[1])
+        self.cap.set(cv2.CAP_PROP_FPS, self.camera_fps)
+        self.cap.set(cv2.CAP_PROP_FOURCC, self.fourcc)
         self.out = self.video_writer_setup()
 
         assert self.cap.isOpened()
