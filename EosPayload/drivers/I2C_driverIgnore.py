@@ -14,7 +14,7 @@ from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
 
 
-class I2CDriver(DriverBase):
+class I2CDriver2(DriverBase):
 
     @staticmethod
     def get_device_id() -> Device:
