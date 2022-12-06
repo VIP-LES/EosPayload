@@ -1,6 +1,8 @@
 import datetime
 import logging
 import os
+import time
+
 import cv2
 from EosLib import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -63,6 +65,7 @@ class CameraDriver(DriverBase):
 
         assert self.cap.isOpened()
         assert self.out.isOpened()
+        time.sleep(1)
 
     def cleanup(self):
         self.cap.release()
