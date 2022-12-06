@@ -23,35 +23,40 @@ class ADCDriver(DriverBase):
         while True:
             try:
                 uvb = ADC.read_raw("P9_39")
-                uvb_str = str(round(uvb, 3))
+                uvb_convert = uvb * 42 / 18
+                uvb_str = str(round(uvb_convert, 3))
             except Exception as e:
                 uvb_str = '-1'
                 logger.critical("A fatal exception occurred when attempting to get UVB data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
                 co2 = ADC.read_raw("P9_40")
-                co2_str = str(round(co2, 3))
+                co2_convert = co2 * 42 / 18
+                co2_str = str(round(co2_convert, 3))
             except Exception as e:
                 co2_str = '-1'
                 logger.critical("A fatal exception occurred when attempting to get CO2 data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
                 o3_gas = ADC.read_raw("P9_37")
-                o3_gas_str = str(round(o3_gas, 3))
+                o3_gas_convert = o3_gas * 42 / 18
+                o3_gas_str = str(round(o3_gas_convert, 3))
             except Exception as e:
                 o3_gas_str = '-1'
                 logger.critical("A fatal exception occurred when attempting to get O3 gas data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
                 o3_reference = ADC.read_raw("P9_38")
-                o3_reference_str = str(round(o3_reference, 3))
+                o3_reference_convert = o3_reference * 42 / 18
+                o3_reference_str = str(round(o3_reference_convert, 3))
             except Exception as e:
                 o3_reference_str = '-1'
                 logger.critical("A fatal exception occurred when attempting to get O3 reference data"
                                 f": {e}\n{traceback.format_exc()}")
             try:
                 o3_temp = ADC.read_raw("P9_33")
-                o3_temp_str = str(round(o3_temp, 3))
+                o3_temp_convert = o3_temp * 42 / 18
+                o3_temp_str = str(round(o3_temp_convert, 3))
             except Exception as e:
                 o3_temp_str = '-1'
                 logger.critical("A fatal exception occurred when attempting to get O3 temperature data"
