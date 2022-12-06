@@ -40,7 +40,7 @@ class CameraDriver(DriverBase):
         self.still_capture_interval = datetime.timedelta(minutes=5)
         self.video_capture_length = datetime.timedelta(minutes=1)
         self.camera_num = 0
-        self.fourcc = cv2.VideoWriter_fourcc(*'YUY2')
+        self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         self.camera_fps = 30
         self.camera_res = (320, 180)
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
