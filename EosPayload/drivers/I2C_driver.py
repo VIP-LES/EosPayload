@@ -67,23 +67,23 @@ class I2CDriver(DriverBase):
 
             # csv_row1 = [str(i) for i in th]
             # csv_row2 = [str(i) for i in pr]
-            # csv_row3 = [str(i) for i in irv]
-            # csv_row4 = [str(i) for i in vuva]
+            csv_row3 = [str(i) for i in irv]
+            csv_row4 = [str(i) for i in vuva]
 
             # csv_row1 = [rh_str]
             # csv_row2 = [pres_str, temp_str]
-            # csv_row3 = [lux_str, infrared_str, visible_str, full_spectrum_str]
-            # csv_row4 = [uv_str, amb_light_str]
+            csv_row3 = [lux_str, infrared_str, visible_str, full_spectrum_str]
+            csv_row4 = [uv_str, amb_light_str]
 
             # this saves data to a file
             try:
                 # self.data_log(csv_row1)
                 # self.data_log(csv_row2)
-                # self.data_log(csv_row3)
-                # self.data_log(csv_row4)
-                a = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]  # array of data
-                csv_row = [str(i) for i in a]  # data into string array
-                self.data_log(csv_row)  # puts row into csv
+                self.data_log(csv_row3)
+                self.data_log(csv_row4)
+                # a = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]  # array of data
+                # csv_row = [str(i) for i in a]  # data into string array
+                # self.data_log(csv_row)  # puts row into csv
             except Exception as e:
                 logger.error(f"unable to log data: {e}")
 
@@ -91,9 +91,9 @@ class I2CDriver(DriverBase):
             try:
                 # self.data_transmit(csv_row1)
                 # self.data_transmit(csv_row2)
-                # self.data_transmit(csv_row3)
-                # self.data_transmit(csv_row4)
-                self.data_transmit(csv_row)
+                self.data_transmit(csv_row3)
+                self.data_transmit(csv_row4)
+                # self.data_transmit(csv_row)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
