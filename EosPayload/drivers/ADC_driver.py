@@ -22,8 +22,9 @@ class ADCDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         while True:
             try:
-                uvb = ADC.read_raw("P9_39")
-                uvb_convert = uvb * 42 / 18
+                # uvb = ADC.read_raw("P9_39")
+                uvb = ADC.read("P9_39")
+                uvb_convert = uvb * 42 / 18 * 10
                 uvb_str = str(round(uvb_convert, 3))
             except Exception as e:
                 uvb_str = '-1'
