@@ -65,11 +65,6 @@ class I2CDriver(DriverBase):
                 logger.critical("A fatal exception occurred when attempting to get Light (Visible UVA) data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            # csv_row1 = [str(i) for i in th]
-            # csv_row2 = [str(i) for i in pr]
-            csv_row3 = [str(i) for i in irv]
-            csv_row4 = [str(i) for i in vuva]
-
             # csv_row1 = [rh_str]
             # csv_row2 = [pres_str, temp_str]
             csv_row3 = [lux_str, infrared_str, visible_str, full_spectrum_str]
