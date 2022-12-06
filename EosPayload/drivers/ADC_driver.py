@@ -48,6 +48,7 @@ class ADCDriver(DriverBase):
                 o3_gas = ADC.read("P9_37")
                 o3_gas_convert = o3_gas * 42 / 18
                 o3_gas_str = str(round(o3_gas_convert, 3))
+                o3_gas_str1 = str(round(o3_gas, 3))
 
                 o3_reference = ADC.read("P9_38")
                 o3_reference_convert = o3_reference * 42 / 18
@@ -72,7 +73,7 @@ class ADCDriver(DriverBase):
                                 f": {e}\n{traceback.format_exc()}")
 
             csv_row = [actual_uvb_str, actual_co2_concentration_str, o3_gas_str,
-                       o3_reference_str, o3_temp_str, actual_o3_gas_concentration_str]
+                       o3_reference_str, o3_temp_str, actual_o3_gas_concentration_str, o3_gas_str1]
 
             # this saves data to a file
             try:
