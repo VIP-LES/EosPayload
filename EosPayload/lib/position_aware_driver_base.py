@@ -2,7 +2,7 @@ from abc import ABC
 
 import EosLib.packet.packet
 from EosLib import Device, Type
-from EosLib.format.Position import Position
+from EosLib.format.position import Position
 
 from EosPayload.lib.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
@@ -11,8 +11,8 @@ from EosPayload.lib.mqtt import Topic
 class PositionAwareDriverBase(DriverBase, ABC):
 
     # TODO: Move everything out of init
-    def __init__(self):
-        super().__init__()
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
         self.latest_position = Position()
         self._mqtt.subscribe(Topic.POSITION_UPDATE)
         self._mqtt.register_subscriber(Topic.POSITION_UPDATE, self.position_callback)

@@ -6,7 +6,7 @@ import datetime
 
 from EosLib.packet.definitions import Device, Type, Priority
 from EosLib.packet.packet import DataHeader, Packet
-from EosLib.format.Position import Position, FlightState
+from EosLib.format.position import Position, FlightState
 
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
@@ -19,8 +19,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     esp_data_time_format = "%H:%M:%S %m/%d/%Y"
 
     # TODO: Move everything out of init
-    def __init__(self):
-        super().__init__()
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
         self.esp_port = "/dev/ttyUSB0"
         self.esp_baud = 115200
         self.ser_connection = None

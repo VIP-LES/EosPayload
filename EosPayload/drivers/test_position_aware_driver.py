@@ -2,7 +2,7 @@ import time
 import logging
 
 import EosLib.packet.packet
-import EosLib.format.Position
+import EosLib.format.position
 
 from EosLib.packet.definitions import Device
 

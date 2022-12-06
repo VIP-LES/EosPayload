@@ -7,14 +7,14 @@ from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
 class MockEngineeringDataDriver(EngineeringDataDriver):
     # TODO: Move everything out of init
-    def __init__(self):
-        super().__init__()
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
         self.data_file_path = "mock_esp_data.csv"
         self.data_file = None
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_name() -> str:
