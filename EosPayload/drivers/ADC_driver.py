@@ -96,8 +96,8 @@ class ADCDriver(DriverBase):
                     #time.sleep(1)
                 except Exception as e:
                     logger.error(f"unable to transmit data: {e}")
-
-            time.sleep(0.5)
+            count += 1
+            time.sleep(1)
 
     @staticmethod
     def enabled() -> bool:
