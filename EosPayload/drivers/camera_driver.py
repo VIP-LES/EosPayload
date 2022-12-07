@@ -66,9 +66,16 @@ class Camera1Driver(DriverBase):
         self.cap.set(cv2.CAP_PROP_FPS, self.camera_fps)
         self.cap.set(cv2.CAP_PROP_FOURCC, self.fourcc)
         self.out = self.video_writer_setup()
+        try:
+            assert self.cap.isOpened()
+        except AssertionError:
+            self._logger.warning(f'Unable to open camera')
 
-        assert self.cap.isOpened()
-        assert self.out.isOpened()
+        try:
+            assert self.out.isOpened()
+        except AssertionError:
+            self._logger.warning(f'Unable to open video writer')
+
         time.sleep(1)
 
     def cleanup(self):
