@@ -52,7 +52,3 @@ class TestQueueDriver(DriverBase):
             (priority, timestamp, value) = self._thread_queue.get()
             logger.info(f"popped item #{value} (priority = {priority}, timestamp = {timestamp})")
             time.sleep(0.1)
-
-    @staticmethod
-    def enabled() -> bool:
-        return False
