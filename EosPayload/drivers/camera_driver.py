@@ -92,7 +92,7 @@ class Camera1Driver(DriverBase):
             ret, frame = self.cap.read()
             if not ret:
                 logger.warning("Video frame capture failed")
-                break
+
             if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
                 cv2.imwrite(os.path.join(self.path, self.still_name_format.format(self.still_num)), frame)
                 logger.info("Saving still image {}".format(self.still_num))
