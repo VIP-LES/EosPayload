@@ -9,7 +9,6 @@ from EosPayload.lib.driver_base import DriverBase
 
 
 class ADCDriver(DriverBase):
-    ADC.setup()
 
     @staticmethod
     def get_device_id() -> Device:
@@ -18,6 +17,11 @@ class ADCDriver(DriverBase):
     @staticmethod
     def get_device_name() -> str:
         return "ADC-Driver"
+
+    def setup(self) -> None:
+        super().setup()
+        ADC.setup()
+        time.sleep(1)
 
     def device_read(self, logger: logging.Logger) -> None:
         while True:
@@ -83,6 +87,7 @@ class ADCDriver(DriverBase):
             # this sends data to the radio to get relayed to the ground station
             try:
                 self.data_transmit(csv_row)
+                time.sleep(1)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 

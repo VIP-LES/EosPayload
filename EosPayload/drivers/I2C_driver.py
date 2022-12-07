@@ -1,4 +1,3 @@
-from random import randint
 import logging
 import time
 import traceback
@@ -7,8 +6,6 @@ import board
 from adafruit_ms8607 import MS8607
 from adafruit_tsl2591 import TSL2591
 from adafruit_ltr390 import LTR390
-
-from smbus2 import SMBus
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -31,7 +28,6 @@ class I2CDriver(DriverBase):
         tsl = TSL2591(i2c)
         ltr = LTR390(i2c)
         while True:
-            # this is where you would poll a device for data or whatever
 
             # while True:
             #     print("Pressure: %.2f hPa" % sensor.pressure)
@@ -90,18 +86,11 @@ class I2CDriver(DriverBase):
             # this sends data to the radio to get relayed to the ground station
             try:
                 self.data_transmit(csv_row)
+                time.sleep(1)
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
             time.sleep(0.5)
-
-    # def device_command(self, logger: logging.Logger) -> None:
-    #     logger.info("Starting to send command to device!")
-    #     while True:
-    #         # this is where you would send command to device
-    #         bus = SMBus(2)
-    #         bus.write_i2c_block_data(0x44, 0x88, 24)
-    #         time.sleep(0.5)
 
     @staticmethod
     def enabled() -> bool:
