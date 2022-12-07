@@ -45,6 +45,14 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return "engineering-data-driver"
 
     @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
+
+    @staticmethod
+    def command_thread_enabled() -> bool:
+        return True
+
+    @staticmethod
     def degrees_minutes_to_signed_decimal(dm: str) -> float:
         """
         Converts a geographic co-ordinate given in "degrees/minutes" dddmm.mmmm
@@ -52,10 +60,13 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         decimal (python float) format
         """
         # '12319.943281'
-        dm = str(dm)
-        if not dm or dm == '0.0':
-            return 0.
-        d, m = re.match(r'^(\d+)(\d\d\.\d+)$', dm).groups()
+        dm = "00" + dm
+        if not dm or dm == '0.0' or dm is None:
+            return 0.0
+        try:
+            d, m = re.match(r'^(\d+)(\d\d\.\d+)$', dm).groups()
+        except TypeError:
+            return 0.0
         return float(d) + float(m) / 60
 
     @staticmethod
@@ -151,4 +162,5 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                 self.old_position = self.latest_position
 
     def cleanup(self):
-        self.ser_connection.close()
+        if self.ser_connection is not None:
+            self.ser_connection.close()
