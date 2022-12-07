@@ -1,6 +1,8 @@
 from datetime import datetime
 from queue import PriorityQueue
+
 import logging
+import pyudev
 import time
 import traceback
 
@@ -26,11 +28,36 @@ class RadioDriver(DriverBase):
     }
 
     def setup(self) -> None:
+        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7YM"
+        context = pyudev.Context()
+        devices = context.list_devices(ID_SERIAL=serial_id)
+        device_list = []
+        for device in devices:
+            device_list.append(device)
+        if len(device_list) == 0:
+            print(device_list)
+            self._logger.error("Could not find device")
+            raise EnvironmentError()
+        xbee_node = None
+
+        print(device_list)
+        for device in device_list:
+            print(f'trying {device.device_node}')
+            try:
+                self.test_port = XBeeDevice(device.device_node, 9600)
+                self.test_port.open()
+                self.test_port.send_data_broadcast("Testing")
+                xbee_node = device.device_node
+                break
+            except Exception as e:
+                print(e)
+            finally:
+                self.test_port.close()
+
         con = True
         while con:
             try:
-                #self.port = XBeeDevice("/dev/cu.usbserial-8", 9600)
-                self.port = XBeeDevice("COM8", 9600)
+                self.port = XBeeDevice(xbee_node, 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
