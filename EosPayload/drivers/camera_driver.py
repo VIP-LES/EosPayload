@@ -43,6 +43,10 @@ class Camera1Driver(DriverBase):
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         self.camera_fps = 5
         self.camera_res = (320, 180)
+        self.still_name_format = None
+        self.video_name_format = None
+
+    def setup(self) -> None:
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
         self.video_name_format = "camera-{camera}-video-{num}.avi".format(camera=self.camera_num, num='{}')
         self.video_num = self.find_next_file_num(self.video_name_format)
@@ -51,7 +55,6 @@ class Camera1Driver(DriverBase):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-    def setup(self) -> None:
         self.video_num = self.find_next_file_num(self.video_name_format)
 
         self.still_num = self.find_next_file_num(self.still_name_format)
