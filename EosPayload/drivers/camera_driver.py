@@ -12,11 +12,15 @@ class Camera1Driver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
-        return "camera-1-driver"
+        return "camera-driver"
 
     @staticmethod
     def get_device_id() -> Device:
         return Device.CAMERA_1
+
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
 
     def video_writer_setup(self):
         return cv2.VideoWriter(os.path.join(self.path, self.video_name_format.format(self.video_num)),
@@ -41,7 +45,7 @@ class Camera1Driver(DriverBase):
         self.video_capture_length = datetime.timedelta(minutes=1)
         self.camera_num = 0
         self.fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        self.camera_fps = 5
+        self.camera_fps = 10
         self.camera_res = (320, 180)
         self.still_name_format = None
         self.video_name_format = None
@@ -75,6 +79,7 @@ class Camera1Driver(DriverBase):
             assert self.out.isOpened()
         except AssertionError:
             self._logger.warning(f'Unable to open video writer')
+            raise EnvironmentError
 
         time.sleep(1)
 
