@@ -21,9 +21,9 @@ class I2CDriver(DriverBase):
     def get_device_name() -> str:
         return "I2C-Driver"
 
-    # @staticmethod
-    # def read_thread_enabled() -> bool:
-    #     return True
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
