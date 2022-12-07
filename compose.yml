@@ -13,6 +13,7 @@ services:
     volumes:
       - ./eos_artifacts:/usr/src/app/eos_artifacts
       - .:/usr/src/app:ro
+      - /run/udev:/run/udev:ro
 
   mosquitto:
     image: eclipse-mosquitto:2
