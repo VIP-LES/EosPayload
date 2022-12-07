@@ -102,7 +102,6 @@ class Camera1Driver(DriverBase):
                 video_start_time = datetime.datetime.now()
                 self.out.release()
                 self.out = self.video_writer_setup()
-            time.sleep(1/self.camera_fps)
             ret, frame = self.cap.read()
             if not ret:
                 logger.warning("Video frame capture failed")
