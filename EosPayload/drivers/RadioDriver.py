@@ -28,7 +28,31 @@ class RadioDriver(DriverBase):
     }
 
     def setup(self) -> None:
-        xbee_node = "/dev/serial/by-id/usb-FTDI_XBIB-XBP9XR-0_FT5PG7YM-if02-port0"
+        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7YM"
+        context = pyudev.Context()
+        devices = context.list_devices(ID_SERIAL=serial_id)
+        device_list = []
+        for device in devices:
+            device_list.append(device)
+        if len(device_list) == 0:
+            print(device_list)
+            self._logger.error("Could not find device")
+            raise EnvironmentError()
+        xbee_node = None
+
+        print(device_list)
+        for device in device_list:
+            print(f'trying {device.device_node}')
+            try:
+                self.test_port = XBeeDevice(device.device_node, 9600)
+                self.test_port.open()
+                self.test_port.send_data_broadcast("Testing")
+                xbee_node = device.device_node
+                break
+            except Exception as e:
+                print(e)
+            finally:
+                self.test_port.close()
 
         con = True
         while con:
