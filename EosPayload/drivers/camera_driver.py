@@ -114,9 +114,3 @@ class Camera1Driver(DriverBase):
                 last_still_time = datetime.datetime.now()
             self.out.write(frame)
 
-
-if __name__ == '__main__':
-    cd = Camera1Driver("eos_artifacts")
-    print("Running setup")
-    cd.setup()
-    cd.cleanup()
