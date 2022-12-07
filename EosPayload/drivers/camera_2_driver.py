@@ -5,6 +5,10 @@ from EosLib import Device
 class Camera2Driver(Camera1Driver):
 
     @staticmethod
+    def enabled() -> bool:
+        return False
+
+    @staticmethod
     def get_device_name() -> str:
         return "camera-2-driver"
 

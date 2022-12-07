@@ -45,6 +45,8 @@ class Camera1Driver(DriverBase):
         self.camera_res = (320, 180)
         self.still_name_format = None
         self.video_name_format = None
+        self.video_num = 0
+        self.still_num = 0
 
     def setup(self) -> None:
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
@@ -55,11 +57,8 @@ class Camera1Driver(DriverBase):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-        self.video_num = self.find_next_file_num(self.video_name_format)
-
-        self.still_num = self.find_next_file_num(self.still_name_format)
-
         self.cap = cv2.VideoCapture(self.camera_num)
+        self._logger.info(f'Setting up camera {self.camera_num}')
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 32)
         self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_res[0])
