@@ -27,6 +27,7 @@ class I2CDriver(DriverBase):
         # ms = MS8607(i2c)
         tsl = TSL2591(i2c)
         ltr = LTR390(i2c)
+        count = 0
         while True:
 
             # while True:
@@ -84,11 +85,12 @@ class I2CDriver(DriverBase):
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
-            try:
-                self.data_transmit(csv_row)
-                time.sleep(1)
-            except Exception as e:
-                logger.error(f"unable to transmit data: {e}")
+            if count % 2 == 0:
+                try:
+                    self.data_transmit(csv_row)
+                    #time.sleep(1)
+                except Exception as e:
+                    logger.error(f"unable to transmit data: {e}")
 
             time.sleep(0.5)
 

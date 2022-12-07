@@ -24,6 +24,7 @@ class ADCDriver(DriverBase):
         time.sleep(1)
 
     def device_read(self, logger: logging.Logger) -> None:
+        count = 0
         while True:
             try:
                 uvb = ADC.read("P9_39")
@@ -85,11 +86,12 @@ class ADCDriver(DriverBase):
                 logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
-            try:
-                self.data_transmit(csv_row)
-                time.sleep(1)
-            except Exception as e:
-                logger.error(f"unable to transmit data: {e}")
+            if count % 2 == 0:
+                try:
+                    self.data_transmit(csv_row)
+                    #time.sleep(1)
+                except Exception as e:
+                    logger.error(f"unable to transmit data: {e}")
 
             time.sleep(0.5)
 
