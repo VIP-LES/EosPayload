@@ -19,7 +19,6 @@ class PositionAwareDriverBase(DriverBase, ABC):
         self._mqtt.register_subscriber(Topic.POSITION_UPDATE, self.position_callback)
 
     def position_callback(self, _client, userdata, message):
-        userdata['logger'].info('Updating position')
         incoming_packet = EosLib.packet.packet.Packet.decode(message.payload)
         if (not isinstance(incoming_packet, EosLib.packet.packet.Packet)) or \
                 incoming_packet.data_header is None or \
@@ -30,3 +29,5 @@ class PositionAwareDriverBase(DriverBase, ABC):
             new_position = Position.decode_position(incoming_packet)
             if new_position.valid:
                 self.latest_position = new_position
+                userdata['logger'].info('Updating position')
+
