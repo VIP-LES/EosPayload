@@ -2,13 +2,11 @@ from datetime import datetime
 from queue import PriorityQueue
 import logging
 import time
+import traceback
 
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
-
-import EosLib.packet.data_header
-import EosLib.packet.definitions
 
 from EosLib import Device
 from EosLib.packet.packet import Packet
@@ -64,7 +62,7 @@ class RadioDriver(DriverBase):
                 logger.info("no mqtt destination mapping")
 
         # Receives data from MQTT and sends it down to ground station according to priority
-        def xbee_send_callback(client, userdata, message):
+        def xbee_send_callback(_client, _userdata, message):
             # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
             packet_from_mqtt = Packet.decode(message.payload)
 
@@ -88,4 +86,9 @@ class RadioDriver(DriverBase):
         while True:
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
-            self.port.send_data_async(self.remote, packet.encode())
+            try:
+                self.port.send_data_async(self.remote, packet.encode())
+            except Exception as e:
+                self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
+                                   f"\n{traceback.format_exc()}")
+
