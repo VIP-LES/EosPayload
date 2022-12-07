@@ -29,8 +29,8 @@ class RadioDriver(DriverBase):
         con = True
         while con:
             try:
-                self.port = XBeeDevice("/dev/cu.usbserial-8", 9600)
-                # self.port = XBeeDevice("COM9", 9600)
+                #self.port = XBeeDevice("/dev/cu.usbserial-8", 9600)
+                self.port = XBeeDevice("COM8", 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
@@ -46,6 +46,14 @@ class RadioDriver(DriverBase):
     @staticmethod
     def get_device_name() -> str:
         return "radio-driver"
+
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
+
+    @staticmethod
+    def command_thread_enabled() -> bool:
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT

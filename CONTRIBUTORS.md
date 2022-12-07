@@ -1,4 +1,5 @@
 Daryl Dohner  
 David Reynolds  
 Aryan Battula  
-Shachi Jain  
+Shachi Jain
+Thomas Holder
