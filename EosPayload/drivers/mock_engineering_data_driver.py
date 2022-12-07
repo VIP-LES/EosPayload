@@ -9,7 +9,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
     # TODO: Move everything out of init
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
-        self.data_file_path = "mock_esp_data.csv"
+        self.data_file_path = "EosPayload/mock_esp_data.csv"
         self.data_file = None
 
     @staticmethod

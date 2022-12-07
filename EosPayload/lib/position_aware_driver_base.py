@@ -14,10 +14,11 @@ class PositionAwareDriverBase(DriverBase, ABC):
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
         self.latest_position = Position()
-        self._mqtt.subscribe(Topic.POSITION_UPDATE)
+
+    def setup(self) -> None:
         self._mqtt.register_subscriber(Topic.POSITION_UPDATE, self.position_callback)
 
-    def position_callback(self, client, userdata, message):
+    def position_callback(self, _client, _userdata, message):
         incoming_packet = EosLib.packet.packet.Packet.decode(message.payload)
         if (not isinstance(incoming_packet, EosLib.packet.packet.Packet)) or \
                 incoming_packet.data_header is None or \

@@ -19,7 +19,6 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                        "humidity"]
     esp_data_time_format = "%H:%M:%S %m/%d/%Y"
 
-    # TODO: Move everything out of init
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
         self.esp_id = "Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_de1ea05ac21bec119a14cb79f01c6278"
@@ -46,7 +45,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return "engineering-data-driver"
 
     @staticmethod
-    def dm_to_sd(dm):
+    def degrees_minutes_to_signed_decimal(dm: str) -> float:
         """
         Converts a geographic co-ordinate given in "degrees/minutes" dddmm.mmmm
         format (eg, "12319.943281" = 123 degrees, 19.943281 minutes) to a signed
@@ -69,9 +68,9 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
         data_dict['LAT'] = data_dict['LAT'].replace('N', '').replace('S', '')
-        data_dict['LAT'] = EngineeringDataDriver.dm_to_sd(float(data_dict['LAT']))
+        data_dict['LAT'] = EngineeringDataDriver.degrees_minutes_to_signed_decimal(data_dict['LAT'])
         data_dict['LONG'] = data_dict['LONG'].replace('E', '').replace('W', '')
-        data_dict['LONG'] = EngineeringDataDriver.dm_to_sd(float(data_dict['LONG']))
+        data_dict['LONG'] = EngineeringDataDriver.degrees_minutes_to_signed_decimal(data_dict['LONG'])
         data_dict['LONG'] *= -1  # TODO: do this in a way that doesn't make me want to cry
 
         data_dict['altitude'] = float(data_dict['altitude']) * 3.281  # Convert to feet
