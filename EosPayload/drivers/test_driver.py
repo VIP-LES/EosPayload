@@ -10,14 +10,21 @@ from EosPayload.lib.driver_base import DriverBase
 
 class TestDriver(DriverBase):
 
+    @staticmethod
+    def enabled() -> bool:
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_1
+        return Device.MISC_TEST_1
 
     @staticmethod
     def get_device_name() -> str:
         return "test-driver"
+
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")

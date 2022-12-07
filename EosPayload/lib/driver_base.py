@@ -1,9 +1,11 @@
+import threading
 from abc import ABC, abstractmethod
 from datetime import datetime
 from threading import Thread
 import logging
 import os
 import time
+import traceback
 
 from paho.mqtt.client import MQTTMessageInfo
 
@@ -17,20 +19,6 @@ from EosPayload.lib.mqtt.client import Client
 
 
 class DriverBase(ABC):
-
-    #
-    # CLASS PROPERTIES
-    #
-
-    # private -- these variables should never be referenced by subclasses
-    __read_thread = None
-    __command_thread = None
-    __data_file = None
-
-    # protected -- these variables may be referenced by subclasses.  see restrictions below.
-    _logger = None  # may be referenced by subclasses only in methods that run in the main thread (setup, cleanup, etc)
-    _mqtt = None
-    _output_directory = None
 
     #
     # CONFIGURATION
@@ -74,15 +62,51 @@ class DriverBase(ABC):
         """
         return True
 
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        """ [OPTIONAL] Defaults to False.  device_read() should be overriden if enabled
+
+        :return: True if read thread is enabled, False otherwise.
+        """
+        return False
+
+    @staticmethod
+    def command_thread_enabled() -> bool:
+        """ [OPTIONAL] Defaults to False.  device_command() should be overriden if enabled
+
+        :return: True if command thread is enabled, False otherwise.
+        """
+        return False
+
     #
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
     def __init__(self, output_directory: str):
         """ Driver constructor.  Responsible for initialization tasks.
-        Should never be overriden by subclasses.  Use the setup() method instead.
+        Should only be overriden by subclasses to initialize instance variables to zero-values/constants.
+        Calling `super().__init__(output_directory)` at the beginning is required.
+        For all other initialization purposes, use the setup() method instead.
         Should only ever be invoked by orchEOStrator.
         """
+
+        #
+        # CLASS PROPERTIES
+        #
+
+        # private -- these variables should never be referenced by subclasses
+        self.__read_thread = None
+        self.__command_thread = None
+        self.__data_file = None
+
+        # protected -- these variables may be referenced by subclasses.  see restrictions below.
+        self._logger = None  # may be referenced by subclasses only in methods that run in the main thread (setup, cleanup, etc)
+        self._mqtt = None
+        self._output_directory = None
+
+        #
+        # INITIALIZATION
+        #
 
         # Validate device name
         if not (self.get_device_name().isascii() and self.get_device_name().replace('-', '').isalnum()):
@@ -98,14 +122,18 @@ class DriverBase(ABC):
         self._logger = logging.getLogger(self.get_device_pretty_id())
 
         # set up mqtt
-        self._mqtt = Client(MQTT_HOST)
+        try:
+            self._mqtt = Client(MQTT_HOST)
+        except Exception as e:
+            self._logger.critical(f"Failed to setup MQTT: {e}\n{traceback.format_exc()}")
 
         self._logger.info("init complete")
 
     def setup(self) -> None:
         """ [OPTIONAL] Subclass-defined method to initialize any variables.
         Executes in Driver Main Thread.
-        Read-only data can be stored to self.<name> for use in child threads.
+        Read-only instance data can be stored to self.<name> for use in child threads.
+        Declare instance variables by overriding __init__ to set them to zero-values.  Define them here.
         Recommended to call super().setup() in first line of implementation.
         """
         pass
@@ -147,23 +175,43 @@ class DriverBase(ABC):
         self.setup()
         self._logger.info("setup complete")
 
-        read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
-        self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
-                                    (), {"logger": read_logger})
-        self.__read_thread.daemon = True
-        self.__read_thread.start()
-        command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
-        self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
-                                       (), {"logger": command_logger})
-        self.__command_thread.daemon = True
-        self.__command_thread.start()
+        # thread setup
 
+        if self.read_thread_enabled():
+            self._logger.info("starting read thread")
+            read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
+            self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
+                                        (), {"logger": read_logger})
+            self.__read_thread.daemon = True
+            self.__read_thread.start()
+        else:
+            self._logger.info("skipping starting read thread because it is not enabled")
+
+        if self.command_thread_enabled():
+            self._logger.info("starting command thread")
+            command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
+            self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
+                                           (), {"logger": command_logger})
+            self.__command_thread.daemon = True
+            self.__command_thread.start()
+        else:
+            self._logger.info("skipping starting command thread because it is not enabled")
+
+        self._logger.info("device startup complete")
+
+        # health check loop
         while True:
             if not self.is_healthy():
+                read_thread_message = "disabled"
+                if self.read_thread_enabled():
+                    read_thread_message = str(self.__read_thread.is_alive())
+                command_thread_message = "disabled"
+                if self.command_thread_enabled():
+                    command_thread_message = self.__command_thread.is_alive()
                 self._logger.critical(
                     f"device unhealthy:"
-                    f"\n\tread_thread running: {self.__read_thread.is_alive()}"
-                    f"\n\tcommand thread running: {self.__command_thread.is_alive()}"
+                    f"\n\tread_thread running: {read_thread_message}"
+                    f"\n\tcommand thread running: {command_thread_message}"
                 )
 
             self.__send_heartbeat()
@@ -197,7 +245,7 @@ class DriverBase(ABC):
     def spin() -> None:
         """ Loops forever. """
         while True:
-            time.sleep(1)
+            time.sleep(10)
 
     def is_healthy(self) -> bool:
         """ Reports if the driver is operating properly
@@ -205,24 +253,59 @@ class DriverBase(ABC):
         :return: True if all threads are alive, False otherwise
         """
 
-        return self.__read_thread.is_alive() and self.__command_thread.is_alive()
+        read_thread_healthy = self.__read_thread.is_alive() if self.read_thread_enabled() else True
+        command_thread_healthy = self.__command_thread.is_alive() if self.command_thread_enabled() else True
+
+        return read_thread_healthy and command_thread_healthy
 
     def __send_heartbeat(self) -> bool:
         """ Dispatches a heartbeat message to MQTT.
         Should not be overriden or invoked by subclasses.
 
+        Heartbeat syntax:
+          single utf8-encoded CSV row of the following fields:
+            is_healthy: 0 if unhealthy, 1 if healthy
+            thread_count: number of threads in use
+            read_thread_status: -1 if dead, 0 if disabled, 1 if running
+            command_thread_status: -1 if dead, 0 if disabled, 1 if running
+
         :return: True if heartbeat successfully sent, False otherwise
         """
         succeeded = False
         if self._mqtt:
+            header = DataHeader(
+                data_type=Type.TELEMETRY,
+                sender=self.get_device_id(),
+                priority=Priority.NO_TRANSMIT,
+            )
+            read_thread_status = 0
+            if self.read_thread_enabled():
+                if self.__read_thread.is_alive():
+                    read_thread_status = 1
+                else:
+                    read_thread_status = -1
+            command_thread_status = 0
+            if self.command_thread_enabled():
+                if self.__command_thread.is_alive():
+                    command_thread_status = 1
+                else:
+                    command_thread_status = -1
             status = ','.join([
-                str(int(self.get_device_id())),
-                datetime.now().isoformat(),
                 str(int(self.is_healthy())),
-                str(int(self.__read_thread.is_alive())),
-                str(int(self.__command_thread.is_alive()))
+                str(threading.active_count()),
+                str(read_thread_status),
+                str(command_thread_status)
             ])
-            succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, status)
+            packet = Packet(
+                data_header=header,
+                body=status.encode('utf8')
+            )
+            succeeded = False
+            try:
+                succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, packet.encode())
+            except Exception as e:
+                self._logger.error(f"exception occurred while attempting to send heartbeat: {e}"
+                                   f"\n{traceback.format_exc()}")
         if succeeded:
             self._logger.info("heartbeat sent")
         else:
@@ -247,6 +330,7 @@ class DriverBase(ABC):
 
         :param data: an array of strings
         :param telemetry: optional, defaults to False.  Set to True if this is telemetry data.
+        :return MQTTMessageInfo object or None on total failure -- see Paho docs
         """
 
         header = DataHeader(
@@ -256,11 +340,11 @@ class DriverBase(ABC):
         )
 
         packet = Packet(
-            body=bytes(','.join(data), encoding='ascii'),
+            body=bytes(','.join(data), encoding='utf8'),
             data_header=header,
         )
 
-        return self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+        return self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode()) if self._mqtt else None
 
 
 class GenericDriverException(Exception):
