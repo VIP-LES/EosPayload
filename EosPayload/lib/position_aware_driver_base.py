@@ -10,15 +10,16 @@ from EosPayload.lib.mqtt import Topic
 
 class PositionAwareDriverBase(DriverBase, ABC):
 
-    # TODO: Move everything out of init
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
         self.latest_position = Position()
 
     def setup(self) -> None:
+        super().setup()
         self._mqtt.register_subscriber(Topic.POSITION_UPDATE, self.position_callback)
 
-    def position_callback(self, _client, _userdata, message):
+    def position_callback(self, _client, userdata, message):
+        userdata['logger'].info('Updating position')
         incoming_packet = EosLib.packet.packet.Packet.decode(message.payload)
         if (not isinstance(incoming_packet, EosLib.packet.packet.Packet)) or \
                 incoming_packet.data_header is None or \
