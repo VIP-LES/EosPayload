@@ -23,6 +23,10 @@ class ADCDriver(DriverBase):
         ADC.setup()
         time.sleep(1)
 
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
+
     def device_read(self, logger: logging.Logger) -> None:
         count = 0
         while True:
