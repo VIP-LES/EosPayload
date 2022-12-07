@@ -10,19 +10,29 @@ from EosPayload.lib.driver_base import DriverBase
 
 class TestQueueDriver(DriverBase):
 
-    _thread_queue = PriorityQueue()
-
     @staticmethod
     def enabled() -> bool:
         return False
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_3
+        return Device.MISC_TEST_3
 
     @staticmethod
     def get_device_name() -> str:
         return "test-queue-driver"
+
+    @staticmethod
+    def enabled() -> bool:
+        return False
+
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
+        self._thread_queue = PriorityQueue()
+
+    @staticmethod
+    def read_thread_enabled() -> bool:
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
 
@@ -35,6 +45,10 @@ class TestQueueDriver(DriverBase):
                 time.sleep(0.001)
 
             time.sleep(10)
+
+    @staticmethod
+    def command_thread_enabled() -> bool:
+        return True
 
     def device_command(self, logger: logging.Logger) -> None:
 

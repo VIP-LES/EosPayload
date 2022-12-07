@@ -15,10 +15,12 @@ from EosPayload.lib.mqtt import Topic
     (1) Emits regular pings to the ground station
     (2) Replies to ping commands from the ground station
     
-    Command syntax:
+    Commands should be a utf8-encoded string.
+    Syntax:
         `PING [optional identifier]`
         `ACK [optional identifier from PING]`
         `ERR <message>`
+    Identifiers should be short to minimize packet size
 """
 
 
@@ -42,9 +44,14 @@ class PingDriver(DriverBase):
     def get_device_name() -> str:
         return "ping-driver"
 
+    @staticmethod
+    def command_thread_enabled() -> bool:
+        return True
+
     def device_command(self, logger: logging.Logger) -> None:
-        self._mqtt.user_data_set({'logger': logger})
-        self._mqtt.register_subscriber(Topic.PING_COMMAND, self.ping_reply)
+        if self._mqtt:
+            self._mqtt.user_data_set({'logger': logger})
+            self._mqtt.register_subscriber(Topic.PING_COMMAND, self.ping_reply)
         counter = 0
         while True:
             self.ping_ground(counter, logger)
@@ -108,11 +115,12 @@ class PingDriver(DriverBase):
 
     def ping_ground(self, counter: int, logger: logging.Logger):
         command = f"{PingDriver.Commands.PING.value} {counter}"
-        logger.info("pinging ground: " + command)
         header = DataHeader(
             data_type=Type.TELEMETRY,
             sender=PingDriver.get_device_id(),
             priority=Priority.TELEMETRY
         )
         packet = Packet(bytes(command, 'utf8'), header)
-        self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+        if self._mqtt:
+            logger.info("pinging ground: " + command)
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
