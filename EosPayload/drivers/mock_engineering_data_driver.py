@@ -25,6 +25,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
         return Device.MISC_ENGINEERING_1
 
     def setup(self) -> None:
+        super(EngineeringDataDriver, self).setup()
         self.data_file = open(self.data_file_path, 'r')
 
     def fetch_data(self) -> str:

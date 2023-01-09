@@ -89,6 +89,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return list_data, data_dict
 
     def setup(self) -> None:
+        super().setup()
         context = pyudev.Context()
         devices = context.list_devices(subsystem='tty', ID_SERIAL=self.esp_id)
         device_list = []
@@ -125,7 +126,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
         self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
         logger.info(f"Emitting position, lat: {float(data_dict['LAT'])}, long: {float(data_dict['LONG'])}, altitude: "
-                    f"{float(data_dict['altitude'])}")
+                    f"{float(data_dict['altitude'])}, state: {self.current_flight_state.name}")
 
     def device_read(self, logger: logging.Logger) -> None:
         while self.is_alive():
@@ -160,6 +161,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                 else:
                     self.current_flight_state = FlightState.UNKNOWN
                 self.old_position = self.latest_position
+                last_state_update_time = datetime.datetime.now()
 
     def cleanup(self):
         if self.ser_connection is not None:
