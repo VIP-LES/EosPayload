@@ -16,5 +16,6 @@ class QOS(int, Enum):
 class Topic(str, Enum):
     RADIO_TRANSMIT = 'radio/transmit'
     HEALTH_HEARTBEAT = 'health/heartbeat'
+    POSITION_UPDATE = 'position/update'
     PING_COMMAND = 'ping/command'
     # register new topics by appending them to the above list
