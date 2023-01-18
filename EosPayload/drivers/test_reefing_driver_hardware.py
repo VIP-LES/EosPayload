@@ -7,10 +7,10 @@ from EosLib.packet.definitions import Device
 from EosPayload.drivers.reefing_driver import ReefingDriver
 
 
-class TestReefingDriver(ReefingDriver):
+class TestReefingDriverHardware(ReefingDriver):
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
