@@ -12,7 +12,7 @@ from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 class ReefingDriver(PositionAwareDriverBase):
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def command_thread_enabled() -> bool:
