@@ -1,9 +1,5 @@
 import logging
-import time
 
-import Adafruit_BBIO.PWM as PWM
-
-from EosLib.format.position import FlightState
 from EosLib.packet.definitions import Device
 
 from EosPayload.drivers.reefing_driver import ReefingDriver
@@ -12,7 +8,7 @@ from EosPayload.drivers.reefing_driver import ReefingDriver
 class TestReefingDriver(ReefingDriver):
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -23,6 +19,7 @@ class TestReefingDriver(ReefingDriver):
         return "test-reefing-motor-driver"
 
     def setup(self) -> None:
+        super(ReefingDriver, self).setup()
         self.current_reef_amount = 0
 
     def __init__(self, output_directory: str):
@@ -31,3 +28,6 @@ class TestReefingDriver(ReefingDriver):
 
     def set_reefing_level(self, reefing_percent: float, logger: logging.Logger):
         logger.info(f"Setting reefing to {reefing_percent}%")
+        logger.info(f"Current altitude: {self.latest_position.altitude}, "
+                    f"state: {self.latest_position.flight_state.name}")
+
