@@ -6,12 +6,6 @@ from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
 
 class MockEngineeringDataDriver(EngineeringDataDriver):
-    # TODO: Move everything out of init
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
-        self.data_file_path = "EosPayload/mock_esp_data.csv"
-        self.data_file = None
-
     @staticmethod
     def enabled() -> bool:
         return False
@@ -25,6 +19,11 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
         # This is a last minute hack because we're running out of Devices and I want to avoid patching EosLib the day
         # prior to launch
         return Device.MISC_CAMERA_1
+
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
+        self.data_file_path = "EosPayload/mock_esp_data.csv"
+        self.data_file = None
 
     def setup(self) -> None:
         super(EngineeringDataDriver, self).setup()
