@@ -42,3 +42,7 @@ class LEDDriver(DriverBase):
             else:
                 pin_state = 0
             time.sleep(5)
+
+    def cleanup(self):
+        super(LEDDriver, self).cleanup()
+        GPIO.output(self.pin_name, 0)
