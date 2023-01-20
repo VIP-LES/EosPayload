@@ -16,7 +16,9 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_1
+        # This is a last minute hack because we're running out of Devices and I want to avoid patching EosLib the day
+        # prior to launch
+        return Device.MISC_CAMERA_1
 
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
@@ -24,6 +26,7 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
         self.data_file = None
 
     def setup(self) -> None:
+        super(EngineeringDataDriver, self).setup()
         self.data_file = open(self.data_file_path, 'r')
 
     def fetch_data(self) -> str:

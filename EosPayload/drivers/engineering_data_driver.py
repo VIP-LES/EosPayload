@@ -76,7 +76,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         list_data = raw_data.replace('\x00', '').replace('\r', '').split(',')
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
-        # TODO: Find a better solution for the year before 2023 please
+        # TODO: Find a better solution for the year before 2024 please
         data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2023"
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
@@ -91,6 +91,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         return list_data, data_dict
 
     def setup(self) -> None:
+        super().setup()
         context = pyudev.Context()
         devices = context.list_devices(subsystem='tty', ID_SERIAL=self.esp_id)
         device_list = []
@@ -129,7 +130,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
             self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
             self.last_transmit_time = datetime.datetime.now()
         logger.info(f"Emitting position, lat: {float(data_dict['LAT'])}, long: {float(data_dict['LONG'])}, altitude: "
-                    f"{float(data_dict['altitude'])}")
+                    f"{float(data_dict['altitude'])}, state: {self.current_flight_state.name}")
 
     def device_read(self, logger: logging.Logger) -> None:
         while self.is_alive():
@@ -164,6 +165,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                 else:
                     self.current_flight_state = FlightState.UNKNOWN
                 self.old_position = self.latest_position
+                last_state_update_time = datetime.datetime.now()
 
     def cleanup(self):
         if self.ser_connection is not None:
