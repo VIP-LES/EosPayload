@@ -36,7 +36,6 @@ class LEDDriver(DriverBase):
         pin_state = 0
         while True:
             GPIO.output(self.pin_name, pin_state)
-            logger.info(f"Setting LED to state {pin_state}")
             if pin_state == 0:
                 pin_state = 1
             else:
