@@ -22,7 +22,9 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_1
+        # This is a last minute hack because we're running out of Devices and I want to avoid patching EosLib the day
+        # prior to launch
+        return Device.MISC_CAMERA_1
 
     def setup(self) -> None:
         super(EngineeringDataDriver, self).setup()

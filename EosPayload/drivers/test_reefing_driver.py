@@ -12,7 +12,9 @@ class TestReefingDriver(ReefingDriver):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_TEST_3
+        # This is a last minute hack because we're running out of Devices and I want to avoid patching EosLib the day
+        # prior to launch
+        return Device.MISC_CAMERA_2
 
     @staticmethod
     def get_device_name() -> str:
