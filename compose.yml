@@ -11,7 +11,7 @@ services:
       - mosquitto
     network_mode: "host"
     volumes:
-      - /eos_artifacts:/usr/src/app/eos_artifacts
+      - /media/card/eos_artifacts:/usr/src/app/eos_artifacts
       - .:/usr/src/app:ro
       - /run/udev:/run/udev:ro
     restart: always
