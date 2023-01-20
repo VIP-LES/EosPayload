@@ -77,7 +77,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
         # TODO: Find a better solution for the year before 2023 please
-        data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2022"
+        data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2023"
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
         data_dict['LAT'] = data_dict['LAT'].replace('N', '').replace('S', '')
