@@ -25,12 +25,14 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.esp_baud = 115200
         self.ser_connection = None
         self.emit_rate = datetime.timedelta(seconds=1)
+        self.transmit_rate = datetime.timedelta(seconds=10)
         self.state_update_rate = datetime.timedelta(seconds=15)
         self.position_timeout = datetime.timedelta(seconds=30)
         self.current_flight_state = FlightState.UNKNOWN
         self.old_position = None
         self.read_queue = queue.Queue(maxsize=10)
         self.gotten_first_fix = False
+        self.last_transmit_time = datetime.datetime.now()
 
     @staticmethod
     def enabled() -> bool:
@@ -75,7 +77,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
         # TODO: Find a better solution for the year before 2023 please
-        data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2022"
+        data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2023"
         data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
         data_dict['datetime'] = str(data_datetime.timestamp())
         data_dict['LAT'] = data_dict['LAT'].replace('N', '').replace('S', '')
@@ -122,8 +124,10 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                 self.gotten_first_fix = True
                 logger.info("Got first GPS fix")
 
-        self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
         self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
+        if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
+            self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+            self.last_transmit_time = datetime.datetime.now()
         logger.info(f"Emitting position, lat: {float(data_dict['LAT'])}, long: {float(data_dict['LONG'])}, altitude: "
                     f"{float(data_dict['altitude'])}")
 

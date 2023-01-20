@@ -11,12 +11,14 @@ services:
       - mosquitto
     network_mode: "host"
     volumes:
-      - ./eos_artifacts:/usr/src/app/eos_artifacts
+      - /media/card/eos_artifacts:/usr/src/app/eos_artifacts
       - .:/usr/src/app:ro
       - /run/udev:/run/udev:ro
+    restart: always
 
   mosquitto:
     image: eclipse-mosquitto:2
     network_mode: "host"
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:rw
+    restart: always
