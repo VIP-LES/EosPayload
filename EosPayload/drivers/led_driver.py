@@ -36,5 +36,5 @@ class LEDDriver(DriverBase):
         pin_state = 0
         while True:
             GPIO.output(self.pin_name, pin_state)
-            pin_state = 1 if 0 else 1
+            pin_state = 1 if 0 else 0
             time.sleep(5)
