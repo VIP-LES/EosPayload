@@ -49,15 +49,15 @@ class ReefingDriver(PositionAwareDriverBase):
                 if self.latest_position.altitude > 30000:
                     self.set_reefing_level(0, logger)
                 elif self.latest_position.altitude > 28000:
-                    self.set_reefing_level(25, logger)
+                    self.set_reefing_level(55, logger)
                 elif self.latest_position.altitude > 26000:
-                    self.set_reefing_level(50, logger)
+                    self.set_reefing_level(75, logger)
+                elif self.latest_position.altitude > 24000:
+                    self.set_reefing_level(90, logger)
                 elif self.latest_position.altitude > 8000:
                     self.set_reefing_level(75, logger)
                 elif self.latest_position.altitude > 6000:
-                    self.set_reefing_level(50, logger)
-                elif self.latest_position.altitude > 4000:
-                    self.set_reefing_level(25, logger)
+                    self.set_reefing_level(55, logger)
                 else:
                     self.set_reefing_level(0, logger)
             else:
