@@ -17,7 +17,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     esp_data_format = ["HR:MM:SEC", "MONTH/DAY", "LAT", "LONG", "speed", "altitude", "#ofSatellites", "accInX",
                        "accInY", "accInZ", "gyroX", "gyroY", "gyroZ", "IMU-temp", "pressure", "BME-temp",
                        "humidity"]
-    esp_data_time_format = "%H:%M:%S %m/%d/%Y"
+    esp_data_time_format = "%H:%M:%S %d/%m/%Y"
 
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
