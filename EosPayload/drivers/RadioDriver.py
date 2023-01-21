@@ -127,3 +127,5 @@ class RadioDriver(DriverBase):
                 self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
                                    f"\n{traceback.format_exc()}")
 
+    def cleanup(self):
+        self.port.close()
