@@ -17,7 +17,7 @@ class EngineeringDataDriver(PositionAwareDriverBase):
     esp_data_format = ["HR:MM:SEC", "MONTH/DAY", "LAT", "LONG", "speed", "altitude", "#ofSatellites", "accInX",
                        "accInY", "accInZ", "gyroX", "gyroY", "gyroZ", "IMU-temp", "pressure", "BME-temp",
                        "humidity"]
-    esp_data_time_format = "%H:%M:%S %m/%d/%Y"
+    esp_data_time_format = "%H:%M:%S %d/%m/%Y"
 
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
@@ -77,9 +77,12 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         data_dict = dict(zip(EngineeringDataDriver.esp_data_format, list_data))
 
         # TODO: Find a better solution for the year before 2024 please
-        data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2023"
-        data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
-        data_dict['datetime'] = str(data_datetime.timestamp())
+        try:
+            data_datetime_string = data_dict["HR:MM:SEC"] + " " + data_dict["MONTH/DAY"] + "/2023"
+            data_datetime = datetime.datetime.strptime(data_datetime_string, EngineeringDataDriver.esp_data_time_format)
+            data_dict['datetime'] = str(data_datetime.timestamp())
+        except Exception:
+            data_dict['datetime'] = str(datetime.datetime.now())
         data_dict['LAT'] = data_dict['LAT'].replace('N', '').replace('S', '')
         data_dict['LAT'] = EngineeringDataDriver.degrees_minutes_to_signed_decimal(data_dict['LAT'])
         data_dict['LONG'] = data_dict['LONG'].replace('E', '').replace('W', '')
