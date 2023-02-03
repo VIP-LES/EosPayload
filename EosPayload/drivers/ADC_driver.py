@@ -2,7 +2,10 @@ import logging
 import time
 import traceback
 
-import Adafruit_BBIO.ADC as ADC
+try:
+    import Adafruit_BBIO.ADC as ADC
+except ModuleNotFoundError:
+    pass
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
