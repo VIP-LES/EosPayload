@@ -1,0 +1,6 @@
+{
+  "drivers": [
+    {"name": "RADIO"},
+    "CAMERA_1"
+  ]
+}
