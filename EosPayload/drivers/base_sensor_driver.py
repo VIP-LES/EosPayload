@@ -55,4 +55,4 @@ class SensorDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
