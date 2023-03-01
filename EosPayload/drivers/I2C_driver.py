@@ -101,4 +101,4 @@ class I2CDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
