@@ -103,6 +103,3 @@ class I2CDriver(DriverBase):
             count += 1
             time.sleep(1)
 
-    @staticmethod
-    def enabled() -> bool:
-        return True

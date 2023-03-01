@@ -52,7 +52,3 @@ class SensorDriver(DriverBase):
 
             count += 1
             time.sleep(1)
-
-    @staticmethod
-    def enabled() -> bool:
-        return False
