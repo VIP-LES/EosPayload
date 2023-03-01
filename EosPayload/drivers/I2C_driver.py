@@ -14,6 +14,10 @@ from EosPayload.lib.driver_base import DriverBase
 class I2CDriver(DriverBase):
 
     @staticmethod
+    def enabled() -> bool:
+        return False
+
+    @staticmethod
     def get_device_id() -> Device:
         return Device.MISC_SENSOR_1
 
