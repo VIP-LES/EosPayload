@@ -11,7 +11,3 @@ class TestDriver2(TestDriver):
     def get_device_id() -> Device:
         return Device.MISC_TEST_2
 
-    # disabling this driver for now
-    @staticmethod
-    def enabled() -> bool:
-        return False

@@ -8,9 +8,6 @@ from EosPayload.lib.driver_base import DriverBase
 
 class LEDDriver(DriverBase):
 
-    @staticmethod
-    def enabled() -> bool:
-        return True
 
     @staticmethod
     def get_device_id() -> Device:
@@ -24,8 +21,8 @@ class LEDDriver(DriverBase):
     def command_thread_enabled() -> bool:
         return True
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.pin_name = "P9_12"
 
     def setup(self) -> None:

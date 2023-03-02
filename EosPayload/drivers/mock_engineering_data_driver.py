@@ -6,9 +6,6 @@ from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
 
 class MockEngineeringDataDriver(EngineeringDataDriver):
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
     @staticmethod
     def get_device_name() -> str:
@@ -20,8 +17,8 @@ class MockEngineeringDataDriver(EngineeringDataDriver):
         # prior to launch
         return Device.MISC_CAMERA_1
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.data_file_path = "EosPayload/mock_esp_data.csv"
         self.data_file = None
 

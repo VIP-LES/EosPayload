@@ -9,13 +9,10 @@ class MockDescentDriver(EngineeringDataDriver):
     """
     Fakes a descent at constant speed of 100 ft/second, which should take about 6 minutes in total
     """
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.current_altitude = 35000.0
 
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
     @staticmethod
     def get_device_name() -> str:

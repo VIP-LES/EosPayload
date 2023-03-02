@@ -8,9 +8,6 @@ from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
     @staticmethod
     def get_device_id() -> Device:

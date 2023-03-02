@@ -1,6 +1,6 @@
 {
   "drivers": [
-    {"name": "RADIO"},
-    "CAMERA_1"
+    {"name": "misc_test_1",
+    "id": "MISC_TEST_1"}
   ]
 }

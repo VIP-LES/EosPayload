@@ -10,8 +10,8 @@ from EosPayload.lib.mqtt import Topic
 
 class PositionAwareDriverBase(DriverBase, ABC):
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.latest_position = Position()
 
     def setup(self) -> None:

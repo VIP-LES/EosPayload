@@ -6,9 +6,6 @@ from EosPayload.drivers.reefing_driver import ReefingDriver
 
 
 class TestReefingDriver(ReefingDriver):
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -24,8 +21,8 @@ class TestReefingDriver(ReefingDriver):
         super(ReefingDriver, self).setup()
         self.current_reef_amount = 0
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.update_interval = 5
 
     def set_reefing_level(self, reefing_percent: float, logger: logging.Logger):

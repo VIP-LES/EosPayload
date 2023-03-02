@@ -37,10 +37,7 @@ class OrchEOStrator:
         self._output_mkdir('data')
         self._output_mkdir('logs')
 
-        if config_path is not None:
-            self.config = self._parse_config(config_path)
-        else:
-            self.config = {}
+        self.config = self._parse_config(config_path)
 
         init_logging(os.path.join(self.output_directory, 'logs', 'orchEOStrator.log'))
         self._logger = logging.getLogger('orchEOStrator')
@@ -90,11 +87,12 @@ class OrchEOStrator:
         :param driver: the class in question
         :return: True if valid, otherwise False
         """
+        base_drivers = ["DriverBase", "PositionAwareDriverBase"]
         return (
             (driver is not None)
             and inspect.isclass(driver)
             and issubclass(driver, DriverBase)
-            and driver.__name__ != "DriverBase"
+            and driver.__name__ not in base_drivers
         )
 
     #
@@ -104,16 +102,11 @@ class OrchEOStrator:
     def _spawn_drivers(self) -> None:
         """ Enumerates over all the classes in the drivers dir and spins them up """
         self._logger.info("Spawning Drivers")
-        driver_list = []
-        if "drivers" in self.config:
-            driver_list = self.config["drivers"]
-        else:
-            for attribute_name in dir(drivers):
-                driver = getattr(drivers, attribute_name)
-                if self.valid_driver(driver):
-                    driver_list.append(driver)
+        driver_list = self.config["drivers"]
 
-        for driver in driver_list:
+        for driver_tuple in driver_list:
+            driver = driver_tuple[0]
+            driver_config = driver_tuple[1]
             container = DriverContainer(driver)
             try:
                 if driver.get_device_id() is None:
@@ -122,15 +115,9 @@ class OrchEOStrator:
                     container.update_status(Status.INVALID)
                     self._drivers['<' + driver.__name__ + '>'] = container
                     continue
-                if not driver.enabled():
-                    self._logger.warning(f"skipping device '{driver.get_device_pretty_id()}' from"
-                                         f" class '{driver.__name__}' because it is not enabled")
-                    container.update_status(Status.DISABLED)
-                    self._drivers[driver.get_device_id()] = container
-                    continue
                 self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
                                   f" class '{driver.__name__}'")
-                proc = Process(target=self._driver_runner, args=(driver, self.output_directory), daemon=True)
+                proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
                 container.update_status(Status.HEALTHY, 1)
                 proc.start()
@@ -143,13 +130,13 @@ class OrchEOStrator:
         self._logger.info("Done Spawning Drivers")
 
     @staticmethod
-    def _driver_runner(cls, output_directory: str) -> None:
+    def _driver_runner(cls, output_directory: str, config: dict) -> None:
         """ Wrapper to execute driver run() method.
 
         :param cls: the driver class.  Must have a run() method
         :param output_directory: the location to store output (logs, data, etc.)
         """
-        cls(output_directory).run()
+        cls(output_directory, config).run()
 
     @staticmethod
     def health_monitor(_client, user_data, message):
@@ -247,24 +234,15 @@ class OrchEOStrator:
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
             if self.valid_driver(driver):
-                #  Only needed because PositionAwareDriverBase gets reported as valid
-                try:
-                    available_drivers[driver.get_device_id()] = driver
-                except NotImplementedError:
-                    pass
+                available_drivers[driver.get_device_id()] = driver
 
         driver_list = []
         for driver in config['drivers']:
-            if isinstance(driver, str):
-                name = driver
-            elif isinstance(driver, dict):
-                name = driver['name']
-            else:
-                raise ValueError("Illegal driver name")
+            new_driver_id = driver['name']
             try:
-                driver_id = Device[name.upper()]
+                driver_id = Device[new_driver_id.upper()]
                 if driver_id in available_drivers:
-                    driver_list.append(available_drivers[driver_id])
+                    driver_list.append((available_drivers[driver_id], driver))
             except KeyError as e:
                 print("Illegal ID")
 

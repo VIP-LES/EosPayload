@@ -8,9 +8,6 @@ from EosPayload.drivers.reefing_driver import ReefingDriver
 
 
 class TestReefingDriverHardware(ReefingDriver):
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
     @staticmethod
     def get_device_id() -> Device:

@@ -10,9 +10,6 @@ from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 
 
 class ReefingDriver(PositionAwareDriverBase):
-    @staticmethod
-    def enabled() -> bool:
-        return True
 
     @staticmethod
     def command_thread_enabled() -> bool:
@@ -26,8 +23,8 @@ class ReefingDriver(PositionAwareDriverBase):
     def get_device_name() -> str:
         return "reefing-motor-driver"
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.pwm_pin = "P9_14"
         self.current_reef_amount = 0
         self.old_position = None

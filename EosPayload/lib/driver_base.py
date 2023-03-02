@@ -55,14 +55,6 @@ class DriverBase(ABC):
         return f"{cls.get_device_name()}-{cls.get_device_id():03}"
 
     @staticmethod
-    def enabled() -> bool:
-        """ [OPTIONAL] Defaults to True.
-
-        :return: True if driver is enabled, False otherwise
-        """
-        return True
-
-    @staticmethod
     def read_thread_enabled() -> bool:
         """ [OPTIONAL] Defaults to False.  device_read() should be overriden if enabled
 
@@ -82,12 +74,13 @@ class DriverBase(ABC):
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str):
+    def __init__(self, output_directory: str, config: dict):
         """ Driver constructor.  Responsible for initialization tasks.
         Should only be overriden by subclasses to initialize instance variables to zero-values/constants.
         Calling `super().__init__(output_directory)` at the beginning is required.
         For all other initialization purposes, use the setup() method instead.
         Should only ever be invoked by orchEOStrator.
+        :param config:
         """
 
         #
@@ -164,10 +157,6 @@ class DriverBase(ABC):
         Should never be overriden by subclasses.  Use device_read or device_command instead.
         Should only ever be invoked by orchEOStrator.
         """
-
-        if not self.enabled():
-            self._logger.info("device is not enabled, terminating before startup")
-            return
 
         self._logger.info("device starting up in " + os.getcwd())
 

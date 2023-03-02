@@ -18,12 +18,9 @@ class TestQueueDriver(DriverBase):
     def get_device_name() -> str:
         return "test-queue-driver"
 
-    @staticmethod
-    def enabled() -> bool:
-        return False
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self._thread_queue = PriorityQueue()
 
     @staticmethod

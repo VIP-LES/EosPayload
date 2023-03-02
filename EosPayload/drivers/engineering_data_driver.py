@@ -19,8 +19,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                        "humidity"]
     esp_data_time_format = "%H:%M:%S %d/%m/%Y"
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.esp_id = "Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_de1ea05ac21bec119a14cb79f01c6278"
         self.esp_baud = 115200
         self.ser_connection = None
@@ -34,9 +34,6 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.gotten_first_fix = False
         self.last_transmit_time = datetime.datetime.now()
 
-    @staticmethod
-    def enabled() -> bool:
-        return True
 
     @staticmethod
     def get_device_id() -> Device:
