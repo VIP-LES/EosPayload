@@ -2,21 +2,12 @@ from random import randint
 import logging
 import time
 
-from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
 
 # This example shows a very basic polled driver that logs data to CSV and transmits it to ground
 
 
 class TestDriver(DriverBase):
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_TEST_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "test-driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:

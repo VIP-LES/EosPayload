@@ -28,9 +28,10 @@ class StatusUpdate:
 
 class DriverContainer:
 
-    def __init__(self, driver: DriverBase, process: Process = None):
+    def __init__(self, driver: DriverBase, process: Process = None, config: dict = None):
         self.driver = driver
         self.process = process
+        self.config = config
         self.status = Status.NONE
         self.thread_count = 0
         self.status_reporter = Device.NO_DEVICE

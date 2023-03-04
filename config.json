@@ -1,6 +1,8 @@
 {
   "drivers": [
-    {"name": "misc_test_1",
-    "id": "MISC_TEST_1"}
+    {"driver_class": "TestDriver",
+      "device_id": "MISC_TEST_1"},
+    {"driver_class": "TestDriver",
+      "device_id": "MISC_TEST_2"}
   ]
 }

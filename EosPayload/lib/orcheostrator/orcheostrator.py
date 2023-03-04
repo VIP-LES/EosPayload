@@ -9,6 +9,7 @@ import threading
 import time
 import traceback
 
+import EosLib
 from EosLib import Device
 from EosLib.packet.packet import Packet
 
@@ -19,6 +20,12 @@ from EosPayload.lib.mqtt.client import Client, Topic
 from EosPayload.lib.orcheostrator.driver_container import DriverContainer, Status, StatusUpdate
 import EosPayload.drivers as drivers
 
+
+def get_pretty_id(config: dict):
+    # TODO: Docstring
+    device_id =config.get("device_id")
+    name = config.get("name")
+    return f"{name}-{device_id:03}"
 
 class OrchEOStrator:
 
@@ -107,21 +114,21 @@ class OrchEOStrator:
         for driver_tuple in driver_list:
             driver = driver_tuple[0]
             driver_config = driver_tuple[1]
-            container = DriverContainer(driver)
+            container = DriverContainer(driver, config=driver_config)
             try:
-                if driver.get_device_id() is None:
+                if driver_config.get("device_id") is None:
                     self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"
                                        " because device id is not defined")
                     container.update_status(Status.INVALID)
                     self._drivers['<' + driver.__name__ + '>'] = container
                     continue
-                self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
+                self._logger.info(f"spawning process for device '{get_pretty_id(driver_config)}' from"
                                   f" class '{driver.__name__}'")
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
                 container.update_status(Status.HEALTHY, 1)
                 proc.start()
-                self._drivers[driver.get_device_id()] = container
+                self._drivers[driver_config.get("device_id")] = container
             except Exception as e:
                 self._logger.critical("A fatal exception occurred when attempting to load driver from"
                                       f" class '{driver.__name__}': {e}\n{traceback.format_exc()}")
@@ -193,7 +200,7 @@ class OrchEOStrator:
                     self._logger.critical(f"haven't received a health ping from driver {key} in 30s -- marking unhealthy")
                     driver.update_status(Status.UNHEALTHY)
 
-                the_key = key if driver.status in [Status.NONE, Status.INVALID] else driver.driver.get_device_pretty_id()
+                the_key = key if driver.status in [Status.NONE, Status.INVALID] else get_pretty_id(driver.config)
                 report[driver.status].append(f"{the_key} ({driver.thread_count} threads)"
                                              f" as of {driver.status_since} (reported by {driver.status_reporter}"
                                              f" [{Device(driver.status_reporter).name}])")
@@ -227,6 +234,9 @@ class OrchEOStrator:
             os.mkdir(os.path.join(self.output_directory, subdirectory))
 
     def _parse_config(self, config_path: str) -> dict:
+        # TODO: Move this somewhere so it runs before orchEOStrator starts
+        # TODO: Add validation
+        # TODO: Docstring
         with open(config_path) as config_file:
             config = json.load(config_file)
 
@@ -234,16 +244,21 @@ class OrchEOStrator:
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
             if self.valid_driver(driver):
-                available_drivers[driver.get_device_id()] = driver
+                available_drivers[attribute_name] = driver
 
         driver_list = []
-        for driver in config['drivers']:
-            new_driver_id = driver['name']
+        for driver_config in config['drivers']:
+            if driver_config.get("name") is not None:
+                driver_config['name'] = driver_config.get("name")
+            else:
+                driver_config['name'] = driver_config.get("driver_class")
+
+            driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
+            new_driver_class = driver_config['driver_class']
             try:
-                driver_id = Device[new_driver_id.upper()]
-                if driver_id in available_drivers:
-                    driver_list.append((available_drivers[driver_id], driver))
-            except KeyError as e:
+                if new_driver_class in available_drivers:
+                    driver_list.append((available_drivers[new_driver_class], driver_config))
+            except KeyError:
                 print("Illegal ID")
 
         config = {"drivers":driver_list}

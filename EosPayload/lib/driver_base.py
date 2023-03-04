@@ -24,9 +24,7 @@ class DriverBase(ABC):
     # CONFIGURATION
     #
 
-    @staticmethod
-    @abstractmethod
-    def get_device_id() -> Device:
+    def get_device_id(self) -> Device:
         """ [REQUIRED] Returns the unique Device ID defined in EosLib.
         IDs must be unique or there will be undefined behavior.
         Add device IDs by generating a new EosLib patch version and bumping the version number in requirements.txt
@@ -34,25 +32,25 @@ class DriverBase(ABC):
 
         :return: the device name
         """
-        raise NotImplementedError("Drivers must implement a get_device_id method")
+        # TODO: Refactor this everywhere
+        return self._config.get('device_id')
 
-    @staticmethod
-    @abstractmethod
-    def get_device_name() -> str:
+    def get_device_name(self) -> str:
         """ [REQUIRED] Returns the string name or type of the device (eg, "temp-sensor").
         Only alphanumeric symbols and hyphens allowed.
         Must be defined by subclass of DriverBase.
 
         :return: the device name
         """
-        raise NotImplementedError("Drivers must implement a get_device_name method")
+        # TODO: Refactor this everywhere
+        return self._config.get('name')
 
-    @classmethod
-    def get_device_pretty_id(cls) -> str:
+    def get_device_pretty_id(self) -> str:
         """ :return: a unique string identifier formed by concatenating the device_name
                      with the device_id (padded to 3 digits)
         """
-        return f"{cls.get_device_name()}-{cls.get_device_id():03}"
+        # TODO: Refactor this everywhere, decide if it's actually needed?
+        return f"{self.get_device_name()}-{self.get_device_id():03}"
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -97,10 +95,13 @@ class DriverBase(ABC):
         self._mqtt = None
         self._output_directory = None
 
+        self._config = config
+
         #
         # INITIALIZATION
         #
 
+        # TODO: Put some/all of this in config
         # Validate device name
         if not (self.get_device_name().isascii() and self.get_device_name().replace('-', '').isalnum()):
             raise GenericDriverException("Driver names may only contain alphanumeric characters and hyphens.")
