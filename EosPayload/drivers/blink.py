@@ -8,7 +8,7 @@ from adafruit_ms8607 import MS8607
 GPIO.setup("P9_16", GPIO.OUT)
 
 
-i2c = busio.I2C(board.I2C1_SCL, board.I2C1_SDA)
+i2c = busio.I2C(board.SCL, board.SDA)
 ms = MS8607(i2c)
 
 
