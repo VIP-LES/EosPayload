@@ -137,22 +137,26 @@ class OrchEOStrator:
                 raise ValueError("Driver names may only contain alphanumeric characters and hyphens.")
 
             # Validate ID
-            driver_id = driver_config.get("device_id")
-            if driver_id is None:
+            driver_device_id = driver_config.get("device_id")
+            if driver_device_id is None:
                 raise ValueError("Driver ID Cannot be None.")
-            if driver_id in used_ids:
+            if driver_device_id in used_ids:
                 raise ValueError("Driver ID Must be unique.")
             try:
-                EosLib.Device[driver_id]
+                driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
             except KeyError:
                 raise ValueError("Invalid Device ID.")
 
-            driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
+            used_ids.append(driver_device_id)
+
             new_driver_class = driver_config['driver_class']
             if new_driver_class in available_drivers:
+                for field in available_drivers.get(new_driver_class).get_required_device_config():
+                    if driver_config.get("driver_settings") is None or driver_config.get("driver_settings").get(field) is None:
+                        raise ValueError("Required driver setting not provided.")
                 enabled_driver_list.append((available_drivers[new_driver_class], driver_config))
             else:
-                raise ValueError("Driver class does not exist")
+                raise ValueError("Driver class does not exist.")
 
         config = {"enabled_drivers_list":enabled_driver_list}
         return config

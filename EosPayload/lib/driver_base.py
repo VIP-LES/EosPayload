@@ -67,6 +67,15 @@ class DriverBase(ABC):
         """
         return False
 
+    @staticmethod
+    def get_required_device_config() -> list[str]:
+        """ [OPTIONAL] Defaults to empty list. Provides a list of required config fields in device_config, which will
+        be guaranteed to have a value in _driver_settings
+
+        :return: List of required config options.
+        """
+        return []
+
     #
     # INITIALIZATION AND DESTRUCTION METHODS
     #
@@ -95,6 +104,7 @@ class DriverBase(ABC):
         self._output_directory = None
 
         self._config = config
+        self._driver_settings = config.get("driver_settings")
 
         #
         # INITIALIZATION

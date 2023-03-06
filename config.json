@@ -2,7 +2,17 @@
   "enabled_drivers": [
     {"driver_class": "TestDriver",
       "device_id": "MISC_TEST_1"},
-    {"driver_class": "TestDriver",
-      "device_id": "MISC_TEST_2"}
+    { "name": "printing-driver",
+      "driver_class": "TestDriver2",
+      "device_id": "MISC_TEST_2",
+      "driver_settings":  {
+        "print_text": "printing text"
+      }},
+    { "name": "secondary-printing-driver",
+      "driver_class": "TestDriver2",
+      "device_id": "MISC_TEST_3",
+      "driver_settings":  {
+        "print_text": "second printing text"
+      }}
   ]
 }
