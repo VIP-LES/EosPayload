@@ -1,5 +1,5 @@
 import threading
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import datetime
 from threading import Thread
 import logging
@@ -101,14 +101,9 @@ class DriverBase(ABC):
         # INITIALIZATION
         #
 
-        # TODO: Put some/all of this in config
-        # Validate device name
-        if not (self.get_device_name().isascii() and self.get_device_name().replace('-', '').isalnum()):
-            raise GenericDriverException("Driver names may only contain alphanumeric characters and hyphens.")
-
         # set up output location and data file
         self._output_directory = output_directory
-        # i don't think there's a need for validation here since orchEOStrator guarantees it's set up
+        # I don't think there's a need for validation here since orchEOStrator guarantees it's set up
         self.__data_file = open(os.path.join(self._output_directory, 'data', self.get_device_pretty_id() + '.dat'), 'a')
 
         # set up logging

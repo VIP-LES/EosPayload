@@ -33,7 +33,7 @@ class OrchEOStrator:
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str, config_path: str):
+    def __init__(self, output_directory: str, config: dict):
         """ Constructor.  Initializes output location, logger, mqtt, and health monitoring. """
         self._logger = None
         self._drivers = {}
@@ -44,7 +44,7 @@ class OrchEOStrator:
         self._output_mkdir('data')
         self._output_mkdir('logs')
 
-        self.config = self._parse_config(config_path)
+        self.config = config
 
         init_logging(os.path.join(self.output_directory, 'logs', 'orchEOStrator.log'))
         self._logger = logging.getLogger('orchEOStrator')
@@ -148,7 +148,6 @@ class OrchEOStrator:
     @staticmethod
     def health_monitor(_client, user_data, message):
         try:
-            packet = None
             try:
                 packet = Packet.decode(message.payload)
             except Exception as e:
@@ -233,26 +232,46 @@ class OrchEOStrator:
         if not os.path.exists(os.path.join(self.output_directory, subdirectory)):
             os.mkdir(os.path.join(self.output_directory, subdirectory))
 
-    def _parse_config(self, config_path: str) -> dict:
-        # TODO: Move this somewhere so it runs before orchEOStrator starts
+    @staticmethod
+    def parse_config(config_path: str) -> dict:
+        # TODO: Move this somewhere, so it runs before orchEOStrator starts
         # TODO: Add validation
         # TODO: Docstring
         with open(config_path) as config_file:
             config = json.load(config_file)
 
-        available_drivers = {}
-        for attribute_name in dir(drivers):
-            driver = getattr(drivers, attribute_name)
-            if self.valid_driver(driver):
-                available_drivers[attribute_name] = driver
-
-        driver_list = []
+        used_ids = []
         for driver_config in config['drivers']:
+            # Automatically populate name
             if driver_config.get("name") is not None:
                 driver_config['name'] = driver_config.get("name")
             else:
                 driver_config['name'] = driver_config.get("driver_class")
 
+            # Validate name
+            driver_name = driver_config.get("name")
+            if not driver_name.isascii() or not driver_name.replace("-", "").isalnum():
+                raise ValueError("Driver names may only contain alphanumeric characters and hyphens.")
+
+            # Validate ID
+            driver_id = driver_config.get("device_id")
+            if driver_id is None:
+                raise ValueError("Driver ID Cannot be None.")
+            if driver_id in used_ids:
+                raise ValueError("Driver ID Must be unique.")
+            try:
+                EosLib.Device[driver_id]
+            except KeyError:
+                raise ValueError("Invalid Device ID.")
+
+        available_drivers = {}
+        for attribute_name in dir(drivers):
+            driver = getattr(drivers, attribute_name)
+            if OrchEOStrator.valid_driver(driver):
+                available_drivers[attribute_name] = driver
+
+        driver_list = []
+        for driver_config in config['drivers']:
             driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
             new_driver_class = driver_config['driver_class']
             try:
