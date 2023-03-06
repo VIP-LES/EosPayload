@@ -12,11 +12,11 @@ class SensorDriver(DriverBase):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_SENSOR_3
+        return Device.MISC_SENSOR_1
 
     @staticmethod
     def get_device_name() -> str:
-        return "Sensor-Driver"
+        return "Sensor Driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -53,4 +53,6 @@ class SensorDriver(DriverBase):
             count += 1
             time.sleep(1)
 
-        # test
+    @staticmethod
+    def enabled() -> bool:
+        return False
