@@ -5,10 +5,10 @@ import logging
 import board
 from adafruit_ms8607 import MS8607
 
-GPIO.setup("P9_18", GPIO.OUT)
+GPIO.setup("P9_16", GPIO.OUT)
 
 
-i2c = busio.I2C("P9_21", "P9_22")
+i2c = busio.I2C(board.I2C1_SCL, board.I2C1_SDA)
 ms = MS8607(i2c)
 
 
