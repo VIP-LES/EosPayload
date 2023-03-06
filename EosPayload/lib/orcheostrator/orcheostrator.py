@@ -1,10 +1,11 @@
-import json
 from datetime import datetime, timedelta
 from multiprocessing import Process
 from queue import Queue
 import inspect
+import json
 import logging
 import os
+import re
 import threading
 import time
 import traceback
@@ -129,7 +130,15 @@ class OrchEOStrator:
             if driver_config.get("name") is not None:
                 driver_config['name'] = driver_config.get("name")
             else:
-                driver_config['name'] = driver_config.get("driver_class")
+                # Convert default name from CamelCase to lowercase with dashes
+                # Code snippet taken from https://github.com/jpvanhal/inflection
+                driver_class_name = driver_config.get("driver_class")
+                driver_class_name = re.sub(r"([A-Z]+)([A-Z][a-z])", r'\1_\2', driver_class_name)
+                driver_class_name = re.sub(r"([a-z\d])([A-Z])", r'\1_\2', driver_class_name)
+                driver_class_name = driver_class_name.replace("_", "-")
+                driver_class_name = driver_class_name.lower()
+
+                driver_config['name'] = driver_class_name
 
             # Validate name
             driver_name = driver_config.get("name")
