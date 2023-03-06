@@ -1,5 +1,5 @@
 {
-  "drivers": [
+  "enabled_drivers": [
     {"driver_class": "TestDriver",
       "device_id": "MISC_TEST_1"},
     {"driver_class": "TestDriver",

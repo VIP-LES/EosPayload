@@ -104,6 +104,59 @@ class OrchEOStrator:
             and driver.__name__ not in base_drivers
         )
 
+    @staticmethod
+    def parse_config(config_path: str) -> dict:
+        """ Parses a config file at the provided path
+
+        :param config_path: the path to the config file
+        :return: a validated config dict
+        """
+        available_drivers = {}
+        for attribute_name in dir(drivers):
+            driver = getattr(drivers, attribute_name)
+            if OrchEOStrator.valid_driver(driver):
+                available_drivers[attribute_name] = driver
+
+
+        with open(config_path) as config_file:
+            config = json.load(config_file)
+
+        used_ids = []
+        enabled_driver_list = []
+
+        for driver_config in config['enabled_drivers']:
+            # Automatically populate name if not provided
+            if driver_config.get("name") is not None:
+                driver_config['name'] = driver_config.get("name")
+            else:
+                driver_config['name'] = driver_config.get("driver_class")
+
+            # Validate name
+            driver_name = driver_config.get("name")
+            if not driver_name.isascii() or not driver_name.replace("-", "").isalnum():
+                raise ValueError("Driver names may only contain alphanumeric characters and hyphens.")
+
+            # Validate ID
+            driver_id = driver_config.get("device_id")
+            if driver_id is None:
+                raise ValueError("Driver ID Cannot be None.")
+            if driver_id in used_ids:
+                raise ValueError("Driver ID Must be unique.")
+            try:
+                EosLib.Device[driver_id]
+            except KeyError:
+                raise ValueError("Invalid Device ID.")
+
+            driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
+            new_driver_class = driver_config['driver_class']
+            if new_driver_class in available_drivers:
+                enabled_driver_list.append((available_drivers[new_driver_class], driver_config))
+            else:
+                raise ValueError("Driver class does not exist")
+
+        config = {"enabled_drivers_list":enabled_driver_list}
+        return config
+
     #
     # PROTECTED HELPER METHODS
     #
@@ -111,7 +164,7 @@ class OrchEOStrator:
     def _spawn_drivers(self) -> None:
         """ Enumerates over all the classes in the drivers dir and spins them up """
         self._logger.info("Spawning Drivers")
-        driver_list = self.config["drivers"]
+        driver_list = self.config["enabled_drivers_list"]
 
         for driver_tuple in driver_list:
             driver = driver_tuple[0]
@@ -233,54 +286,3 @@ class OrchEOStrator:
         """
         if not os.path.exists(os.path.join(self.output_directory, subdirectory)):
             os.mkdir(os.path.join(self.output_directory, subdirectory))
-
-    @staticmethod
-    def parse_config(config_path: str) -> dict:
-        # TODO: Move this somewhere, so it runs before orchEOStrator starts
-        # TODO: Add validation
-        # TODO: Docstring
-        with open(config_path) as config_file:
-            config = json.load(config_file)
-
-        used_ids = []
-        for driver_config in config['drivers']:
-            # Automatically populate name
-            if driver_config.get("name") is not None:
-                driver_config['name'] = driver_config.get("name")
-            else:
-                driver_config['name'] = driver_config.get("driver_class")
-
-            # Validate name
-            driver_name = driver_config.get("name")
-            if not driver_name.isascii() or not driver_name.replace("-", "").isalnum():
-                raise ValueError("Driver names may only contain alphanumeric characters and hyphens.")
-
-            # Validate ID
-            driver_id = driver_config.get("device_id")
-            if driver_id is None:
-                raise ValueError("Driver ID Cannot be None.")
-            if driver_id in used_ids:
-                raise ValueError("Driver ID Must be unique.")
-            try:
-                EosLib.Device[driver_id]
-            except KeyError:
-                raise ValueError("Invalid Device ID.")
-
-        available_drivers = {}
-        for attribute_name in dir(drivers):
-            driver = getattr(drivers, attribute_name)
-            if OrchEOStrator.valid_driver(driver):
-                available_drivers[attribute_name] = driver
-
-        driver_list = []
-        for driver_config in config['drivers']:
-            driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
-            new_driver_class = driver_config['driver_class']
-            try:
-                if new_driver_class in available_drivers:
-                    driver_list.append((available_drivers[new_driver_class], driver_config))
-            except KeyError:
-                print("Illegal ID")
-
-        config = {"drivers":driver_list}
-        return config
