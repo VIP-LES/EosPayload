@@ -15,14 +15,6 @@ class ReefingDriver(PositionAwareDriverBase):
     def command_thread_enabled() -> bool:
         return True
 
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.REEFING_MOTOR
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "reefing-motor-driver"
-
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
         self.pwm_pin = "P9_14"

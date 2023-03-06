@@ -7,16 +7,6 @@ from EosPayload.drivers.reefing_driver import ReefingDriver
 
 class TestReefingDriver(ReefingDriver):
 
-    @staticmethod
-    def get_device_id() -> Device:
-        # This is a last minute hack because we're running out of Devices and I want to avoid patching EosLib the day
-        # prior to launch
-        return Device.MISC_CAMERA_2
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "test-reefing-motor-driver"
-
     def setup(self) -> None:
         super(ReefingDriver, self).setup()
         self.current_reef_amount = 0

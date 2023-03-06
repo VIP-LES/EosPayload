@@ -8,15 +8,6 @@ from EosPayload.lib.driver_base import DriverBase
 
 class LEDDriver(DriverBase):
 
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "led-driver"
-
     @staticmethod
     def command_thread_enabled() -> bool:
         return True

@@ -33,14 +33,6 @@ class PingDriver(DriverBase):
         ERR = "ERR"
 
     @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_RADIO_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "ping-driver"
-
-    @staticmethod
     def command_thread_enabled() -> bool:
         return True
 

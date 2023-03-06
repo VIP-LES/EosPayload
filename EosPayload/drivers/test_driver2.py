@@ -6,8 +6,5 @@ from EosPayload.drivers.test_driver import TestDriver
 
 
 class TestDriver2(TestDriver):
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_TEST_2
-
+    #lmao
+    pass

@@ -10,14 +10,6 @@ from EosPayload.lib.driver_base import DriverBase
 
 class ADCDriver(DriverBase):
 
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_SENSOR_2
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "ADC-Driver"
-
     def setup(self) -> None:
         super().setup()
         ADC.setup()

@@ -9,14 +9,6 @@ from EosPayload.drivers.reefing_driver import ReefingDriver
 
 class TestReefingDriverHardware(ReefingDriver):
 
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_4
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "test-reefing-motor-driver-hardware"
-
     def device_command(self, logger: logging.Logger) -> None:
         while True:
             reef_level = random.randrange(0, 100)

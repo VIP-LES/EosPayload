@@ -67,14 +67,6 @@ class RadioDriver(DriverBase):
                 time.sleep(10)
 
     @staticmethod
-    def get_device_id() -> Device:
-        return Device.RADIO
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "radio-driver"
-
-    @staticmethod
     def read_thread_enabled() -> bool:
         return True
 

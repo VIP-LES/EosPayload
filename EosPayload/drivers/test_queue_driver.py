@@ -10,15 +10,6 @@ from EosPayload.lib.driver_base import DriverBase
 
 class TestQueueDriver(DriverBase):
 
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_TEST_3
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "test-queue-driver"
-
-
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
         self._thread_queue = PriorityQueue()

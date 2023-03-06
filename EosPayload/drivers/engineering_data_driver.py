@@ -36,14 +36,6 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
 
     @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "engineering-data-driver"
-
-    @staticmethod
     def read_thread_enabled() -> bool:
         return True
 

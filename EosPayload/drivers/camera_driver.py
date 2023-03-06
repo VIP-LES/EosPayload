@@ -11,14 +11,6 @@ from EosPayload.lib.driver_base import DriverBase
 class Camera1Driver(DriverBase):
 
     @staticmethod
-    def get_device_name() -> str:
-        return "camera-driver"
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.CAMERA_1
-
-    @staticmethod
     def read_thread_enabled() -> bool:
         return True
 

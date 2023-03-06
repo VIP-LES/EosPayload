@@ -13,15 +13,6 @@ class MockDescentDriver(EngineeringDataDriver):
         super().__init__(output_directory, config)
         self.current_altitude = 35000.0
 
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "mock-descent-driver"
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_SENSOR_4
-
     def setup(self) -> None:
         super(EngineeringDataDriver, self).setup()
 

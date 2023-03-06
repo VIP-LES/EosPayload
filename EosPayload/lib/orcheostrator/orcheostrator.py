@@ -21,8 +21,10 @@ from EosPayload.lib.orcheostrator.driver_container import DriverContainer, Statu
 import EosPayload.drivers as drivers
 
 
-def get_pretty_id(config: dict):
-    # TODO: Docstring
+def get_pretty_id(config: dict) -> str:
+    """ :return: a unique string identifier formed by concatenating the device_name
+                 with the device_id (padded to 3 digits)
+    """
     device_id =config.get("device_id")
     name = config.get("name")
     return f"{name}-{device_id:03}"
