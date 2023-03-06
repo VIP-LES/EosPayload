@@ -8,25 +8,23 @@ from adafruit_ms8607 import MS8607
 GPIO.setup("P9_18", GPIO.OUT)
 
 
-dir(board)
-
-# i2c = busio.I2C(board.GP3, board.GP2)
-# ms = MS8607(i2c)
+i2c = busio.I2C("P9_21", "P9_22")
+ms = MS8607(i2c)
 
 
 
 
 
-# while True:
-#     f = open('/EosPayload/drivers/sensor_packages/help.csv','a')
-#     GPIO.output("P9_18", GPIO.HIGH)
-#     time.sleep(0.5)
-#     f.write(ms.temperature)
-#     GPIO.output("P9_18", GPIO.LOW)
-#     time.sleep(0.5)
-#     GPIO.cleanup()
+while True:
+    f = open('/EosPayload/drivers/sensor_packages/help.csv','a')
+    GPIO.output("P9_18", GPIO.HIGH)
+    time.sleep(0.5)
+    f.write(ms.temperature)
+    GPIO.output("P9_18", GPIO.LOW)
+    time.sleep(0.5)
+    GPIO.cleanup()
 
 
-#     f.close()
+    f.close()
 
     
