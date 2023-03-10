@@ -6,6 +6,7 @@ import board
 from adafruit_ms8607 import MS8607
 from adafruit_tsl2591 import TSL2591
 from adafruit_ltr390 import LTR390
+from adafruit_bno055 import BNO055
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -32,30 +33,34 @@ class I2CDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         i2c = board.I2C()
-        ms = MS8607(i2c)
+        #ms = MS8607(i2c)
+        bno = BNO055(i2c)
         # tsl = TSL2591(i2c)
         # ltr = LTR390(i2c)
         count = 0
         while True:
 
-            while True:
-                print("Pressure: %.2f hPa" % sensor.pressure)
-                print("Temperature: %.2f C" % sensor.temperature)
-                print("Humidity: %.2f %% rH" % sensor.relative_humidity)
+            #try:
+            temp = bno.temperature
 
-            try:
-                rh = ms.relative_humidity
-                pres = ms.pressure
-                temp = ms.temperature
-                rh_str = str(round(rh, 3))
-                pres_str = str(round(pres, 3))
-                temp_str = str(round(temp, 3))
-            except Exception as e:
-                rh_str = '-1'
-                pres_str = '-1'
-                temp_str = '-1'
-                logger.critical("A fatal exception occurred when attempting to get temp/humidity/pressure data"
-                                f": {e}\n{traceback.format_exc()}")
+            #while True:
+            #    print("Pressure: %.2f hPa" % sensor.pressure)
+            #    print("Temperature: %.2f C" % sensor.temperature)
+            #    print("Humidity: %.2f %% rH" % sensor.relative_humidity)
+
+            #try:
+            #    rh = ms.relative_humidity
+            #    pres = ms.pressure
+            #    temp = ms.temperature
+            #    rh_str = str(round(rh, 3))
+            #    pres_str = str(round(pres, 3))
+            #    temp_str = str(round(temp, 3))
+            #except Exception as e:
+            #    rh_str = '-1'
+            #    pres_str = '-1'
+            #    temp_str = '-1'
+            #    logger.critical("A fatal exception occurred when attempting to get temp/humidity/pressure data"
+            #                    f": {e}\n{traceback.format_exc()}")
 
             # try:
             #     lux = tsl.lux
@@ -85,6 +90,8 @@ class I2CDriver(DriverBase):
             #                     f": {e}\n{traceback.format_exc()}")
 
             # csv_row = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]
+
+            csv_row = [temp]
 
             # this saves data to a file
             try:
