@@ -9,9 +9,9 @@ from adafruit_blinka.board.beagleboard.beaglebone_black import *
 #GPIO.setup("P9_16", GPIO.OUT)
 
 
-i2c = busio.I2C(board.SCL, board.SDA)
-#i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
-ms = MS8607(i2c)
+#i2c = busio.I2C(board.SCL, board.SDA)
+i2c = busio.I2C(pin.I2C2_SCL, pin.I2C2_SDA)
+#ms = MS8607(i2c)
 
 
 
