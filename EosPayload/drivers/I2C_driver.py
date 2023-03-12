@@ -42,6 +42,7 @@ class I2CDriver(DriverBase):
 
             #try:
             temp = bno.temperature
+            logger.info(temp)
 
             #while True:
             #    print("Pressure: %.2f hPa" % sensor.pressure)
@@ -91,21 +92,21 @@ class I2CDriver(DriverBase):
 
             # csv_row = [lux_str, infrared_str, visible_str, full_spectrum_str, uv_str, amb_light_str]
 
-            csv_row = [temp]
+            #csv_row = [temp]
 
             # this saves data to a file
-            try:
-                self.data_log(csv_row)
-            except Exception as e:
-                logger.error(f"unable to log data: {e}")
+            #try:
+            #    self.data_log(csv_row)
+            #except Exception as e:
+            #    logger.error(f"unable to log data: {e}")
 
             # this sends data to the radio to get relayed to the ground station
-            if count % 2 == 0:
-                try:
-                    self.data_transmit(csv_row)
+            #if count % 2 == 0:
+            #    try:
+            #        self.data_transmit(csv_row)
                     #time.sleep(1)
-                except Exception as e:
-                    logger.error(f"unable to transmit data: {e}")
+            #    except Exception as e:
+            #        logger.error(f"unable to transmit data: {e}")
 
             count += 1
             time.sleep(1)
