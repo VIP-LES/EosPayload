@@ -1,3 +1,5 @@
+
+'''
 import Adafruit_BBIO.GPIO as GPIO
 import time
 import busio
@@ -28,5 +30,5 @@ while True:
 
 
     f.close()
-
+'''
     
