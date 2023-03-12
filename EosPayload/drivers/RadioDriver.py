@@ -76,10 +76,14 @@ class RadioDriver(DriverBase):
 
     @staticmethod
     def read_thread_enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def command_thread_enabled() -> bool:
+        return True
+
+    @staticmethod
+    def enabled() -> bool:
         return False
 
     def device_read(self, logger: logging.Logger) -> None:
