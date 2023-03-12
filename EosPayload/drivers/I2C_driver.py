@@ -42,7 +42,7 @@ class I2CDriver(DriverBase):
 
             #try:
             temp = bno.temperature
-            logger.info(temp)
+            logger.info("Temperature: " + str(temp))
 
             #while True:
             #    print("Pressure: %.2f hPa" % sensor.pressure)
