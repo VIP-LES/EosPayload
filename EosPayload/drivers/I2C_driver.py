@@ -2,6 +2,7 @@ import logging
 import time
 import traceback
 
+import busio
 import board
 from adafruit_ms8607 import MS8607
 from adafruit_tsl2591 import TSL2591
@@ -33,7 +34,8 @@ class I2CDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         logger.info("PIN ||||| 1")
-        i2c = board.I2C()
+        #i2c = board.I2C()
+        i2c = busio.I2C(board.SCL, board.SDA)
         logger.info("PIN ||||| 2")
         #ms = MS8607(i2c)
         bno = BNO055(i2c)
