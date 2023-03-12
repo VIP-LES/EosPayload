@@ -20,7 +20,7 @@ class I2CDriver(DriverBase):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_SENSOR_1
+        return Device.MISC_SENSOR_3
 
     @staticmethod
     def get_device_name() -> str:
