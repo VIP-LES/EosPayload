@@ -7,7 +7,7 @@ import board
 from adafruit_ms8607 import MS8607
 from adafruit_tsl2591 import TSL2591
 from adafruit_ltr390 import LTR390
-from adafruit_bno055 import BNO055
+from adafruit_bno055 import BNO055_I2C
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -38,7 +38,7 @@ class I2CDriver(DriverBase):
         i2c = busio.I2C(board.SCL, board.SDA)
         logger.info("PIN ||||| 2")
         #ms = MS8607(i2c)
-        bno = BNO055(i2c)
+        bno = BNO055_I2C(i2c)
         logger.info("PIN ||||| 3")
         # tsl = TSL2591(i2c)
         # ltr = LTR390(i2c)
