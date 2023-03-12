@@ -38,6 +38,7 @@ class I2CDriver(DriverBase):
         # tsl = TSL2591(i2c)
         # ltr = LTR390(i2c)
         count = 0
+        logger.info("Starting IMU")
         while True:
 
             #try:
