@@ -48,11 +48,11 @@ class EngineeringDataDriver(PositionAwareDriverBase):
 
     @staticmethod
     def read_thread_enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def command_thread_enabled() -> bool:
-        return True
+        return False
 
     @staticmethod
     def degrees_minutes_to_signed_decimal(dm: str) -> float:
