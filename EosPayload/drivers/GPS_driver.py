@@ -41,9 +41,37 @@ class GPSDriver(DriverBase):
 
 
         while True:
-            gps.update()
-            logger.info("PING X")
+            try:  # getting gps data can sometimes be corrupt, so if error then just continue and try to read data again
+                gps.update()
+                lat, lon, track_history = gps_converter(gps.latitude, gps.longitude, track_history)
+                logger.info(lat)
+            except:
+                logger.info("Did not work")
             time.sleep(1)
+
+def gps_converter(lat, lon, track_history):
+    """ Rounds the lat/lon from GPS data and creates the list of coordinates that shows the previous route taken
+    this removes the last 15 data points due to those not being as smoothed as earlier points"""
+    try:
+        lat = round(lat,5)
+        lon = round(lon,5)
+
+        noduplicates = track_history[-10:]
+        if not [lon, lat] in noduplicates:
+            track_history.append([lon, lat])
+
+        outline = filter(track_history[-15:])
+        track_history = track_history[:-15]
+
+        for item in outline:
+            item[0] = round(item[0],5)
+            item[1] = round(item[1],5)
+            track_history.append(item)
+        lat = track_history[-5][1]
+        lon = track_history[-5][0]
+        return lat, lon, track_history
+    except:
+        return lat, lon, track_history
 
         #while (1):
         #    while GPS.inWaiting() == 0:
