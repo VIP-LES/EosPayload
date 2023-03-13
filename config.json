@@ -1,5 +1,6 @@
 {
-  "enabled_drivers": [
+  "payload_name": "Kian_2",
+  "devices": [
     {"driver_class": "TestDriver",
       "device_id": "MISC_TEST_1"},
     { "name": "printing-driver",
@@ -11,8 +12,10 @@
     { "name": "secondary-printing-driver",
       "driver_class": "TestConfigDriver",
       "device_id": "MISC_TEST_3",
+      "enabled": "true",
       "driver_settings":  {
-        "print_text": "second printing text"
+        "print_text": "second printing text",
+        "test_filler_setting": "filler_setting"
       }}
   ]
 }

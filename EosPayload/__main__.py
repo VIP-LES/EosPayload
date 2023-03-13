@@ -12,6 +12,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # do the things
-    config = OrchEOStrator.parse_config(args.config_filepath)
-    eos = OrchEOStrator(args.output_directory, config)
+    eos = OrchEOStrator(args.output_directory, args.config_filepath)
     eos.run()

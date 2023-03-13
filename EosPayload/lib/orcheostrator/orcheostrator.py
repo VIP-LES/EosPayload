@@ -18,7 +18,8 @@ from EosPayload.lib.driver_base import DriverBase
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client, Topic
-from EosPayload.lib.orcheostrator.driver_container import DriverContainer, Status, StatusUpdate
+from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status, StatusUpdate
+from EosPayload.lib.config import OrcheostratorConfigParser
 import EosPayload.drivers as drivers
 
 
@@ -36,7 +37,7 @@ class OrchEOStrator:
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str, config: dict):
+    def __init__(self, output_directory: str, config_filepath: str):
         """ Constructor.  Initializes output location, logger, mqtt, and health monitoring. """
         self._logger = None
         self._drivers = {}
@@ -47,12 +48,13 @@ class OrchEOStrator:
         self._output_mkdir('data')
         self._output_mkdir('logs')
 
-        self.config = config
-
         init_logging(os.path.join(self.output_directory, 'logs', 'orchEOStrator.log'))
         self._logger = logging.getLogger('orchEOStrator')
         self._logger.info("initialization complete")
         self._logger.info("beginning boot process in " + os.getcwd())
+
+        config_parser = OrcheostratorConfigParser(self._logger, config_filepath)
+        self.orcheostrator_config = config_parser.parse_config()
 
         self._health_queue = Queue()
 
@@ -90,86 +92,6 @@ class OrchEOStrator:
                 driver.process.terminate()
                 driver.update_status(Status.TERMINATED)
 
-    @staticmethod
-    def valid_driver(driver) -> bool:
-        """ Determines if given class is a valid driver.
-
-        :param driver: the class in question
-        :return: True if valid, otherwise False
-        """
-        base_drivers = ["DriverBase", "PositionAwareDriverBase"]
-        return (
-            (driver is not None)
-            and inspect.isclass(driver)
-            and issubclass(driver, DriverBase)
-            and driver.__name__ not in base_drivers
-        )
-
-    @staticmethod
-    def parse_config(config_path: str) -> dict:
-        """ Parses a config file at the provided path
-
-        :param config_path: the path to the config file
-        :return: a validated config dict
-        """
-        valid_driver_classes = {}
-        for attribute_name in dir(drivers):
-            driver = getattr(drivers, attribute_name)
-            if OrchEOStrator.valid_driver(driver):
-                valid_driver_classes[attribute_name] = driver
-
-
-        with open(config_path) as config_file:
-            config = json.load(config_file)
-
-        used_ids = []
-        enabled_driver_list = []
-
-        for driver_config in config['enabled_drivers']:
-            # Automatically populate name if not provided
-            if driver_config.get("name") is not None:
-                driver_config['name'] = driver_config.get("name")
-            else:
-                # Convert default name from CamelCase to lowercase with dashes
-                # Code snippet taken from https://github.com/jpvanhal/inflection
-                driver_class_name = driver_config.get("driver_class")
-                driver_class_name = re.sub(r"([A-Z]+)([A-Z][a-z])", r'\1_\2', driver_class_name)
-                driver_class_name = re.sub(r"([a-z\d])([A-Z])", r'\1_\2', driver_class_name)
-                driver_class_name = driver_class_name.replace("_", "-")
-                driver_class_name = driver_class_name.lower()
-
-                driver_config['name'] = driver_class_name
-
-            # Validate name
-            driver_name = driver_config.get("name")
-            if not driver_name.isascii() or not driver_name.replace("-", "").isalnum():
-                raise ValueError("Driver names may only contain alphanumeric characters and hyphens.")
-
-            # Validate ID
-            driver_device_id = driver_config.get("device_id")
-            if driver_device_id is None:
-                raise ValueError("Driver ID Cannot be None.")
-            if driver_device_id in used_ids:
-                raise ValueError("Driver ID Must be unique.")
-            try:
-                driver_config["device_id"] = EosLib.Device[driver_config["device_id"]].value
-            except KeyError:
-                raise ValueError("Invalid Device ID.")
-
-            used_ids.append(driver_device_id)
-
-            new_driver_class = driver_config['driver_class']
-            if new_driver_class in valid_driver_classes:
-                for field in valid_driver_classes.get(new_driver_class).get_required_config_fields():
-                    if driver_config.get("driver_settings") is None or driver_config.get("driver_settings").get(field) is None:
-                        raise ValueError("Required driver setting not provided.")
-                enabled_driver_list.append((valid_driver_classes[new_driver_class], driver_config))
-            else:
-                raise ValueError("Driver class does not exist.")
-
-        config = {"enabled_drivers_list":enabled_driver_list}
-        return config
-
     #
     # PROTECTED HELPER METHODS
     #
@@ -177,12 +99,11 @@ class OrchEOStrator:
     def _spawn_drivers(self) -> None:
         """ Enumerates over all the classes in the drivers dir and spins them up """
         self._logger.info("Spawning Drivers")
-        driver_list = self.config["enabled_drivers_list"]
+        driver_list = self.orcheostrator_config.enabled_devices
 
-        for driver_tuple in driver_list:
-            driver = driver_tuple[0]
-            driver_config = driver_tuple[1]
-            container = DriverContainer(driver, config=driver_config)
+        for container in driver_list:
+            driver = container.driver
+            driver_config = container.config
             try:
                 if driver_config.get("device_id") is None:
                     self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"

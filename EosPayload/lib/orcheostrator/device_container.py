@@ -15,6 +15,7 @@ class Status(Enum):
     HEALTHY = 3
     UNHEALTHY = 4
     TERMINATED = 5
+    INITIALIZED = 6
 
 
 class StatusUpdate:
@@ -26,7 +27,7 @@ class StatusUpdate:
         self.effective = effective
 
 
-class DriverContainer:
+class DeviceContainer:
 
     def __init__(self, driver: DriverBase, process: Process = None, config: dict = None):
         self.driver = driver
