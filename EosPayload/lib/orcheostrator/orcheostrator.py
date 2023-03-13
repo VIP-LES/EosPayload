@@ -112,11 +112,11 @@ class OrchEOStrator:
         :param config_path: the path to the config file
         :return: a validated config dict
         """
-        available_drivers = {}
+        valid_driver_classes = {}
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
             if OrchEOStrator.valid_driver(driver):
-                available_drivers[attribute_name] = driver
+                valid_driver_classes[attribute_name] = driver
 
 
         with open(config_path) as config_file:
@@ -159,11 +159,11 @@ class OrchEOStrator:
             used_ids.append(driver_device_id)
 
             new_driver_class = driver_config['driver_class']
-            if new_driver_class in available_drivers:
-                for field in available_drivers.get(new_driver_class).get_required_device_config():
+            if new_driver_class in valid_driver_classes:
+                for field in valid_driver_classes.get(new_driver_class).get_required_config_fields():
                     if driver_config.get("driver_settings") is None or driver_config.get("driver_settings").get(field) is None:
                         raise ValueError("Required driver setting not provided.")
-                enabled_driver_list.append((available_drivers[new_driver_class], driver_config))
+                enabled_driver_list.append((valid_driver_classes[new_driver_class], driver_config))
             else:
                 raise ValueError("Driver class does not exist.")
 

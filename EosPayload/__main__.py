@@ -8,10 +8,10 @@ if __name__ == '__main__':
     # read args
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--output-directory', required=False, default='.')
-    parser.add_argument('-c', '--config', required=True)
+    parser.add_argument('-c', '--config-filepath', required=True)
     args = parser.parse_args()
 
     # do the things
-    config = OrchEOStrator.parse_config(args.config)
+    config = OrchEOStrator.parse_config(args.config_filepath)
     eos = OrchEOStrator(args.output_directory, config)
     eos.run()
