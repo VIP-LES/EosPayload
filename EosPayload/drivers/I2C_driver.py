@@ -33,13 +33,9 @@ class I2CDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        logger.info("PIN ||||| 1")
-        #i2c = board.I2C()
         i2c = busio.I2C(board.SCL, board.SDA)
-        logger.info("PIN ||||| 2")
         #ms = MS8607(i2c)
         bno = BNO055_I2C(i2c)
-        logger.info("PIN ||||| 3")
         # tsl = TSL2591(i2c)
         # ltr = LTR390(i2c)
         count = 0
