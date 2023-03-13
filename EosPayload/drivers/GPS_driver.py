@@ -28,7 +28,7 @@ class GPSDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-
+#
         UART.setup("UART1")
         GPS = serial.Serial('/dev/ttyO1', 9600)
         while (1):
