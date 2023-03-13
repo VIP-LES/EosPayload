@@ -30,7 +30,7 @@ class GPSDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
 #
         UART.setup("UART1")
-        GPS = serial.Serial('/dev/ttyO1', 9600)
+        GPS = serial.Serial('/dev/ttyS0', 9600)
         while (1):
             while GPS.inWaiting() == 0:
                 pass
