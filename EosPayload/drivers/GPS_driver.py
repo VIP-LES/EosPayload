@@ -3,6 +3,8 @@ import time
 import board
 import busio
 import adafruit_gps
+import serial
+import Adafruit_BBIO.UART as UART
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -26,6 +28,16 @@ class GPSDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
+
+        UART.setup("UART1")
+        GPS = serial.Serial('/dev/ttyO1', 9600)
+        while (1):
+            while GPS.inWaiting() == 0:
+                pass
+            NMEA = GPS.readline()
+            logger.info(NMEA)
+
+        '''
         logger.info("PIN ||||| 1")
         uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
         logger.info("PIN ||||| 2")
@@ -40,3 +52,5 @@ class GPSDriver(DriverBase):
             gps.update()
             logger.info("PING X")
             time.sleep(1)
+
+'''
