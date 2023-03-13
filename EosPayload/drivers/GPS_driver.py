@@ -31,6 +31,7 @@ class GPSDriver(DriverBase):
 #
         UART.setup("UART1")
         uart = serial.Serial('/dev/ttyS0', 9600)
+        track_history = []
 
         logger.info("PIN ||||| 1")
         gps = adafruit_gps.GPS(uart, debug=False)
