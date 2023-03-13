@@ -30,12 +30,26 @@ class GPSDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
 #
         UART.setup("UART1")
-        GPS = serial.Serial('/dev/ttyS0', 9600)
-        while (1):
-            while GPS.inWaiting() == 0:
-                pass
-            NMEA = GPS.readline()
-            logger.info(NMEA)
+        uart = serial.Serial('/dev/ttyS0', 9600)
+
+        logger.info("PIN ||||| 1")
+        gps = adafruit_gps.GPS(uart, debug=False)
+        logger.info("PIN ||||| 2")
+
+        gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+        gps.send_command(b"PMTK220,1000")
+
+
+        while True:
+            gps.update()
+            logger.info("PING X")
+            time.sleep(1)
+
+        #while (1):
+        #    while GPS.inWaiting() == 0:
+        #        pass
+        #    NMEA = GPS.readline()
+        #    logger.info(NMEA)
 
         '''
         logger.info("PIN ||||| 1")
