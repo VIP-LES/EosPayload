@@ -19,7 +19,7 @@ class GPSDriver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
-        return "I2C-Driver"
+        return "GPS-Driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
