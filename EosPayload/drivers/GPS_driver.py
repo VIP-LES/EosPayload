@@ -41,12 +41,12 @@ class GPSDriver(DriverBase):
 
 
         while True:
-            try:  # getting gps data can sometimes be corrupt, so if error then just continue and try to read data again
-                gps.update()
-                lat, lon, track_history = gps_converter(gps.latitude, gps.longitude, track_history)
-                logger.info(lat)
-            except:
-                logger.info("Did not work")
+            #try:  # getting gps data can sometimes be corrupt, so if error then just continue and try to read data again
+            gps.update()
+            lat, lon, track_history = gps_converter(gps.latitude, gps.longitude, track_history)
+            logger.info(lat)
+            #except:
+                #logger.info("Did not work")
             time.sleep(1)
 
 def gps_converter(lat, lon, track_history):
