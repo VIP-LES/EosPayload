@@ -31,6 +31,8 @@ class GPSDriver(DriverBase):
 #
         UART.setup("UART1")
         uart = serial.Serial('/dev/ttyO1', 9600)
+        uart.close()
+        uart.open()
         track_history = []
 
         logger.info("PIN ||||| 1")
