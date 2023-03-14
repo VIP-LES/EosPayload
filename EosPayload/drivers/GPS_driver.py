@@ -45,10 +45,12 @@ class GPSDriver(DriverBase):
         timestamp = time.monotonic()
         while True:
             data = gps.read(32)  # read up to 32 bytes
-            if data is not None:
-                # convert bytearray to string
-                data_string = "".join([chr(b) for b in data])
-                logger.info(data_string)
+            data_string = "".join([chr(b) for b in data])
+            logger.info(data_string)
+            #if data is not None:
+            #    # convert bytearray to string
+            #    data_string = "".join([chr(b) for b in data])
+            #    logger.info(data_string)
                 #print(data_string, end="")
 
             if time.monotonic() - timestamp > 5:
