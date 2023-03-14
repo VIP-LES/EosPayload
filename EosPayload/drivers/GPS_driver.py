@@ -30,7 +30,7 @@ class GPSDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
 #
         UART.setup("UART1")
-        uart = serial.Serial('/dev/ttyS0', 9600)
+        uart = serial.Serial('/dev/ttyO1', 9600)
         track_history = []
 
         logger.info("PIN ||||| 1")
