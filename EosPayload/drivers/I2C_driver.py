@@ -11,7 +11,7 @@ from adafruit_bno055 import BNO055_I2C
 
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
-from EosLib.format.telemetry_data import TelemetryData
+#from EosLib.format.telemetry_data import TelemetryData
 
 
 class I2CDriver(DriverBase):
