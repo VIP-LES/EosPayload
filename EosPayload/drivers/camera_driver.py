@@ -12,7 +12,7 @@ class Camera1Driver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_name() -> str:
