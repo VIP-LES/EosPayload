@@ -30,9 +30,9 @@ class GPSDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         UART.setup("UART1")
         uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
+
         uart.close()
         uart.open()
-        #track_history = []
 
         logger.info("PIN ||||| 1")
         #gps = adafruit_gps.GPS(uart, debug=False)
