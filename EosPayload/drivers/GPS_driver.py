@@ -32,14 +32,14 @@ class GPSDriver(DriverBase):
         uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
         uart.close()
         uart.open()
-        track_history = []
+        #track_history = []
 
         logger.info("PIN ||||| 1")
-        gps = adafruit_gps.GPS(uart, debug=False)
-        logger.info("PIN ||||| 2")
+        #gps = adafruit_gps.GPS(uart, debug=False)
+        #logger.info("PIN ||||| 2")
 
-        gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
-        gps.send_command(b"PMTK220,1000")
+        #gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+        #gps.send_command(b"PMTK220,1000")
 
         timestamp = time.monotonic()
         while True:
@@ -52,10 +52,10 @@ class GPSDriver(DriverBase):
             #    logger.info(data_string)
                 #print(data_string, end="")
 
-            if time.monotonic() - timestamp > 5:
+            #if time.monotonic() - timestamp > 5:
                 # every 5 seconds...
-                gps.send_command(b"PMTK605")  # request firmware version
-                timestamp = time.monotonic()
+                #gps.send_command(b"PMTK605")  # request firmware version
+                #timestamp = time.monotonic()
 
 def gps_converter(lat, lon, track_history):
     """ Rounds the lat/lon from GPS data and creates the list of coordinates that shows the previous route taken
