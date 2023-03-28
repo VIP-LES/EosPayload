@@ -43,7 +43,7 @@ class GPSDriver(DriverBase):
 
         timestamp = time.monotonic()
         while True:
-            data = gps.read(32)  # read up to 32 bytes
+            data = uart.read(32)  # read up to 32 bytes
             data_string = "".join([chr(b) for b in data])
             logger.info(data_string)
             #if data is not None:
