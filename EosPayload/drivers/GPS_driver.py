@@ -31,19 +31,19 @@ class GPSDriver(DriverBase):
         UART.setup("UART1")
         uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
 
-        uart.close()
-        uart.open()
+        #uart.close()
+        #uart.open()
 
-        logger.info("PIN ||||| 1")
-        #gps = adafruit_gps.GPS(uart, debug=False)
+        #logger.info("PIN ||||| 1")
+        gps = adafruit_gps.GPS(uart, debug=False)
         #logger.info("PIN ||||| 2")
 
-        #gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
-        #gps.send_command(b"PMTK220,1000")
+        gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+        gps.send_command(b"PMTK220,1000")
 
         timestamp = time.monotonic()
         while True:
-            data = uart.read(32)  # read up to 32 bytes
+            data = gps.read(32)  # read up to 32 bytes
             data_string = "".join([chr(b) for b in data])
             logger.info(data_string)
             #if data is not None:
