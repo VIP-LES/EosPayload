@@ -2,7 +2,7 @@ from random import randint
 import logging
 import time
 
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
 # This example shows a very basic polled driver that logs data to CSV and transmits it to ground

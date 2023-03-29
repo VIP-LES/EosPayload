@@ -10,7 +10,7 @@ from digi.xbee.devices import XBeeDevice
 from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
-from EosLib import Device
+from EosLib.device import Device
 from EosLib.packet.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
 from EosPayload.lib.driver_base import DriverBase

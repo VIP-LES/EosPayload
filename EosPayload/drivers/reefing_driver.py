@@ -4,7 +4,7 @@ import time
 import Adafruit_BBIO.PWM as PWM
 
 from EosLib.format.position import FlightState
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 

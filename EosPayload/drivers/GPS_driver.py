@@ -6,9 +6,9 @@ import adafruit_gps
 import serial
 import Adafruit_BBIO.UART as UART
 
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
-
+from EosLib.format.position import Position
 
 class GPSDriver(DriverBase):
 
@@ -66,6 +66,9 @@ class GPSDriver(DriverBase):
                 logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
                 if self.gps.altitude_m is not None:
                     logger.info("Altitude: {} meters".format(self.gps.altitude_m))
+
+    def cleanup(self):
+        self.uart.close()
 
 
 '''
