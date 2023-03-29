@@ -21,7 +21,7 @@ class I2CDriver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
-        return "I2C-Driver"
+        return "science_driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
