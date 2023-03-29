@@ -9,7 +9,17 @@ import Adafruit_BBIO.UART as UART
 from EosLib.packet.definitions import Device
 from EosPayload.lib.driver_base import DriverBase
 
+
 class GPSDriver(DriverBase):
+
+    def setup(self) -> None:
+        UART.setup("UART1")
+        self.uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
+
+        self.gps = adafruit_gps.GPS(self.uart, debug=False)
+
+        self.gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+        self.gps.send_command(b"PMTK220,1000")
 
     @staticmethod
     def enabled() -> bool:
@@ -28,35 +38,37 @@ class GPSDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-        UART.setup("UART1")
-        uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
 
-        #uart.close()
-        #uart.open()
-
-        #logger.info("PIN ||||| 1")
-        gps = adafruit_gps.GPS(uart, debug=False)
-        #logger.info("PIN ||||| 2")
-
-        gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
-        gps.send_command(b"PMTK220,1000")
-
-        timestamp = time.monotonic()
+        last_print = time.monotonic()
         while True:
-            data = gps.read(32)  # read up to 32 bytes
-            data_string = "".join([chr(b) for b in data])
-            logger.info(data_string)
-            #if data is not None:
-            #    # convert bytearray to string
-            #    data_string = "".join([chr(b) for b in data])
-            #    logger.info(data_string)
-                #print(data_string, end="")
+            self.gps.update()
+            current = time.monotonic()
+            if current - last_print >= 1.0:
+                last_print = current
+                if not self.gps.has_fix:
+                    # Try again if we don't have a fix yet.
+                    logger.info("Waiting for fix...")
+                    continue
 
-            #if time.monotonic() - timestamp > 5:
-                # every 5 seconds...
-                #gps.send_command(b"PMTK605")  # request firmware version
-                #timestamp = time.monotonic()
+                logger.info("=" * 40)
+                logger.info(
+                    "Fix timestamp: {}/{}/{} {:02}:{:02}:{:02}".format(
+                        self.gps.timestamp_utc.tm_mon,  # Grab parts of the time from the
+                        self.gps.timestamp_utc.tm_mday,  # struct_time object that holds
+                        self.gps.timestamp_utc.tm_year,  # the fix time.  Note you might
+                        self.gps.timestamp_utc.tm_hour,  # not get all data like year, day,
+                        self.gps.timestamp_utc.tm_min,  # month!
+                        self.gps.timestamp_utc.tm_sec,
+                    )
+                )
 
+                logger.info("Latitude: {0:.6f} degrees".format(self.gps.latitude))
+                logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
+                if self.gps.altitude_m is not None:
+                    logger.info("Altitude: {} meters".format(self.gps.altitude_m))
+
+
+'''
 def gps_converter(lat, lon, track_history):
     """ Rounds the lat/lon from GPS data and creates the list of coordinates that shows the previous route taken
     this removes the last 15 data points due to those not being as smoothed as earlier points"""
@@ -86,8 +98,8 @@ def gps_converter(lat, lon, track_history):
         #        pass
         #    NMEA = GPS.readline()
         #    logger.info(NMEA)
-
-        '''
+'''
+'''
         logger.info("PIN ||||| 1")
         uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=10)
         logger.info("PIN ||||| 2")
