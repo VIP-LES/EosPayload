@@ -10,7 +10,10 @@ from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.position import Position
 
-class GPSDriver(DriverBase):
+from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+
+
+class GPSDriver(PositionAwareDriverBase):
 
     def setup(self) -> None:
         UART.setup("UART1")
