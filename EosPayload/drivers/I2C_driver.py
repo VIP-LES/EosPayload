@@ -35,7 +35,7 @@ class I2CDriver(DriverBase):
         #i2c2 = busio.I2C(board.P9_17, board.P9_18)
         #board.SCL
 
-        bno = BNO055_I2C(i2c2)
+        bno = BNO055_I2C(i2c)
         count = 0
 
         while True:
