@@ -31,8 +31,11 @@ class I2CDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        i2c = busio.I2C(board.SCL, board.SDA)
-        bno = BNO055_I2C(i2c)
+        #i2c = busio.I2C(board.SCL, board.SDA)
+        i2c2 = busio.I2C(board.P9_17, board.P9_19)
+        #board.SCL
+
+        bno = BNO055_I2C(i2c2)
         count = 0
 
         while True:
