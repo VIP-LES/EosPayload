@@ -1,7 +1,9 @@
 from abc import ABC
 
 import EosLib.packet.packet
-from EosLib import Device, Type
+from EosLib import Type
+from EosLib.device import Device
+
 from EosLib.format.position import Position, FlightState
 
 from EosPayload.lib.driver_base import DriverBase
