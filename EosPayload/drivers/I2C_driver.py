@@ -9,7 +9,7 @@ from adafruit_bno055 import BNO055_I2C
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.telemetry_data import TelemetryData
-
+from adafruit_blinka.microcontroller.am335x import pin
 
 class I2CDriver(DriverBase):
 
@@ -31,8 +31,8 @@ class I2CDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        #i2c = busio.I2C(board.SCL, board.SDA)
-        i2c2 = busio.I2C(board.I2C1_SCL, board.I2C1_SDA)
+        i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
+        #i2c2 = busio.I2C(board.P9_17, board.P9_18)
         #board.SCL
 
         bno = BNO055_I2C(i2c2)
