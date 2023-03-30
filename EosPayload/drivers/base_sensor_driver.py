@@ -3,8 +3,6 @@ import time
 import traceback
 
 import board
-from adafruit_ms8607 import MS8607
-
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
