@@ -9,7 +9,7 @@ from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
 
 
-class I2CDriver(DriverBase):
+class ScienceDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
