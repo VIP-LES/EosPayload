@@ -41,6 +41,7 @@ class ScienceDriver(DriverBase):
                 logger.info("Unable to read from sensor, retrying...")
                 continue
 
+            '''
             logger.info("Concentration Units (standard)")
             logger.info("---------------------------------------")
             logger.info(
@@ -61,3 +62,4 @@ class ScienceDriver(DriverBase):
             logger.info("Particles > 5.0um / 0.1L air:", aqdata["particles 50um"])
             logger.info("Particles > 10 um / 0.1L air:", aqdata["particles 100um"])
             logger.info("---------------------------------------")
+            '''
