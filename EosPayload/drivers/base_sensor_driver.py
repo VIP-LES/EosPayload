@@ -8,7 +8,12 @@ from adafruit_ms8607 import MS8607
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
+
 class SensorDriver(DriverBase):
+
+    @staticmethod
+    def enabled() -> bool:
+        return False
 
     @staticmethod
     def get_device_id() -> Device:
@@ -46,7 +51,7 @@ class SensorDriver(DriverBase):
             if count % 2 == 0:
                 try:
                     self.data_transmit(csv_row)
-                    #time.sleep(1)
+                    # time.sleep(1)
                 except Exception as e:
                     logger.error(f"unable to transmit data: {e}")
 
