@@ -36,7 +36,7 @@ class ScienceDriver(DriverBase):
 
             try:
                 aqdata = pm25.read()
-                # print(aqdata)
+                logger.info(aqdata)
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
                 continue

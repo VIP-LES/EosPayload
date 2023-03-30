@@ -28,16 +28,16 @@ class SensorDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         i2c = board.I2C()
-        ms = MS8607(i2c)
         count = 0
+        '''
         while True:
             try:
-                temp = ms.temperature
+                #temp = ms.temperature
             except Exception as e:
                 logger.critical("A fatal exception occurred when attempting to get temperature data"
                                 f": {e}\n{traceback.format_exc()}")
 
-            csv_row = [temp]
+            #csv_row = [temp]
 
             # this saves data to a file
             try:
@@ -55,7 +55,8 @@ class SensorDriver(DriverBase):
 
             count += 1
             time.sleep(1)
+            '''
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
