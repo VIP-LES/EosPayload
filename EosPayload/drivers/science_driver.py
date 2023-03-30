@@ -21,7 +21,7 @@ class ScienceDriver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
-        return "science_driver"
+        return "science-driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:

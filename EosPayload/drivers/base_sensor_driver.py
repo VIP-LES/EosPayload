@@ -19,7 +19,7 @@ class SensorDriver(DriverBase):
 
     @staticmethod
     def get_device_name() -> str:
-        return "Sensor Driver"
+        return "Sensor-Driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
