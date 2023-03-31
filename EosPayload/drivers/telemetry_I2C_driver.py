@@ -10,6 +10,8 @@ from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.telemetry_data import TelemetryData
 from adafruit_blinka.microcontroller.am335x import pin
+from EosPayload.lib.mqtt import Topic
+
 
 class TelemetryI2CDriver(DriverBase):
 
@@ -54,7 +56,10 @@ class TelemetryI2CDriver(DriverBase):
             pressure = -1
             humidity = -1
 
-            new_data = TelemetryData(current_time, -40.3, 300, 50.5, 176.1, 196.5, 184.3)
+            data = TelemetryData(current_time, temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
+            packet_data = data.encode()
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet_data)
+
 
             # while True:
             #    print("Pressure: %.2f hPa" % sensor.pressure)
