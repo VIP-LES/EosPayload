@@ -37,7 +37,7 @@ class SensorDriver(DriverBase):
         while True:
             potVal = ADC.read(analogPin)
             potVolt = potVal*1.8
-            print(potVolt)
+            logger.info("RADIOACTIVITY" + potVolt)
             time.sleep(.5)
 
         '''
@@ -70,4 +70,4 @@ class SensorDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
