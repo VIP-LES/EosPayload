@@ -5,6 +5,7 @@ import traceback
 import board
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
+import Adafruit_BBIO.ADC as ADC
 
 
 class SensorDriver(DriverBase):
@@ -29,6 +30,16 @@ class SensorDriver(DriverBase):
         logger.info("Starting to poll for data!")
         i2c = board.I2C()
         count = 0
+
+        ADC.setup()
+        analogPin = "P9_40"
+
+        while True:
+            potVal = ADC.read(analogPin)
+            potVolt = potVal*1.8
+            print(potVolt)
+            time.sleep(.5)
+
         '''
         while True:
             try:
