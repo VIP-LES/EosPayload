@@ -39,6 +39,7 @@ class ScienceDriver(DriverBase):
                 logger.info(aqdata)
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
+                logger.info("Hello")
                 continue
 
             '''
