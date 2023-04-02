@@ -77,6 +77,8 @@ class TelemetryI2CDriver(DriverBase):
 
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
+
+
             #packet_data = data.encode()
             #self._mqtt.send(Topic.RADIO_TRANSMIT, packet_data)
 

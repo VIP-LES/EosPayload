@@ -1,24 +1,37 @@
 import logging
 import time
-import board
-import busio
+import queue
 import adafruit_gps
 import serial
 import Adafruit_BBIO.UART as UART
 
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
-from EosLib.format.position import Position
+from EosLib.format.position import Position, FlightState
+import datetime
 
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 
 
 class GPSDriver(PositionAwareDriverBase):
 
+    data_time_format = "%H:%M:%S %d/%m/%Y"
+
+    def __int__(self):
+        self.emit_rate = datetime.timedelta(seconds=1)
+        self.transmit_rate = datetime.timedelta(seconds=10)
+        self.state_update_rate = datetime.timedelta(seconds=15)
+        self.position_timeout = datetime.timedelta(seconds=30)
+        self.current_flight_state = FlightState.UNKNOWN
+        self.old_position = None
+        self.read_queue = queue.Queue(maxsize=10)
+        self.gotten_first_fix = False
+        self.last_transmit_time = datetime.datetime.now()
+
+
     def setup(self) -> None:
         UART.setup("UART1")
         self.uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
-
         self.gps = adafruit_gps.GPS(self.uart, debug=False)
 
         self.gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
@@ -54,14 +67,20 @@ class GPSDriver(PositionAwareDriverBase):
                     continue
 
                 logger.info("=" * 40)
+                time_hr = self.gps.timestamp_utc.tm_hour
+                time_min = self.gps.timestamp_utc.tm_min
+                time_sec = self.gps.timestamp_utc.tm_sec
+                time_day = self.gps.timestamp_utc.tm_mday
+                time_month = self.gps.timestamp_utc.tm_mon
+                time_year = self.gps.timestamp_utc.tm_year
                 logger.info(
                     "Fix timestamp: {}/{}/{} {:02}:{:02}:{:02}".format(
-                        self.gps.timestamp_utc.tm_mon,  # Grab parts of the time from the
-                        self.gps.timestamp_utc.tm_mday,  # struct_time object that holds
-                        self.gps.timestamp_utc.tm_year,  # the fix time.  Note you might
-                        self.gps.timestamp_utc.tm_hour,  # not get all data like year, day,
-                        self.gps.timestamp_utc.tm_min,  # month!
-                        self.gps.timestamp_utc.tm_sec,
+                        time_month,  # Grab parts of the time from the
+                        time_day,  # struct_time object that holds
+                        time_year,  # the fix time.  Note you might
+                        time_hr,  # not get all data like year, day,
+                        time_min,  # month!
+                        time_sec,
                     )
                 )
 
@@ -69,6 +88,49 @@ class GPSDriver(PositionAwareDriverBase):
                 logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
                 if self.gps.altitude_m is not None:
                     logger.info("Altitude: {} meters".format(self.gps.altitude_m))
+
+                # time
+                try:
+                    #"%H:%M:%S %d/%m/%Y"
+                    data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day, time_month, time_year)
+                    data_datetime = datetime.datetime.strptime(data_datetime_string, GPSDriver.data_time_format)
+                    date_time = str(data_datetime.timestamp())
+                except Exception:
+                    date_time = str(datetime.datetime.now())
+
+                logger.info(date_time)
+
+
+                #position_bytes = Position.encode_position()
+
+
+    def device_command(self, logger: logging.Logger) -> None:
+        last_emit_time = datetime.datetime.now()
+        last_state_update_time = datetime.datetime.now()
+        logger.info("Starting to poll for data!")
+        while True:
+            incoming_raw_data = self.read_queue.get()
+            incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
+            incoming_processed_data.append(str(self.gotten_first_fix))
+            self.data_log(incoming_processed_data)
+            if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
+                last_emit_time = datetime.datetime.now()
+                self.emit_data(incoming_data_dict, logger)
+            if (datetime.datetime.now() - last_state_update_time) > self.state_update_rate:
+                if self.old_position is None or self.latest_position.local_time is None:
+                    self.old_position = self.latest_position
+                elif (datetime.datetime.now() - self.latest_position.local_time) > self.position_timeout:
+                    self.current_flight_state = FlightState.UNKNOWN
+                elif self.latest_position.altitude < 1000:
+                    self.current_flight_state = FlightState.ON_GROUND
+                elif self.latest_position.altitude >= self.old_position.altitude:
+                    self.current_flight_state = FlightState.ASCENT
+                elif self.latest_position.altitude < self.old_position.altitude:
+                    self.current_flight_state = FlightState.DESCENT
+                else:
+                    self.current_flight_state = FlightState.UNKNOWN
+                self.old_position = self.latest_position
+                last_state_update_time = datetime.datetime.now()
 
     def cleanup(self):
         self.uart.close()

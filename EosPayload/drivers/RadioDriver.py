@@ -33,10 +33,6 @@ class RadioDriver(DriverBase):
         devices = context.list_devices(ID_SERIAL=serial_id)
         device_list = []
         for device in devices:
-            #id_serial = device.get("ID_SERIAL")
-            #if id_serial is not None and "FTDI" not in id_serial:
-            #    continue
-            #self._logger.info(id_serial)
             device_list.append(device)
         if len(device_list) == 0:
             self._logger.error("Could not find device")
@@ -87,7 +83,7 @@ class RadioDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
 
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
