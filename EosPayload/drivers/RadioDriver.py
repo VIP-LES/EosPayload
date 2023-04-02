@@ -33,9 +33,10 @@ class RadioDriver(DriverBase):
         devices = context.list_devices()#ID_SERIAL=serial_id)
         device_list = []
         for device in devices:
-            if "FTDI" not in device.get("ID_SERIAL"):
+            id_serial = device.get("ID_SERIAL")
+            if id_serial is not None and "FTDI" not in id_serial:
                 continue
-            self._logger.info(device.get("ID_SERIAL"))
+            self._logger.info(id_serial)
             device_list.append(device)
         if len(device_list) == 0:
             self._logger.error("Could not find device")
