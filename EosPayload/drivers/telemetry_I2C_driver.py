@@ -7,6 +7,11 @@ from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
 
 from EosLib.device import Device
+
+from EosLib.packet.data_header import DataHeader
+from EosLib import Priority, Type
+from EosLib.packet.packet import Packet
+
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.telemetry_data import TelemetryData
 from adafruit_blinka.microcontroller.am335x import pin
@@ -56,9 +61,24 @@ class TelemetryI2CDriver(DriverBase):
             pressure = -1
             humidity = -1
 
-            data = TelemetryData(current_time, temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
-            packet_data = data.encode()
-            self._mqtt.send(Topic.RADIO_TRANSMIT, packet_data)
+            telemetry_obj = TelemetryData(current_time, temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
+            telemetry_bytes = telemetry_obj.encode()
+
+            header = DataHeader(
+                data_type=Type.TELEMETRY,
+                sender=self.get_device_id(),
+                priority=Priority.TELEMETRY,
+            )
+
+            packet = Packet(
+                body=telemetry_bytes,
+                data_header=header,
+            )
+
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+
+            #packet_data = data.encode()
+            #self._mqtt.send(Topic.RADIO_TRANSMIT, packet_data)
 
 
             # while True:

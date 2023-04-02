@@ -60,7 +60,7 @@ class RadioDriver(DriverBase):
                 self.port = XBeeDevice(xbee_node, 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
-                    "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
+                    "000000000000FFFF"))  # on the chip itself there is a number on the top right. It should be 3!
                 con = False
             except Exception as e:
                 self._logger.error(f"radio port not open: {e}")
@@ -84,7 +84,7 @@ class RadioDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
