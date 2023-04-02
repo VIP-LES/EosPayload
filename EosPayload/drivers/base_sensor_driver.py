@@ -26,7 +26,7 @@ class SensorDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        i2c = board.I2C()
+        #i2c = board.I2C()
         count = 0
 
         '''
@@ -56,7 +56,3 @@ class SensorDriver(DriverBase):
             count += 1
             time.sleep(1)
             '''
-
-    @staticmethod
-    def enabled() -> bool:
-        return True
