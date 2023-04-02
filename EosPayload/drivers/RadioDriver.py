@@ -35,14 +35,13 @@ class RadioDriver(DriverBase):
         for device in devices:
             device_list.append(device)
         if len(device_list) == 0:
-            print(device_list)
             self._logger.error("Could not find device")
             raise EnvironmentError()
         xbee_node = None
 
-        print(device_list)
+        self._logger.info(device_list)
         for device in device_list:
-            print(f'trying {device.device_node}')
+            self._logger.info(f'trying {device.device_node}')
             try:
                 self.test_port = XBeeDevice(device.device_node, 9600)
                 self.test_port.open()
@@ -50,7 +49,7 @@ class RadioDriver(DriverBase):
                 xbee_node = device.device_node
                 break
             except Exception as e:
-                print(e)
+                self._logger.info(e)
             finally:
                 self.test_port.close()
 
