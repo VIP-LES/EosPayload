@@ -28,11 +28,12 @@ class RadioDriver(DriverBase):
     }
 
     def setup(self) -> None:
-        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7YM"
+        #serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7YM"
         context = pyudev.Context()
-        devices = context.list_devices(ID_SERIAL=serial_id)
+        devices = context.list_devices()#ID_SERIAL=serial_id)
         device_list = []
         for device in devices:
+            self._logger.info(device)
             device_list.append(device)
         if len(device_list) == 0:
             self._logger.error("Could not find device")
