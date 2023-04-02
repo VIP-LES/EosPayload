@@ -6,11 +6,13 @@ import serial
 import Adafruit_BBIO.UART as UART
 
 from EosLib.device import Device
-from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.position import Position, FlightState
+from EosLib.packet.packet import DataHeader, Packet
+from EosLib.packet.definitions import Type, Priority
 import datetime
 
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.mqtt import Topic
 
 
 class GPSDriver(PositionAwareDriverBase):
@@ -84,6 +86,13 @@ class GPSDriver(PositionAwareDriverBase):
                     )
                 )
 
+                gps_lat = self.gps.latitude
+                gps_lon = self.gps.longitude
+                gps_alt = self.gps.altitude_m
+                gps_speed = self.gps.speed_knots
+                gps_sat = self.gps.satellites
+
+
                 logger.info("Latitude: {0:.6f} degrees".format(self.gps.latitude))
                 logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
                 if self.gps.altitude_m is not None:
@@ -100,9 +109,23 @@ class GPSDriver(PositionAwareDriverBase):
 
                 logger.info(date_time)
 
+                position_bytes = Position.encode_position(float(date_time), float(gps_lat),
+                                                          float(gps_lon), float(gps_alt),
+                                                          float(gps_speed), int(gps_sat),
+                                                          self.current_flight_state)
 
-                #position_bytes = Position.encode_position()
+                gps_packet = Packet(position_bytes, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
 
+                if self.gotten_first_fix is False:
+                    position = Position.decode_position(gps_packet)
+                    if position.valid:
+                        self.gotten_first_fix = True
+                        logger.info("Got first GPS fix")
+
+                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
+                if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+                    self.last_transmit_time = datetime.datetime.now()
 
     def device_command(self, logger: logging.Logger) -> None:
         last_emit_time = datetime.datetime.now()
