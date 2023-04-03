@@ -8,7 +8,7 @@ import threading
 import time
 import traceback
 
-from EosLib import Device
+from EosLib.device import Device
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.driver_base import DriverBase

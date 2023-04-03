@@ -7,7 +7,7 @@ from adafruit_ms8607 import MS8607
 from adafruit_tsl2591 import TSL2591
 from adafruit_ltr390 import LTR390
 
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
 
