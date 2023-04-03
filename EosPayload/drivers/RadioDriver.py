@@ -128,7 +128,7 @@ class RadioDriver(DriverBase):
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
             try:
-                self.port.send_data_async(self.remote, packet.encode())
+                self.port.send_data_async(self.remote, packet.encode(), transmit_options=1)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
                                    f"\n{traceback.format_exc()}")
