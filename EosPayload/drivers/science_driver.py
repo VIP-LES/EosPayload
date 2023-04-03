@@ -31,13 +31,18 @@ class ScienceDriver(DriverBase):
     def read_thread_enabled() -> bool:
         return True
 
+    # TODO delete
+    def __int__(self):
+        self.i2c = None
+        self.bno = None
+
     def device_read(self, logger: logging.Logger) -> None:
         reset_pin = None
         i2c = busio.I2C(board.SCL, board.SDA)
         pm25 = PM25_I2C(i2c, reset_pin)
 
+        # TODO delete
         self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
-
         self.bno = BNO055_I2C(self.i2c)
 
 
@@ -45,6 +50,7 @@ class ScienceDriver(DriverBase):
             time.sleep(1)
 
             try:
+                # TODO delete
                 temperature = self.bno.temperature
                 x_rotation = self.bno.euler[0]
                 y_rotation = self.bno.euler[1]
