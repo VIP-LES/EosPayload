@@ -137,13 +137,13 @@ class GPSDriver(PositionAwareDriverBase):
         last_state_update_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
         while True:
-            incoming_raw_data = self.read_queue.get()
-            incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
-            incoming_processed_data.append(str(self.gotten_first_fix))
-            self.data_log(incoming_processed_data)
+            #incoming_raw_data = self.read_queue.get()
+            #incoming_processed_data, incoming_data_dict = self.process_raw_esp_data(incoming_raw_data)
+            #incoming_processed_data.append(str(self.gotten_first_fix))
+            #self.data_log(incoming_processed_data)
             if (datetime.datetime.now() - last_emit_time) > self.emit_rate:
                 last_emit_time = datetime.datetime.now()
-                self.emit_data(incoming_data_dict, logger)
+            #    self.emit_data(incoming_data_dict, logger)
             if (datetime.datetime.now() - last_state_update_time) > self.state_update_rate:
                 if self.old_position is None or self.latest_position.local_time is None:
                     self.old_position = self.latest_position
@@ -162,6 +162,7 @@ class GPSDriver(PositionAwareDriverBase):
 
     def cleanup(self):
         self.uart.close()
+
 
 
 '''
