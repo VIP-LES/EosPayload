@@ -1,9 +1,8 @@
-import threading
 from abc import ABC, abstractmethod
 from datetime import datetime
-from threading import Thread
 import logging
 import os
+import threading
 import time
 import traceback
 
@@ -125,7 +124,7 @@ class DriverBase(ABC):
         try:
             self._mqtt = Client(MQTT_HOST)
         except Exception as e:
-            self._logger.critical(f"Failed to setup MQTT: {e}\n{traceback.format_exc()}")
+            self._logger.critical(f"Failed to set up MQTT: {e}\n{traceback.format_exc()}")
 
         self._logger.info("init complete")
 
@@ -165,57 +164,73 @@ class DriverBase(ABC):
         Should only ever be invoked by orchEOStrator.
         """
 
-        if not self.enabled():
-            self._logger.info("device is not enabled, terminating before startup")
-            return
+        try:
+            if not self.enabled():
+                self._logger.info("device is not enabled, terminating before startup")
+                return
 
-        self._logger.info("device starting up in " + os.getcwd())
+            self._logger.info("device starting up in " + os.getcwd())
 
-        self._logger.info("running setup")
-        self.setup()
-        self._logger.info("setup complete")
+            self._logger.info("running setup")
+            try:
+                self.setup()
+            except Exception as err:
+                self._logger.error(f"Error occurred while running setup: {err}\n{traceback.format_exc()}")
+            self._logger.info("setup complete")
 
-        # thread setup
+            # thread setup
 
-        if self.read_thread_enabled():
-            self._logger.info("starting read thread")
-            read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
-            self.__read_thread = Thread(None, self.device_read, f"{self.get_device_id()}-read-thread",
-                                        (), {"logger": read_logger})
-            self.__read_thread.daemon = True
-            self.__read_thread.start()
-        else:
-            self._logger.info("skipping starting read thread because it is not enabled")
-
-        if self.command_thread_enabled():
-            self._logger.info("starting command thread")
-            command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
-            self.__command_thread = Thread(None, self.device_command, f"{self.get_device_id()}-command-thread",
-                                           (), {"logger": command_logger})
-            self.__command_thread.daemon = True
-            self.__command_thread.start()
-        else:
-            self._logger.info("skipping starting command thread because it is not enabled")
-
-        self._logger.info("device startup complete")
-
-        # health check loop
-        while True:
-            if not self.is_healthy():
-                read_thread_message = "disabled"
-                if self.read_thread_enabled():
-                    read_thread_message = str(self.__read_thread.is_alive())
-                command_thread_message = "disabled"
-                if self.command_thread_enabled():
-                    command_thread_message = self.__command_thread.is_alive()
-                self._logger.critical(
-                    f"device unhealthy:"
-                    f"\n\tread_thread running: {read_thread_message}"
-                    f"\n\tcommand thread running: {command_thread_message}"
+            if self.read_thread_enabled():
+                self._logger.info("starting read thread")
+                read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
+                self.__read_thread = threading.Thread(
+                    None,
+                    self.__device_read_wrapper,
+                    f"{self.get_device_id()}-read-thread",
+                    (),
+                    {"logger": read_logger}
                 )
+                self.__read_thread.daemon = True
+                self.__read_thread.start()
+            else:
+                self._logger.info("skipping starting read thread because it is not enabled")
 
-            self.__send_heartbeat()
-            time.sleep(10)
+            if self.command_thread_enabled():
+                self._logger.info("starting command thread")
+                command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
+                self.__command_thread = threading.Thread(
+                    None,
+                    self.__device_command_wrapper,
+                    f"{self.get_device_id()}-command-thread",
+                    (),
+                    {"logger": command_logger}
+                )
+                self.__command_thread.daemon = True
+                self.__command_thread.start()
+            else:
+                self._logger.info("skipping starting command thread because it is not enabled")
+
+            self._logger.info("device startup complete")
+
+            # health check loop
+            while True:
+                if not self.is_healthy():
+                    read_thread_message = "disabled"
+                    if self.read_thread_enabled():
+                        read_thread_message = str(self.__read_thread.is_alive())
+                    command_thread_message = "disabled"
+                    if self.command_thread_enabled():
+                        command_thread_message = self.__command_thread.is_alive()
+                    self._logger.error(
+                        f"device unhealthy:"
+                        f"\n\tread_thread running: {read_thread_message}"
+                        f"\n\tcommand thread running: {command_thread_message}"
+                    )
+
+                self.__send_heartbeat()
+                time.sleep(10)
+        except Exception as err:
+            self._logger.error(f"Error occurred in driver run() method: {err}\n{traceback.format_exc()}")
 
     def device_read(self, logger: logging.Logger) -> None:
         """ [OPTIONAL] Main function for Driver Read Thread.
@@ -227,6 +242,16 @@ class DriverBase(ABC):
         logger.info("device_read not implemented for this driver")
         self.spin()
 
+    def __device_read_wrapper(self, logger: logging.Logger) -> None:
+        """ Runs the device_read function with exception reporting.  Do not override.
+
+        :param logger: can be used to log info / error messages to disk and console
+        """
+        try:
+            self.device_read(logger)
+        except Exception as err:
+            self._logger.critical(f"Fatal error occurred in read thread: {err}\n{traceback.format_exc()}")
+
     def device_command(self, logger: logging.Logger) -> None:
         """ [OPTIONAL] Main function for Driver Command Thread.
         Used to write to device.
@@ -236,6 +261,16 @@ class DriverBase(ABC):
         """
         logger.info("device_command not implemented for this driver")
         self.spin()
+
+    def __device_command_wrapper(self, logger: logging.Logger) -> None:
+        """ Runs the device_command function with exception reporting.  Do not override.
+
+        :param logger: can be used to log info / error messages to disk and console
+        """
+        try:
+            self.device_command(logger)
+        except Exception as err:
+            self._logger.critical(f"Fatal error occurred in command thread: {err}\n{traceback.format_exc()}")
 
     #
     # UTILITY METHODS
