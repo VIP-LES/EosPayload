@@ -58,7 +58,7 @@ class GPSDriver(PositionAwareDriverBase):
 
     @staticmethod
     def command_thread_enabled() -> bool:
-        return True
+        return False # CHANGE
 
     def device_read(self, logger: logging.Logger) -> None:
 
