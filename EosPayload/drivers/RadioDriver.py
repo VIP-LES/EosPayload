@@ -62,6 +62,7 @@ class RadioDriver(DriverBase):
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
+                self.remote.disable_acknowledgement = True
                 con = False
             except Exception as e:
                 self._logger.error(f"radio port not open: {e}")

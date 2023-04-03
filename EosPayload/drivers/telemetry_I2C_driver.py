@@ -82,5 +82,5 @@ class TelemetryI2CDriver(DriverBase):
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
             count += 1
-            time.sleep(1)
+            time.sleep(2)
 
