@@ -37,9 +37,10 @@ class ScienceDriver(DriverBase):
         self.bno = None
 
     def device_read(self, logger: logging.Logger) -> None:
-        reset_pin = None
-        i2c = busio.I2C(board.SCL, board.SDA)
-        pm25 = PM25_I2C(i2c, reset_pin)
+        # reset_pin = None
+        # i2c = busio.I2C(board.SCL, board.SDA)
+        # pm25 = PM25_I2C(i2c, reset_pin)
+        logger.info("science!")
 
         # TODO delete
         self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
