@@ -16,7 +16,6 @@ from EosPayload.lib.mqtt import Topic
 
 
 class GPSDriver(PositionAwareDriverBase):
-
     data_time_format = "%H:%M:%S %d/%m/%Y"
 
     def __int__(self):
@@ -29,9 +28,11 @@ class GPSDriver(PositionAwareDriverBase):
         self.read_queue = queue.Queue(maxsize=10)
         self.gotten_first_fix = False
         self.last_transmit_time = datetime.datetime.now()
-
+        self.uart = None
+        self.gps = None
 
     def setup(self) -> None:
+        super().setup()
         UART.setup("UART1")
         self.uart = serial.Serial(port="/dev/ttyO1", baudrate=9600)
         self.gps = adafruit_gps.GPS(self.uart, debug=False)
@@ -53,6 +54,10 @@ class GPSDriver(PositionAwareDriverBase):
 
     @staticmethod
     def read_thread_enabled() -> bool:
+        return True
+
+    @staticmethod
+    def command_thread_enabled() -> bool:
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
@@ -92,7 +97,6 @@ class GPSDriver(PositionAwareDriverBase):
                 gps_speed = self.gps.speed_knots
                 gps_sat = self.gps.satellites
 
-
                 logger.info("Latitude: {0:.6f} degrees".format(self.gps.latitude))
                 logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
                 if self.gps.altitude_m is not None:
@@ -100,8 +104,9 @@ class GPSDriver(PositionAwareDriverBase):
 
                 # time
                 try:
-                    #"%H:%M:%S %d/%m/%Y"
-                    data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day, time_month, time_year)
+                    # "%H:%M:%S %d/%m/%Y"
+                    data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day,
+                                                                               time_month, time_year)
                     data_datetime = datetime.datetime.strptime(data_datetime_string, GPSDriver.data_time_format)
                     date_time = str(data_datetime.timestamp())
                 except Exception:

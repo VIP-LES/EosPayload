@@ -24,10 +24,12 @@ class RadioDriver(DriverBase):
     # mapping from destination to mqtt topic
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
-        Device.MISC_RADIO_1: Topic.PING_COMMAND
+        Device.MISC_RADIO_1: Topic.PING_COMMAND,
+        Device.MISC_ENGINEERING_2: Topic.CUTDOWN_COMMAND
     }
 
     def setup(self) -> None:
+        super().setup()
         serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
         context = pyudev.Context()
         devices = context.list_devices(ID_SERIAL=serial_id)
@@ -59,7 +61,7 @@ class RadioDriver(DriverBase):
                 self.port = XBeeDevice(xbee_node, 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
-                    "000000000000FFFF"))  # on the chip itself there is a number on the top right. It should be 3!
+                    "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
                 con = False
             except Exception as e:
                 self._logger.error(f"radio port not open: {e}")
