@@ -34,8 +34,8 @@ class ScienceDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         i2c = busio.I2C(board.SCL, board.SDA)
-        ADC.setup()
-        analogPin = "P9_40"
+        # ADC.setup()
+        
 
         # base sensors
         sht = adafruit_shtc3.SHTC3(i2c)
@@ -46,6 +46,7 @@ class ScienceDriver(DriverBase):
         # research sensors
         # reset_pin = None
         # pm25 = PM25_I2C(i2c, reset_pin)
+        # analogPin = "P9_40"
         logger.info("Starting to poll for science data!")
 
 
@@ -68,9 +69,9 @@ class ScienceDriver(DriverBase):
                 # logger.info("Altitude: {} m".format(bmp.altitude))
 
                 # research sensor readout
-                potVal = ADC.read(analogPin)
-                potVolt = potVal * 1.8
-                logger.info("radioactivity: {}".format(potVolt))
+                # potVal = ADC.read(analogPin)
+                # potVolt = potVal * 1.8
+                # logger.info("radioactivity: {}".format(potVolt))
 
 
                 # aqdata = pm25.read()
