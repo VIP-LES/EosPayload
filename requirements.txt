@@ -24,7 +24,6 @@ adafruit-circuitpython-ltr390
 adafruit-circuitpython-tmp117
 adafruit-circuitpython-bmp3xx
 adafruit-circuitpython-shtc3
-adafruit-circuitpython-ts
 adafruit-circuitpython-bno055
 adafruit-circuitpython-gps
 adafruit-circuitpython-pm25
