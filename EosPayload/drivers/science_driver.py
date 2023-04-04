@@ -32,13 +32,17 @@ class ScienceDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-        # reset_pin = None
-        i2c = busio.I2C(board.SCL, board.SDA)
+        i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
+
+        # base sensors
         sht = adafruit_shtc3.SHTC3(i2c)
         ltr = adafruit_ltr390.LTR390(i2c)
         tsl = adafruit_tsl2591.TSL2591(i2c)
-        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-        # pm25 = PM25_I2C(i2c, reset_pin)
+        # bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
+
+        # research sensors
+        reset_pin = None
+        pm25 = PM25_I2C(i2c, reset_pin)
         logger.info("Starting to poll for science data!")
 
 
@@ -46,6 +50,7 @@ class ScienceDriver(DriverBase):
             time.sleep(1)
 
             try:
+                # base sensor readout
                 logger.info("Temperature (science): {} C".format(sht.temperature))
                 logger.info("Relative Humidity: {} rH".format(sht.relative_humidity))
                 logger.info("Ambient Light: {}".format(ltr.light))
@@ -55,34 +60,34 @@ class ScienceDriver(DriverBase):
                 logger.info("Infrared: {}".format(tsl.infrared))
                 logger.info("Visible Light: {}".format(tsl.visible))
                 logger.info("Full Spectrum (IR + vis): {}".format(tsl.full_spectrum))
-                logger.info("Pressure: {} hPa".format(bmp.pressure))
-                logger.info("Altitude: {} m".format(bmp.altitude))
-                # aqdata = pm25.read()
-                # logger.info(aqdata)
+
+                # logger.info("Pressure: {} hPa".format(bmp.pressure))
+                # logger.info("Altitude: {} m".format(bmp.altitude))
+
+                # research sensor readout
+                aqdata = pm25.read()
+                logger.info("Concentration Units (standard)")
+                logger.info("---------------------------------------")
+                logger.info(
+                    "PM 1.0: %d\tPM2.5: %d\tPM10: %d"
+                    % (aqdata["pm10 standard"], aqdata["pm25 standard"], aqdata["pm100 standard"])
+                )
+                logger.info("Concentration Units (environmental)")
+                logger.info("---------------------------------------")
+                logger.info(
+                    "PM 1.0: %d\tPM2.5: %d\tPM10: %d"
+                    % (aqdata["pm10 env"], aqdata["pm25 env"], aqdata["pm100 env"])
+                )
+                logger.info("---------------------------------------")
+                logger.info("Particles > 0.3um / 0.1L air:", aqdata["particles 03um"])
+                logger.info("Particles > 0.5um / 0.1L air:", aqdata["particles 05um"])
+                logger.info("Particles > 1.0um / 0.1L air:", aqdata["particles 10um"])
+                logger.info("Particles > 2.5um / 0.1L air:", aqdata["particles 25um"])
+                logger.info("Particles > 5.0um / 0.1L air:", aqdata["particles 50um"])
+                logger.info("Particles > 10 um / 0.1L air:", aqdata["particles 100um"])
+                logger.info("---------------------------------------")
+
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
                 logger.info("Hello")
                 continue
-
-            '''
-            logger.info("Concentration Units (standard)")
-            logger.info("---------------------------------------")
-            logger.info(
-                "PM 1.0: %d\tPM2.5: %d\tPM10: %d"
-                % (aqdata["pm10 standard"], aqdata["pm25 standard"], aqdata["pm100 standard"])
-            )
-            logger.info("Concentration Units (environmental)")
-            logger.info("---------------------------------------")
-            logger.info(
-                "PM 1.0: %d\tPM2.5: %d\tPM10: %d"
-                % (aqdata["pm10 env"], aqdata["pm25 env"], aqdata["pm100 env"])
-            )
-            logger.info("---------------------------------------")
-            logger.info("Particles > 0.3um / 0.1L air:", aqdata["particles 03um"])
-            logger.info("Particles > 0.5um / 0.1L air:", aqdata["particles 05um"])
-            logger.info("Particles > 1.0um / 0.1L air:", aqdata["particles 10um"])
-            logger.info("Particles > 2.5um / 0.1L air:", aqdata["particles 25um"])
-            logger.info("Particles > 5.0um / 0.1L air:", aqdata["particles 50um"])
-            logger.info("Particles > 10 um / 0.1L air:", aqdata["particles 100um"])
-            logger.info("---------------------------------------")
-            '''
