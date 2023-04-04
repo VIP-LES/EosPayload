@@ -33,7 +33,7 @@ class ScienceDriver(DriverBase):
         # reset_pin = None
         i2c = busio.I2C(board.SCL, board.SDA)
         tmp = adafruit_tmp117.TMP117(i2c)
-        ltr = adafruit_ltr390.LTR390(i2c)
+        # ltr = adafruit_ltr390.LTR390(i2c)
         # pm25 = PM25_I2C(i2c, reset_pin)
         logger.info("Starting to poll for science data!")
 
@@ -43,7 +43,7 @@ class ScienceDriver(DriverBase):
 
             try:
                 logger.info("Temperature (science): {}".format(tmp.temperature))
-                logger.info("Light: {}".format(ltr.light))
+                # logger.info("Light: {}".format(ltr.light))
                 # aqdata = pm25.read()
                 # logger.info(aqdata)
             except RuntimeError:
