@@ -8,7 +8,7 @@ from EosLib.device import Device
 from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
 
-import adafruit_tmp117
+import adafruit_tsl2591
 import adafruit_ltr390
 import adafruit_shtc3
 import adafruit_bmp3xx
@@ -34,9 +34,9 @@ class ScienceDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         # reset_pin = None
         i2c = busio.I2C(board.SCL, board.SDA)
-        tmp = adafruit_tmp117.TMP117(i2c)
-        ltr = adafruit_ltr390.LTR390(i2c)
         sht = adafruit_shtc3.SHTC3(i2c)
+        ltr = adafruit_ltr390.LTR390(i2c)
+        tsl = adafruit_tsl2591.TSL2591(i2c)
         # bmp = adafruit_bmp3xx.BMP3XX_I2X(i2c)
         # pm25 = PM25_I2C(i2c, reset_pin)
         logger.info("Starting to poll for science data!")
@@ -47,11 +47,15 @@ class ScienceDriver(DriverBase):
 
             try:
                 logger.info("Temperature (science): {} C".format(sht.temperature))
-                logger.info("Light: {}".format(ltr.light))
+                logger.info("Relative Humidity: {} rH".format(sht.relative_humidity))
+                logger.info("Ambient Light: {}".format(ltr.light))
                 logger.info("UV: {}".format(ltr.uvs))
                 logger.info("UV Index: {}".format(ltr.uvi))
                 logger.info("Lux: {}".format(ltr.lux))
-                logger.info("Relative Humidity: {} rH".format(sht.relative_humidity))
+                logger.info("Infrared: {}".format(tsl.infrared))
+                logger.info("Visible Light: {}".format(tsl.visible))
+                logger.info("Full Spectrum (IR + vis): {}".format(tsl.full_spectrum))
+                
                 # logger.info("Pressure: {} hPa".format(bmp.pressure))
                 # logger.info("Altitude: {} m".format(bmp.altitude))
                 # aqdata = pm25.read()
