@@ -37,7 +37,7 @@ class ScienceDriver(DriverBase):
         tmp = adafruit_tmp117.TMP117(i2c)
         ltr = adafruit_ltr390.LTR390(i2c)
         sht = adafruit_shtc3.SHTC3(i2c)
-        bmp = ad
+        bmp = adafruit_bmp3xx.BMP3XX_I2X(i2c)
         # pm25 = PM25_I2C(i2c, reset_pin)
         logger.info("Starting to poll for science data!")
 
@@ -46,7 +46,7 @@ class ScienceDriver(DriverBase):
             time.sleep(1)
 
             try:
-                logger.info("Temperature (science): {} C".format(tmp.temperature))
+                logger.info("Temperature (science): {} C".format(sht.temperature))
                 logger.info("Light: {}".format(ltr.light))
                 logger.info("UV: {}".format(ltr.uvs))
                 logger.info("UV Index: {}".format(ltr.uvi))
