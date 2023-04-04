@@ -10,6 +10,8 @@ from adafruit_pm25.i2c import PM25_I2C
 
 import adafruit_tmp117
 import adafruit_ltr390
+import adafruit_shtc3
+import adafruit_bmp3xx
 
 class ScienceDriver(DriverBase):
 
@@ -34,6 +36,8 @@ class ScienceDriver(DriverBase):
         i2c = busio.I2C(board.SCL, board.SDA)
         tmp = adafruit_tmp117.TMP117(i2c)
         ltr = adafruit_ltr390.LTR390(i2c)
+        sht = adafruit_shtc3.SHTC3(i2c)
+        bmp = ad
         # pm25 = PM25_I2C(i2c, reset_pin)
         logger.info("Starting to poll for science data!")
 
@@ -42,8 +46,14 @@ class ScienceDriver(DriverBase):
             time.sleep(1)
 
             try:
-                logger.info("Temperature (science): {}".format(tmp.temperature))
+                logger.info("Temperature (science): {} C".format(tmp.temperature))
                 logger.info("Light: {}".format(ltr.light))
+                logger.info("UV: {}".format(ltr.uvs))
+                logger.info("UV Index: {}".format(ltr.uvi))
+                logger.info("Lux: {}".format(ltr.lux))
+                logger.info("Relative Humidity: {} rH".format(sht.relative_humidity))
+                logger.info("Pressure: {} hPa".format(bmp.pressure))
+                logger.info("Altitude: {} m".format(bmp.altitude))
                 # aqdata = pm25.read()
                 # logger.info(aqdata)
             except RuntimeError:
