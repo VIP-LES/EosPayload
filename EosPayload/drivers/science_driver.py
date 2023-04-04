@@ -43,7 +43,7 @@ class ScienceDriver(DriverBase):
 
         # research sensors
         reset_pin = None
-        pm25 = PM25_I2C(i2c, reset_pin)
+        pm25 = PM25_I2C(i2c)
         # ADC.setup()
         # analogPin = "P9_40"
         logger.info("Starting to poll for science data!")
