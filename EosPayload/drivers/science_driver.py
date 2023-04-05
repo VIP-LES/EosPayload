@@ -42,7 +42,7 @@ class ScienceDriver(DriverBase):
         # bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
 
         # research sensors
-        pm25 = PM25_I2C(i2c)
+        # pm25 = PM25_I2C(i2c)
         # ADC.setup()
         # analogPin = "P9_40"
         logger.info("Starting to poll for science data!")
@@ -72,7 +72,7 @@ class ScienceDriver(DriverBase):
                 # logger.info("radioactivity: {}".format(potVolt))
 
 
-                aqdata = pm25.read()
+                # aqdata = pm25.read()
                 # logger.info("Concentration Units (standard)")
                 # logger.info("---------------------------------------")
                 # logger.info(
@@ -86,7 +86,7 @@ class ScienceDriver(DriverBase):
                 #     % (aqdata["pm10 env"], aqdata["pm25 env"], aqdata["pm100 env"])
                 # )
                 # logger.info("---------------------------------------")
-                logger.info(len(aqdata))
+                # logger.info(len(aqdata))
                 # logger.info("Particles > 0.3um / 0.1L air:", aqdata["particles 03um"])
                 # logger.info("Particles > 0.5um / 0.1L air:", aqdata["particles 05um"])
                 # logger.info("Particles > 1.0um / 0.1L air:", aqdata["particles 10um"])
