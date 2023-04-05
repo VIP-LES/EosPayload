@@ -53,15 +53,15 @@ class ScienceDriver(DriverBase):
 
             try:
                 # base sensor readout
-                logger.info("Temperature (science): {} C".format(sht.temperature))
-                logger.info("Relative Humidity: {}".format(sht.relative_humidity))
-                logger.info("Ambient Light: {}".format(ltr.light))
-                logger.info("UV: {}".format(ltr.uvs))
-                logger.info("UV Index: {}".format(ltr.uvi))
-                logger.info("Lux: {}".format(ltr.lux))
-                logger.info("Infrared: {}".format(tsl.infrared))
-                logger.info("Visible Light: {}".format(tsl.visible))
-                logger.info("Full Spectrum (IR + vis): {}".format(tsl.full_spectrum))
+                # logger.info("Temperature (science): {} C".format(sht.temperature))
+                # logger.info("Relative Humidity: {}".format(sht.relative_humidity))
+                # logger.info("Ambient Light: {}".format(ltr.light))
+                # logger.info("UV: {}".format(ltr.uvs))
+                # logger.info("UV Index: {}".format(ltr.uvi))
+                # logger.info("Lux: {}".format(ltr.lux))
+                # logger.info("Infrared: {}".format(tsl.infrared))
+                # logger.info("Visible Light: {}".format(tsl.visible))
+                # logger.info("Full Spectrum (IR + vis): {}".format(tsl.full_spectrum))
 
                 # logger.info("Pressure: {} hPa".format(bmp.pressure))
                 # logger.info("Altitude: {} m".format(bmp.altitude))
