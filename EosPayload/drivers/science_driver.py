@@ -44,7 +44,6 @@ class ScienceDriver(DriverBase):
         # research sensors
         # pm25 = PM25_I2C(i2c)
         ADC.setup()
-        analogPin = "P9_33"
         logger.info("Starting to poll for science data!")
 
 
@@ -67,8 +66,9 @@ class ScienceDriver(DriverBase):
                 # logger.info("Altitude: {} m".format(bmp.altitude))
 
                 # research sensor readout
-                potVal = ADC.read(analogPin)
-                logger.info("radioactivity: {}".format(potVal))
+                potVal = ADC.read("P9_39")
+                potVal = ADC.read("P9_39")
+                logger.info("RADIOACTIVITY: {}".format(potVal))
 
 
                 # aqdata = pm25.read()
