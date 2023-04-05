@@ -67,7 +67,6 @@ class ScienceDriver(DriverBase):
 
                 # research sensor readout
                 potVal = ADC.read("P9_39")
-                potVal = ADC.read("P9_39")
                 logger.info("RADIOACTIVITY: {}".format(potVal))
 
 
