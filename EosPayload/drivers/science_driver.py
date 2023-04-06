@@ -66,7 +66,7 @@ class ScienceDriver(DriverBase):
 
                 aqdata = pm25.read()
                 for i in aqdata.values():
-                    row.append(i)
+                    row.append(str(i))
 
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
