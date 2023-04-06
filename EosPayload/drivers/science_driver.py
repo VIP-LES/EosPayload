@@ -54,9 +54,7 @@ class ScienceDriver(DriverBase):
                 row = []
 
                 # base sensor readout
-                row = [sht.temperature, sht.relative_humidity, ltr.light, ltr.uvs, ltr.uvi, ltr.lux, tsl.infrared, tsl.visible, tsl.full_spectrum]
-
-                logger.info(row)
+                # row = [sht.temperature, sht.relative_humidity, ltr.light, ltr.uvs, ltr.uvi, ltr.lux, tsl.infrared, tsl.visible, tsl.full_spectrum]
 
                 logger.info("Temperature (science): {} C".format(sht.temperature))
                 logger.info("Relative Humidity: {}".format(sht.relative_humidity))
@@ -101,7 +99,7 @@ class ScienceDriver(DriverBase):
                 # logger.info("---------------------------------------")
 
 
-                self.data_log(row)
+                # self.data_log(row)
 
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
