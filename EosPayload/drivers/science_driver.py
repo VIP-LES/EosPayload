@@ -74,6 +74,15 @@ class ScienceDriver(DriverBase):
                 continue
 
             try:
+                '''
+                READING THE CSV FILE
+                base sensors make up the first 9 columns:
+                    temperature, relative humidity, ambient light, uv, uv index, lux, infrared, visible light, full spectrum (IR + vis)
+
+                pm25 (air quality) makes up the next 12:
+                concentration units (standard): pm 1.0, pm 2.5, pm 10.0, concentration units (environmental): pm 1.0, pm 2.5, pm 10.0,
+                particles > 0.3um / 0.1L air, > 0.5um, > 1.0um, > 2.5um, > 5.0um, > 10.0um
+                '''
                 self.data_log(row)
             except Exception as e:
                 logger.error(f"Unable to log data: {e}")
