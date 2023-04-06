@@ -65,8 +65,8 @@ class ScienceDriver(DriverBase):
                 row.append(str(tsl.full_spectrum))
 
                 aqdata = pm25.read()
-                aqdata = str(aqdata.values())
-                row.extend(list(aqdata))
+                for i in aqdata.values():
+                    row.append(i)
 
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
