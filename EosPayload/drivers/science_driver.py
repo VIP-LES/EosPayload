@@ -54,7 +54,15 @@ class ScienceDriver(DriverBase):
                 row = []
 
                 # base sensor readout
-                row = [sht.temperature, sht.relative_humidity, ltr.light, ltr.uvs, ltr.uvi, ltr.lux, tsl.infrared, tsl.visible, tsl.full_spectrum]
+                row.append(str(sht.temperature))
+                row.append(str(sht.relative_humidity))
+                row.append(str(ltr.light))
+                row.append(str(ltr.uvs))
+                row.append(str(ltr.uvi))
+                row.append(str(ltr.lux))
+                row.append(str(tsl.infrared))
+                row.append(str(tsl.visible))
+                row.append(str(tsl.full_spectrum))
 
                 # logger.info("Temperature (science): {} C".format(sht.temperature))
                 # logger.info("Relative Humidity: {}".format(sht.relative_humidity))
@@ -98,10 +106,12 @@ class ScienceDriver(DriverBase):
                 # logger.info("Particles > 10 um / 0.1L air:", aqdata["particles 100um"])
                 # logger.info("---------------------------------------")
 
-
-                self.data_log(row)
-
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
                 logger.info("Hello")
                 continue
+
+            try:
+                self.data_log(row)
+            except Exception as e:
+                logger.error(f"Unable to log data: {e}")
