@@ -51,7 +51,19 @@ class ScienceDriver(DriverBase):
             time.sleep(1)
 
             try:
+                row = []
+
                 # base sensor readout
+                row.append(sht.temperature)
+                row.append(sht.relative_humidity)
+                row.append(ltr.light)
+                row.append(ltr.uvs)
+                row.append(ltr.uvi)
+                row.append(ltr.lux)
+                row.append(tsl.infrared)
+                row.append(tsl.visible)
+                row.append(tsl.full_spectrum)
+
                 # logger.info("Temperature (science): {} C".format(sht.temperature))
                 # logger.info("Relative Humidity: {}".format(sht.relative_humidity))
                 # logger.info("Ambient Light: {}".format(ltr.light))
@@ -65,9 +77,10 @@ class ScienceDriver(DriverBase):
                 # logger.info("Pressure: {} hPa".format(bmp.pressure))
                 # logger.info("Altitude: {} m".format(bmp.altitude))
 
+
                 # research sensor readout
-                potVal = ADC.read("P9_39")
-                logger.info("RADIOACTIVITY: {}".format(potVal))
+                # potVal = ADC.read("P9_40")
+                # logger.info("RADIOACTIVITY: {}".format(potVal))
 
 
                 # aqdata = pm25.read()
@@ -92,6 +105,9 @@ class ScienceDriver(DriverBase):
                 # logger.info("Particles > 5.0um / 0.1L air:", aqdata["particles 50um"])
                 # logger.info("Particles > 10 um / 0.1L air:", aqdata["particles 100um"])
                 # logger.info("---------------------------------------")
+
+
+                self.data_log(row)
 
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")

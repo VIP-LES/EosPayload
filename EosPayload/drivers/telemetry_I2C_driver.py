@@ -22,8 +22,7 @@ class TelemetryI2CDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        # TODO re enable
-        return False
+        return True
 
     @staticmethod
     def get_device_id() -> Device:
