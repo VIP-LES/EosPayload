@@ -65,7 +65,7 @@ class ScienceDriver(DriverBase):
                 row.append(str(tsl.full_spectrum))
 
                 aqdata = pm25.read()
-                aqdata = str(aqdata)
+                aqdata = str(aqdata.values)
                 row.extend(list(aqdata))
 
             except RuntimeError:
