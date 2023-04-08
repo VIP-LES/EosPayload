@@ -1,4 +1,4 @@
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 from EosPayload.drivers.test_driver import TestDriver
 
 # this example shows how you can extend other drivers you've already made

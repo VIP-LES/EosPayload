@@ -2,7 +2,7 @@ import Adafruit_BBIO.GPIO as GPIO
 import logging
 import time
 
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
 

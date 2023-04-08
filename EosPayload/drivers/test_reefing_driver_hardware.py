@@ -2,7 +2,7 @@ import logging
 import random
 import time
 
-from EosLib.packet.definitions import Device
+from EosLib.device import Device
 
 from EosPayload.drivers.reefing_driver import ReefingDriver
 

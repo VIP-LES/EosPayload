@@ -8,7 +8,7 @@ import threading
 import time
 import traceback
 
-from EosLib import Device
+from EosLib.device import Device
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.driver_base import DriverBase
@@ -88,7 +88,7 @@ class OrchEOStrator:
             (driver is not None)
             and inspect.isclass(driver)
             and issubclass(driver, DriverBase)
-            and driver.__name__ != "DriverBase"
+            and driver.__name__ not in ["DriverBase", "PositionAwareDriverBase"]
         )
 
     #
