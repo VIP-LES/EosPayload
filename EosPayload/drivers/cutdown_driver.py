@@ -48,7 +48,7 @@ class CutdownDriver(PositionAwareDriverBase):
                 if altitude > CutdownDriver.auto_cutdown_altitude and not self.has_triggered:
                     self.has_triggered = True
                     self.cutdown_trigger()
-            except ValueError:
+            except TypeError:
                 self._logger.info("No Altitude Data")
 
             time.sleep(5)
