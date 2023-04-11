@@ -43,12 +43,15 @@ class CutdownDriver(PositionAwareDriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         self.cutdown_trigger()
         while True:
-            altitude = self.latest_position.altitude
-            if altitude > CutdownDriver.auto_cutdown_altitude and not self.has_triggered:
-                self.has_triggered = True
-                self.cutdown_trigger()
+            try:
+                altitude = self.latest_position.altitude
+                if altitude > CutdownDriver.auto_cutdown_altitude and not self.has_triggered:
+                    self.has_triggered = True
+                    self.cutdown_trigger()
+            except ValueError:
+                self._logger.info("No Altitude Data")
 
-            time.sleep(1)
+            time.sleep(5)
 
     def cutdown_trigger(self):
         self._logger.info("~~~PULLING PIN HIGH~~~")
