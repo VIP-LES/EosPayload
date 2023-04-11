@@ -11,6 +11,7 @@ import Adafruit_BBIO.GPIO as GPIO
 class CutdownDriver(PositionAwareDriverBase):
     cutdown_pin = "P8_10"
     time_pulled_high = 7  # seconds
+    auto_cutdown_altitude = 21000
 
     @staticmethod
     def enabled() -> bool:
@@ -29,7 +30,6 @@ class CutdownDriver(PositionAwareDriverBase):
         return True
 
     def __int__(self):
-        self.auto_cutdown_altitude = 21000
         self.has_triggered = False
 
     def setup(self):
@@ -44,7 +44,7 @@ class CutdownDriver(PositionAwareDriverBase):
         self.cutdown_trigger()
         while True:
             altitude = self.latest_position.altitude
-            if altitude > self.auto_cutdown_altitude and not self.has_triggered:
+            if altitude > CutdownDriver.auto_cutdown_altitude and not self.has_triggered:
                 self.has_triggered = True
                 self.cutdown_trigger()
 
