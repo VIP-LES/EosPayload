@@ -14,7 +14,7 @@ from EosLib.packet.packet import Packet
 
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.format.telemetry_data import TelemetryData
-from adafruit_blinka.microcontroller.am335x import pin
+#from adafruit_blinka.microcontroller.am335x import pin
 from EosPayload.lib.mqtt import Topic
 
 
@@ -42,8 +42,8 @@ class TelemetryI2CDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
-        #self.i2c = i2c = busio.I2C(board.SCL, board.SDA)
+        #self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
+        self.i2c = i2c = busio.I2C(board.SCL, board.SDA)
         self.bno = BNO055_I2C(self.i2c)
         count = 0
 
