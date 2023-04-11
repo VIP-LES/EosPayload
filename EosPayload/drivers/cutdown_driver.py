@@ -14,7 +14,7 @@ class CutdownDriver(PositionAwareDriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     @staticmethod
     def get_device_id() -> Device:
