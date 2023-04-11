@@ -10,7 +10,7 @@ import Adafruit_BBIO.GPIO as GPIO
 
 class CutdownDriver(PositionAwareDriverBase):
     cutdown_pin = "P8_10"
-    time_pulled_high = 5  # seconds
+    time_pulled_high = 7  # seconds
 
     @staticmethod
     def enabled() -> bool:
@@ -41,11 +41,12 @@ class CutdownDriver(PositionAwareDriverBase):
             self._mqtt.register_subscriber(Topic.CUTDOWN_COMMAND, self.cutdown_trigger_mqtt)
 
     def device_read(self, logger: logging.Logger) -> None:
+        self.cutdown_trigger()
         while True:
             altitude = self.latest_position.altitude
             if altitude > self.auto_cutdown_altitude and not self.has_triggered:
                 self.has_triggered = True
-                self.cutdown_trigger(logger)
+                self.cutdown_trigger()
 
             time.sleep(1)
 
