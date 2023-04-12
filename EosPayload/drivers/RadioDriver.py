@@ -110,7 +110,6 @@ class RadioDriver(DriverBase):
             # append transmit header
             new_transmit_header = TransmitHeader(self.sequence_number)
             packet_from_mqtt.transmit_header = new_transmit_header
-            self._logger.info(packet_from_mqtt)
 
             # add packet to queue
             priority = packet_from_mqtt.data_header.priority
@@ -129,6 +128,7 @@ class RadioDriver(DriverBase):
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
             try:
+                logger.info(packet)
                 self.port.send_data_async(self.remote, packet.encode(), transmit_options=1)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
