@@ -3,9 +3,9 @@ import time
 import traceback
 
 import board
-from adafruit_ms8607 import MS8607
-from adafruit_tsl2591 import TSL2591
-from adafruit_ltr390 import LTR390
+#from adafruit_ms8607 import MS8607
+#from adafruit_tsl2591 import TSL2591
+#from adafruit_ltr390 import LTR390
 
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
@@ -101,4 +101,4 @@ class I2CDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return True
+        return False
