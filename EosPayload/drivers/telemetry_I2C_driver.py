@@ -78,7 +78,7 @@ class TelemetryI2CDriver(DriverBase):
                 body=telemetry_bytes,
                 data_header=header,
             )
-            logger.info(packet)
+            #logger.info(packet)
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
             count += 1

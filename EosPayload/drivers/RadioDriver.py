@@ -110,6 +110,7 @@ class RadioDriver(DriverBase):
             # append transmit header
             new_transmit_header = TransmitHeader(self.sequence_number)
             packet_from_mqtt.transmit_header = new_transmit_header
+            self._logger.info(packet_from_mqtt)
 
             # add packet to queue
             priority = packet_from_mqtt.data_header.priority
