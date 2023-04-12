@@ -33,16 +33,16 @@ class ScienceDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-        i2c = busio.I2C(board.SCL, board.SDA)
+        # i2c = busio.I2C(board.SCL, board.SDA)
 
         # base sensors
-        sht = adafruit_shtc3.SHTC3(i2c)
-        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-        ltr = adafruit_ltr390.LTR390(i2c)
-        tsl = adafruit_tsl2591.TSL2591(i2c)
+        # sht = adafruit_shtc3.SHTC3(i2c)
+        # bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
+        # ltr = adafruit_ltr390.LTR390(i2c)
+        # tsl = adafruit_tsl2591.TSL2591(i2c)
         
         # research sensors
-        pm25 = PM25_I2C(i2c)
+        # pm25 = PM25_I2C(i2c)
         # ADC.setup()
         logger.info("Starting to poll for science data!")
 
@@ -52,23 +52,23 @@ class ScienceDriver(DriverBase):
 
             try:
                 row = []
-
+                logger.info(dir(board))
                 # base sensor readout
-                row.append(str(sht.temperature))
-                row.append(str(sht.relative_humidity))
-                row.append(str(bmp.pressure))
-                row.append(str(bmp.altitude))
-                row.append(str(ltr.light))
-                row.append(str(ltr.uvs))
-                row.append(str(ltr.uvi))
-                row.append(str(ltr.lux))
-                row.append(str(tsl.infrared))
-                row.append(str(tsl.visible))
-                row.append(str(tsl.full_spectrum))
+                # row.append(str(sht.temperature))
+                # row.append(str(sht.relative_humidity))
+                # row.append(str(bmp.pressure))
+                # row.append(str(bmp.altitude))
+                # row.append(str(ltr.light))
+                # row.append(str(ltr.uvs))
+                # row.append(str(ltr.uvi))
+                # row.append(str(ltr.lux))
+                # row.append(str(tsl.infrared))
+                # row.append(str(tsl.visible))
+                # row.append(str(tsl.full_spectrum))
 
-                aqdata = pm25.read()
-                for i in aqdata.values():
-                    row.append(str(i))
+                # aqdata = pm25.read()
+                # for i in aqdata.values():
+                #     row.append(str(i))
 
             except RuntimeError:
                 logger.info("Unable to read from sensor, retrying...")
