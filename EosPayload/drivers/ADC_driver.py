@@ -1,10 +1,8 @@
 import logging
 import time
-import traceback
 
 import Adafruit_BBIO.ADC as ADC
 
-#from EosLib.packet.definitions import Device
 from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
