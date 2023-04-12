@@ -33,7 +33,7 @@ class ScienceDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-        i2c = busio.I2C(board.SCL, board.SDA)
+        i2c = busio.I2C(board.SCL1, board.SDA1)
 
         # base sensors
         sht = adafruit_shtc3.SHTC3(i2c)
