@@ -69,7 +69,7 @@ class TelemetryI2CDriver(DriverBase):
             telemetry_bytes = telemetry_obj.encode()
 
             header = DataHeader(
-                data_type=Type.TELEMETRY,
+                data_type=Type.TELEMETRY_DATA,
                 sender=self.get_device_id(),
                 priority=Priority.TELEMETRY,
             )
