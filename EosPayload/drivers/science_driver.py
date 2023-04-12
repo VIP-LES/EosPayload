@@ -37,10 +37,10 @@ class ScienceDriver(DriverBase):
 
         # base sensors
         sht = adafruit_shtc3.SHTC3(i2c)
+        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
         ltr = adafruit_ltr390.LTR390(i2c)
         tsl = adafruit_tsl2591.TSL2591(i2c)
-        # bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-
+        
         # research sensors
         pm25 = PM25_I2C(i2c)
         # ADC.setup()
@@ -56,6 +56,8 @@ class ScienceDriver(DriverBase):
                 # base sensor readout
                 row.append(str(sht.temperature))
                 row.append(str(sht.relative_humidity))
+                row.append(str(bmp.pressure))
+                row.append(str(bmp.altitude))
                 row.append(str(ltr.light))
                 row.append(str(ltr.uvs))
                 row.append(str(ltr.uvi))
@@ -77,11 +79,12 @@ class ScienceDriver(DriverBase):
                 '''
                 READING THE CSV FILE
                 base sensors make up the first 9 columns:
-                    temperature, relative humidity, ambient light, uv, uv index, lux, infrared, visible light, full spectrum (IR + vis)
+                    temperature (C), relative humidity, pressure (hPa), altitude (m), ambient light, uv, uv index, lux, infrared,
+                    visible light, full spectrum (IR + vis)
 
                 pm25 (air quality) makes up the next 12:
-                concentration units (standard): pm 1.0, pm 2.5, pm 10.0, concentration units (environmental): pm 1.0, pm 2.5, pm 10.0,
-                particles > 0.3um / 0.1L air, > 0.5um, > 1.0um, > 2.5um, > 5.0um, > 10.0um
+                    concentration units (standard): pm 1.0, pm 2.5, pm 10.0, concentration units (environmental): pm 1.0, pm 2.5, pm 10.0,
+                    particles > 0.3um / 0.1L air, > 0.5um, > 1.0um, > 2.5um, > 5.0um, > 10.0um
                 '''
                 self.data_log(row)
             except Exception as e:
