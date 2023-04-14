@@ -89,3 +89,12 @@ class ScienceDriver(DriverBase):
                 self.data_log(row)
             except Exception as e:
                 logger.error(f"Unable to log data: {e}")
+
+            if count % 2 == 0:
+                try:
+                    self.data_transmit(row)
+                except Exception as e:
+                    logger.error(f"Unable to transmit data: {e}")
+
+            count += 1
+            time.sleep(1)
