@@ -8,6 +8,7 @@ from EosLib.device import Device
 from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
 import Adafruit_BBIO.ADC as ADC
+from adafruit_blinka.microcontroller.am335x import pin
 
 import adafruit_tsl2591
 import adafruit_ltr390
@@ -33,7 +34,7 @@ class ScienceDriver(DriverBase):
         return True
 
     def device_read(self, logger: logging.Logger) -> None:
-        i2c = busio.I2C(board.SCL, board.SDA)
+        i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
 
         # base sensors
         sht = adafruit_shtc3.SHTC3(i2c)
