@@ -94,7 +94,7 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
-            packet_object = Packet.decode(packet)   # convert packet bytearray to packet object
+            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
@@ -128,7 +128,7 @@ class RadioDriver(DriverBase):
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
             try:
-                #logger.info(packet)
+                # logger.info(packet)
                 self.port.send_data_async(self.remote, packet.encode(), transmit_options=1)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
