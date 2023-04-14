@@ -44,9 +44,13 @@ class ReefingDriver(PositionAwareDriverBase):
             PWM.set_duty_cycle(self.pwm_pin, reefing_percent)
 
     def device_command(self, logger: logging.Logger) -> None:
-        self.set_reefing_level(0, logger)
-        time.sleep(3)
-        self.set_reefing_level(100, logger)
+        while True:
+            self.set_reefing_level(0, logger)
+            time.sleep(3)
+            self.set_reefing_level(100, logger)
+            time.sleep(3)
+
+        '''
         while True:
             if self.latest_position != self.old_position and self.latest_position.flight_state == FlightState.DESCENT:
                 if self.latest_position.altitude > 30000:
@@ -69,3 +73,4 @@ class ReefingDriver(PositionAwareDriverBase):
             # This check/update ensures that a crash somewhere that prevents position updates will cause a full dis-reef
             self.old_position = self.latest_position
             time.sleep(self.update_interval)
+        '''
