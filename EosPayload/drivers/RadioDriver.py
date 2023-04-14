@@ -24,25 +24,26 @@ class RadioDriver(DriverBase):
     # mapping from destination to mqtt topic
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
-        Device.MISC_RADIO_1: Topic.PING_COMMAND
+        Device.MISC_RADIO_1: Topic.PING_COMMAND,
+        Device.MISC_ENGINEERING_2: Topic.CUTDOWN_COMMAND
     }
 
     def setup(self) -> None:
-        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7YM"
+        super().setup()
+        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
         context = pyudev.Context()
         devices = context.list_devices(ID_SERIAL=serial_id)
         device_list = []
         for device in devices:
             device_list.append(device)
         if len(device_list) == 0:
-            print(device_list)
             self._logger.error("Could not find device")
             raise EnvironmentError()
         xbee_node = None
 
-        print(device_list)
+        self._logger.info(device_list)
         for device in device_list:
-            print(f'trying {device.device_node}')
+            self._logger.info(f'trying {device.device_node}')
             try:
                 self.test_port = XBeeDevice(device.device_node, 9600)
                 self.test_port.open()
@@ -50,7 +51,7 @@ class RadioDriver(DriverBase):
                 xbee_node = device.device_node
                 break
             except Exception as e:
-                print(e)
+                self._logger.info(e)
             finally:
                 self.test_port.close()
 
@@ -60,7 +61,8 @@ class RadioDriver(DriverBase):
                 self.port = XBeeDevice(xbee_node, 9600)
                 self.port.open()
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
-                    "13A20041CB89AE"))  # on the chip itself there is a number on the top right. It should be 3!
+                    "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
+                self.remote.disable_acknowledgement = True
                 con = False
             except Exception as e:
                 self._logger.error(f"radio port not open: {e}")
@@ -81,6 +83,10 @@ class RadioDriver(DriverBase):
     @staticmethod
     def command_thread_enabled() -> bool:
         return True
+
+    @staticmethod
+    def enabled() -> bool:
+        return False
 
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
@@ -122,7 +128,7 @@ class RadioDriver(DriverBase):
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
             try:
-                self.port.send_data_async(self.remote, packet.encode())
+                self.port.send_data_async(self.remote, packet.encode(), transmit_options=1)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send a packet via radio: {e}"
                                    f"\n{traceback.format_exc()}")

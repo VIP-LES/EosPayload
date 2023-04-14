@@ -9,8 +9,9 @@ import traceback
 from paho.mqtt.client import MQTTMessageInfo
 
 from EosLib.packet.data_header import DataHeader
-from EosLib.device import Device
 from EosLib import Priority, Type
+from EosLib.device import Device
+
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.logger import init_logging

@@ -3,8 +3,9 @@ import logging
 import time
 import traceback
 
-from EosLib.device import Device
 from EosLib import Priority, Type
+from EosLib.device import Device
+
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.packet import Packet
 from EosPayload.lib.driver_base import DriverBase
