@@ -35,7 +35,7 @@ class ReefingDriver(PositionAwareDriverBase):
 
     def setup(self) -> None:
         super().setup()
-        PWM.start(self.pwm_pin, 0)
+        PWM.start(self.pwm_pin, 100)
         self.current_reef_amount = 0
 
     def set_reefing_level(self, reefing_percent: float, logger: logging.Logger):
@@ -49,6 +49,10 @@ class ReefingDriver(PositionAwareDriverBase):
             time.sleep(3)
             self.set_reefing_level(100, logger)
             time.sleep(3)
+
+    def cleanup(self):
+        PWM.stop("P9_14")
+        PWM.cleanup()
 
         '''
         while True:
