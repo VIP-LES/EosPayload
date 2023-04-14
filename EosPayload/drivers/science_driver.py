@@ -2,6 +2,7 @@ import logging
 import time
 import board
 import busio
+import traceback
 from EosPayload.lib.driver_base import DriverBase
 from EosLib.device import Device
 
@@ -33,22 +34,28 @@ class ScienceDriver(DriverBase):
     def read_thread_enabled() -> bool:
         return True
 
+    def __init__(self, output_directory: str):
+        super().__init__(output_directory)
+        self.count = 0
+        self.i2c = None
+        self.sht = None
+        self.bmp = None
+        self.ltr = None
+        self.tsl = None
+        self.pm25 = None
+
+    def setup(self) -> None:
+        super().setup()
+        self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
+
+        self.sht = adafruit_shtc3.SHTC3(self.i2c)
+        self.bmp = adafruit_bmp3xx.BMP3XX_I2C(self.i2c)
+        self.ltr = adafruit_ltr390.LTR390(self.i2c)
+        self.tsl = adafruit_tsl2591.TSL2591(self.i2c)
+        self.pm25 = PM25_I2C(self.i2c)
+
     def device_read(self, logger: logging.Logger) -> None:
-        i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
-
-        # base sensors
-        sht = adafruit_shtc3.SHTC3(i2c)
-        bmp = adafruit_bmp3xx.BMP3XX_I2C(i2c)
-        ltr = adafruit_ltr390.LTR390(i2c)
-        tsl = adafruit_tsl2591.TSL2591(i2c)
-        
-        # research sensors
-        pm25 = PM25_I2C(i2c)
-        # ADC.setup()
         logger.info("Starting to poll for science data!")
-
-        count = 0
-
 
         while True:
             time.sleep(1)
@@ -57,26 +64,25 @@ class ScienceDriver(DriverBase):
                 row = []
 
                 # base sensor readout
-                row.append(str(sht.temperature))
-                row.append(str(sht.relative_humidity))
-                row.append(str(bmp.pressure))
-                row.append(str(bmp.altitude))
-                row.append(str(ltr.light))
-                row.append(str(ltr.uvs))
-                row.append(str(ltr.uvi))
-                row.append(str(ltr.lux))
-                row.append(str(tsl.infrared))
-                row.append(str(tsl.visible))
-                row.append(str(tsl.full_spectrum))
+                row.append(str(self.sht.temperature))
+                row.append(str(self.sht.relative_humidity))
+                row.append(str(self.bmp.pressure))
+                row.append(str(self.bmp.altitude))
+                row.append(str(self.ltr.light))
+                row.append(str(self.ltr.uvs))
+                row.append(str(self.ltr.uvi))
+                row.append(str(self.ltr.lux))
+                row.append(str(self.tsl.infrared))
+                row.append(str(self.tsl.visible))
+                row.append(str(self.tsl.full_spectrum))
 
-                aqdata = pm25.read()
+                aqdata = self.pm25.read()
                 for i in aqdata.values():
                     row.append(str(i))
 
-            except RuntimeError:
-                logger.info("Unable to read from sensor, retrying...")
-                logger.info("Hello")
-                continue
+            except Exception as e:
+                logger.error(f"An unhandled exception occurred while reading data from sensors: {e}"
+                                      f"\n{traceback.format_exc()}")
 
             try:
                 '''
@@ -91,13 +97,15 @@ class ScienceDriver(DriverBase):
                 '''
                 self.data_log(row)
             except Exception as e:
-                logger.error(f"Unable to log data: {e}")
+                logger.error(f"An unhandled exception occurred while logging data: {e}"
+                                      f"\n{traceback.format_exc()}")
 
-            if count % 2 == 0:
+            if self.count % 2 == 0:
                 try:
                     self.data_transmit(row)
                 except Exception as e:
-                    logger.error(f"Unable to transmit data: {e}")
+                    logger.error(f"An unhandled exception occurred while transmitting data: {e}"
+                                      f"\n{traceback.format_exc()}")
 
-            count += 1
+            self.count += 1
             time.sleep(1)
