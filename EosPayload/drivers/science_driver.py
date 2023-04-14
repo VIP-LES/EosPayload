@@ -47,6 +47,8 @@ class ScienceDriver(DriverBase):
         # ADC.setup()
         logger.info("Starting to poll for science data!")
 
+        count = 0
+
 
         while True:
             time.sleep(1)
