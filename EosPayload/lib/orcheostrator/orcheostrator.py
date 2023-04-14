@@ -88,7 +88,7 @@ class OrchEOStrator:
             (driver is not None)
             and inspect.isclass(driver)
             and issubclass(driver, DriverBase)
-            and driver.__name__ != "DriverBase"
+            and driver.__name__ not in ["DriverBase", "PositionAwareDriverBase"]
         )
 
     #
