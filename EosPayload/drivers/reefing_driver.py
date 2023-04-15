@@ -48,7 +48,7 @@ class ReefingDriver(PositionAwareDriverBase):
             self.set_reefing_level(0, logger)
             logger.info("set 0")
             time.sleep(3)
-            self.set_reefing_level(100, logger)
+            self.set_reefing_level(50, logger)
             logger.info("set 100")
             time.sleep(3)
 
