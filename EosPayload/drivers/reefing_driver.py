@@ -31,7 +31,7 @@ class ReefingDriver(PositionAwareDriverBase):
         self.pwm_pin = "P9_14"
         self.current_reef_amount = 0
         self.old_position = None
-        self.update_interval = 30
+        self.update_interval = 3
         self.reefing_stages = {
             0: 0,   # slack
             1: 27,  # taut
