@@ -19,7 +19,7 @@ class CutdownDriver(PositionAwareDriverBase):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_3
+        return Device.CUTDOWN
 
     @staticmethod
     def get_device_name() -> str:

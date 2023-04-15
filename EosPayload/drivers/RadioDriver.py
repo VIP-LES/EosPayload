@@ -25,7 +25,7 @@ class RadioDriver(DriverBase):
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
-        Device.MISC_ENGINEERING_2: Topic.CUTDOWN_COMMAND
+        Device.CUTDOWN: Topic.CUTDOWN_COMMAND
     }
 
     def setup(self) -> None:
