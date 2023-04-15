@@ -86,7 +86,7 @@ class RadioDriver(DriverBase):
 
     @staticmethod
     def enabled() -> bool:
-        return False
+        return True
 
     def device_read(self, logger: logging.Logger) -> None:
         # Receives data from radio and sends it to MQTT
