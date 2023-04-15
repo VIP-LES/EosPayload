@@ -45,21 +45,23 @@ class CutdownDriver(PositionAwareDriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         while True:
+            # auto cutdown based on altitude
             try:
                 altitude = self.latest_position.altitude
-                if not self.has_triggered:
-                    if altitude > self.auto_cutdown_altitude:
-                        logger.info(f"reached auto cutdown altitude of {self.auto_cutdown_altitude} meters"
-                                    f", triggering cutdown")
-                        self.has_triggered = True
-                        self.cutdown_trigger()
-                    elif not self._command_queue.empty():
-                        self._command_queue.get(block=False)
-                        logger.info("received cutdown command, triggering cutdown")
-                        self.has_triggered = True
-                        self.cutdown_trigger()
+                if not self.has_triggered and altitude > self.auto_cutdown_altitude:
+                    logger.info(f"reached auto cutdown altitude of {self.auto_cutdown_altitude} meters"
+                                f", triggering cutdown")
+                    self.has_triggered = True
+                    self.cutdown_trigger()
             except TypeError:
                 logger.info("No Altitude Data")
+
+            # manual cutdown based on command from ground station
+            if not self.has_triggered and not self._command_queue.empty():
+                self._command_queue.get(block=False)
+                logger.info("received cutdown command, triggering cutdown")
+                self.has_triggered = True
+                self.cutdown_trigger()
 
             time.sleep(5)
 
