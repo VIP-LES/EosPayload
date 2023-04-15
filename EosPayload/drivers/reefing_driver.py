@@ -44,10 +44,13 @@ class ReefingDriver(PositionAwareDriverBase):
             PWM.set_duty_cycle(self.pwm_pin, reefing_percent)
 
     def device_command(self, logger: logging.Logger) -> None:
-        for i in range(10):
-            self.set_reefing_level(0.1 + i*10, logger)
-            logger.info("set: ~~~~" + str(i))
-            time.sleep(10)
+
+        self.set_reefing_level(30, logger)
+
+        #for i in range(10):
+        #    self.set_reefing_level(0.1 + i*10, logger)
+        #    logger.info("set: ~~~~" + str(i))
+        #    time.sleep(10)
 
         #while True:
         #    self.set_reefing_level(1, logger)
