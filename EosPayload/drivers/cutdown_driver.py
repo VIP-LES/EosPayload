@@ -41,8 +41,8 @@ class CutdownDriver(PositionAwareDriverBase):
             self._mqtt.register_subscriber(Topic.CUTDOWN_COMMAND, self.cutdown_trigger_mqtt)
 
     def device_read(self, logger: logging.Logger) -> None:
-        self.cutdown_trigger()
-        logger.info("Cutting ~~~~~~~~~~~~~")
+        #self.cutdown_trigger()
+        #logger.info("Cutting ~~~~~~~~~~~~~")
         while True:
             try:
                 altitude = self.latest_position.altitude
