@@ -24,7 +24,7 @@ class ScienceDriver(DriverBase):
 
     @staticmethod
     def get_device_id() -> Device:
-        return Device.MISC_3
+        return Device.MISC_SENSOR_1
 
     @staticmethod
     def get_device_name() -> str:

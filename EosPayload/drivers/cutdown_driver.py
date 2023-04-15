@@ -1,3 +1,4 @@
+from queue import Queue
 import logging
 import time
 
@@ -32,6 +33,8 @@ class CutdownDriver(PositionAwareDriverBase):
     def __init__(self, output_directory: str):
         super().__init__(output_directory)
         self.has_triggered = False
+        self._command_queue = Queue()
+        self._mqtt.user_data_set({'logger': self._logger, 'queue': self._command_queue})
 
     def setup(self):
         super().setup()
@@ -45,9 +48,17 @@ class CutdownDriver(PositionAwareDriverBase):
         while True:
             try:
                 altitude = self.latest_position.altitude
-                if altitude > CutdownDriver.auto_cutdown_altitude and not self.has_triggered:
-                    self.has_triggered = True
-                    self.cutdown_trigger()
+                if not self.has_triggered:
+                    if altitude > self.auto_cutdown_altitude:
+                        logger.info(f"reached auto cutdown altitude of {self.auto_cutdown_altitude} meters"
+                                    f", triggering cutdown")
+                        self.has_triggered = True
+                        self.cutdown_trigger()
+                    elif not self._command_queue.empty():
+                        self._command_queue.get(block=False)
+                        logger.info("received cutdown command, triggering cutdown")
+                        self.has_triggered = True
+                        self.cutdown_trigger()
             except TypeError:
                 logger.info("No Altitude Data")
 
@@ -64,12 +75,8 @@ class CutdownDriver(PositionAwareDriverBase):
 
     @staticmethod
     def cutdown_trigger_mqtt(client, user_data, message):
-        user_data["logger"].info("~~~PULLING PIN HIGH~~~")
-        GPIO.output(CutdownDriver.cutdown_pin, GPIO.HIGH)
-        time.sleep(CutdownDriver.time_pulled_high)
-        GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
-        user_data["logger"].info("~~~PULLING PIN LOW~~~")
-
+        user_data['logger'].info("received cutdown command")
+        user_data['queue'].put(1)
         '''
         def device_read(self, logger: logging.Logger) -> None:
             GPIO.output("P8_10", GPIO.LOW)
