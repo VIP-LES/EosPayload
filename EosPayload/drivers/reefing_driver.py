@@ -46,6 +46,7 @@ class ReefingDriver(PositionAwareDriverBase):
     def device_command(self, logger: logging.Logger) -> None:
 
         self.set_reefing_level(30, logger)
+        self.spin()
 
         #for i in range(10):
         #    self.set_reefing_level(0.1 + i*10, logger)
