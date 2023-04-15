@@ -29,7 +29,7 @@ class CutdownDriver(PositionAwareDriverBase):
     def read_thread_enabled() -> bool:
         return True
 
-    def __int__(self, output_directory: str):
+    def __init__(self, output_directory: str):
         super().__init__(output_directory)
         self.has_triggered = False
 
