@@ -67,12 +67,10 @@ class CutdownDriver(PositionAwareDriverBase):
 
     def cutdown_trigger(self):
         self._logger.info("~~~PULLING PIN HIGH~~~")
-        self._mqtt.send(Topic.RADIO_TRANSMIT, "Starting Cutdown")
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.HIGH)
         time.sleep(CutdownDriver.time_pulled_high)
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         self._logger.info("~~~PULLING PIN LOW~~~")
-        self._mqtt.send(Topic.RADIO_TRANSMIT, "Ending Cutdown")
 
     @staticmethod
     def cutdown_trigger_mqtt(client, user_data, message):
