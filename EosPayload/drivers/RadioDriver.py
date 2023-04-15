@@ -105,18 +105,21 @@ class RadioDriver(DriverBase):
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(_client, _userdata, message):
             # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
-            packet_from_mqtt = Packet.decode(message.payload)
+            try:
+                packet_from_mqtt = Packet.decode(message.payload)
 
-            # append transmit header
-            new_transmit_header = TransmitHeader(self.sequence_number)
-            packet_from_mqtt.transmit_header = new_transmit_header
+                # append transmit header
+                new_transmit_header = TransmitHeader(self.sequence_number)
+                packet_from_mqtt.transmit_header = new_transmit_header
 
-            # add packet to queue
-            priority = packet_from_mqtt.data_header.priority
-            logger.info(f"Enqueuing packet seq={self.sequence_number}")
-            self._thread_queue.put((priority, datetime.now(), packet_from_mqtt,))
+                # add packet to queue
+                priority = packet_from_mqtt.data_header.priority
+                logger.info(f"Enqueuing packet seq={self.sequence_number}")
+                self._thread_queue.put((priority, datetime.now(), packet_from_mqtt,))
 
-            self.sequence_number = (self.sequence_number + 1) % 256  # sequence number can't exceed 255
+                self.sequence_number = (self.sequence_number + 1) % 256  # sequence number can't exceed 255
+            except Exception as e:
+                logger.error(f"Failed to transmit packet: {e}\n{traceback.format_exc()}\n{message.payload}")
 
         self._mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
         self.port.add_data_received_callback(data_receive_callback)
