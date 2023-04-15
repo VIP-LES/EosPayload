@@ -32,34 +32,48 @@ class ReefingDriver(PositionAwareDriverBase):
         self.current_reef_amount = 0
         self.old_position = None
         self.update_interval = 30
+        self.reefing_stages = {
+            0: 0,   # slack
+            1: 27,  # taut
+            2: 45,  # max drag
+            3: 64,  # mid reef
+            4: 82   # max reef
+        }
 
     def setup(self) -> None:
         super().setup()
         PWM.start(self.pwm_pin, 100)
         self.current_reef_amount = 0
 
-    def set_reefing_level(self, reefing_percent: float, logger: logging.Logger):
+    def set_reefing_level(self, reefing_stage: int, logger: logging.Logger):
+        reefing_percent = self.reefing_stages[reefing_stage]
         if reefing_percent != self.current_reef_amount:
             logger.info(f"Setting reefing to {reefing_percent}%")
             PWM.set_duty_cycle(self.pwm_pin, reefing_percent)
 
     def device_command(self, logger: logging.Logger) -> None:
+        while True:
+            if self.latest_position != self.old_position and self.latest_position.flight_state == FlightState.DESCENT:
+                if self.latest_position.altitude > 16000:
+                    self.set_reefing_level(1, logger)
+                elif self.latest_position.altitude > 14000:
+                    self.set_reefing_level(2, logger)
+                elif self.latest_position.altitude > 12000:
+                    self.set_reefing_level(3, logger)
+                elif self.latest_position.altitude > 10000:
+                    self.set_reefing_level(4, logger)
+                elif self.latest_position.altitude > 8000:
+                    self.set_reefing_level(3, logger)
+                elif self.latest_position.altitude > 6000:
+                    self.set_reefing_level(2, logger)
+                else:
+                    self.set_reefing_level(2, logger)
+            else:
+                self.set_reefing_level(0, logger)
 
-        self.set_reefing_level(30, logger)
-        self.spin()
-
-        #for i in range(10):
-        #    self.set_reefing_level(0.1 + i*10, logger)
-        #    logger.info("set: ~~~~" + str(i))
-        #    time.sleep(10)
-
-        #while True:
-        #    self.set_reefing_level(1, logger)
-        #    logger.info("set 0")
-        #    time.sleep(3)
-        #    self.set_reefing_level(50, logger)
-        #    logger.info("set 100")
-        #    time.sleep(3)
+            # This check/update ensures that a crash somewhere that prevents position updates will cause a full dis-reef
+            self.old_position = self.latest_position
+            time.sleep(self.update_interval)
 
     def cleanup(self):
         self.set_reefing_level(0, self._logger)
@@ -67,26 +81,13 @@ class ReefingDriver(PositionAwareDriverBase):
         PWM.cleanup()
 
         '''
-        while True:
-            if self.latest_position != self.old_position and self.latest_position.flight_state == FlightState.DESCENT:
-                if self.latest_position.altitude > 30000:
-                    self.set_reefing_level(0, logger)
-                elif self.latest_position.altitude > 28000:
-                    self.set_reefing_level(55, logger)
-                elif self.latest_position.altitude > 26000:
-                    self.set_reefing_level(75, logger)
-                elif self.latest_position.altitude > 24000:
-                    self.set_reefing_level(90, logger)
-                elif self.latest_position.altitude > 8000:
-                    self.set_reefing_level(75, logger)
-                elif self.latest_position.altitude > 6000:
-                    self.set_reefing_level(55, logger)
-                else:
-                    self.set_reefing_level(0, logger)
-            else:
-                self.set_reefing_level(0, logger)
 
-            # This check/update ensures that a crash somewhere that prevents position updates will cause a full dis-reef
-            self.old_position = self.latest_position
-            time.sleep(self.update_interval)
+            
+            STAGE -> Voltage -> %PWM
+            0 -> 0V -> 0%
+            1 -> .9V -> %27
+            2 -> 1.5V -> 45%
+            3 -> 2.1V -> 64%
+            4 -> 2.7V -> 82%
+            
         '''
