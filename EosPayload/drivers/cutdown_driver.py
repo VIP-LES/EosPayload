@@ -57,7 +57,7 @@ class CutdownDriver(PositionAwareDriverBase):
                 logger.info("No Altitude Data")
 
             # manual cutdown based on command from ground station
-            if not self.has_triggered and not self._command_queue.empty():
+            if not self._command_queue.empty():
                 self._command_queue.get(block=False)
                 logger.info("received cutdown command, triggering cutdown")
                 self.has_triggered = True
