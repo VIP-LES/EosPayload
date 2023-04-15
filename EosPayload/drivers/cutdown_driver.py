@@ -34,14 +34,13 @@ class CutdownDriver(PositionAwareDriverBase):
         super().__init__(output_directory)
         self.has_triggered = False
         self._command_queue = Queue()
-        self._mqtt.user_data_set({'logger': self._logger, 'queue': self._command_queue})
 
     def setup(self):
         super().setup()
         GPIO.setup(CutdownDriver.cutdown_pin, GPIO.OUT)
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         if self._mqtt:
-            self._mqtt.user_data_set({'logger': self._logger})
+            self._mqtt.user_data_set({'logger': self._logger, 'queue': self._command_queue})
             self._mqtt.register_subscriber(Topic.CUTDOWN_COMMAND, self.cutdown_trigger_mqtt)
 
     def device_read(self, logger: logging.Logger) -> None:
