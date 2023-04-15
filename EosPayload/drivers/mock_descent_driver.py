@@ -1,6 +1,7 @@
 import time
 
 from EosLib.device import Device
+from EosLib.format.position import FlightState
 
 from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
@@ -34,6 +35,7 @@ class MockDescentDriver(EngineeringDataDriver):
                      f"-0.17,0.10,0.34,8.57,4026.39,7.80,13.25, 37.932\n"
         mock_data = ','.join(dummy_data.strip().replace('\x00', '').split(',')[:-1])
         self.current_altitude = self.current_altitude - 100 if self.current_altitude >= 100 else 0
+        self.current_flight_state = FlightState.DESCENT
         return mock_data
 
     def is_alive(self):
