@@ -4,7 +4,6 @@ import os
 import time
 
 import cv2
-from EosLib.device import Device
 from EosPayload.lib.driver_base import DriverBase
 
 

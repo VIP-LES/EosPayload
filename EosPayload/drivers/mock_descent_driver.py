@@ -1,7 +1,5 @@
 import time
 
-from EosLib.device import Device
-
 from EosPayload.drivers.engineering_data_driver import EngineeringDataDriver
 
 

@@ -1,14 +1,10 @@
 import logging
 import time
-import board
 import busio
 import traceback
 from EosPayload.lib.driver_base import DriverBase
-from EosLib.device import Device
 
-from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
-import Adafruit_BBIO.ADC as ADC
 from adafruit_blinka.microcontroller.am335x import pin
 
 import adafruit_tsl2591
@@ -17,18 +13,6 @@ import adafruit_shtc3
 import adafruit_bmp3xx
 
 class ScienceDriver(DriverBase):
-
-    @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_3
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "science-driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:

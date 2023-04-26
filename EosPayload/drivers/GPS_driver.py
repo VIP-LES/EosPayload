@@ -41,18 +41,6 @@ class GPSDriver(PositionAwareDriverBase):
         self.gps.send_command(b"PMTK220,1000")
 
     @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.GPS
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "GPS-Driver"
-
-    @staticmethod
     def read_thread_enabled() -> bool:
         return True
 

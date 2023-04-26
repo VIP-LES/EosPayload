@@ -1,7 +1,5 @@
 import logging
 
-from EosLib.device import Device
-
 from EosPayload.drivers.reefing_driver import ReefingDriver
 
 

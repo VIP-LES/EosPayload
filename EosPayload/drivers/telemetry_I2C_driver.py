@@ -2,11 +2,8 @@ import logging
 import time
 
 import busio
-import board
 from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
-
-from EosLib.device import Device
 
 from EosLib.packet.data_header import DataHeader
 from EosLib import Priority, Type
@@ -24,18 +21,6 @@ class TelemetryI2CDriver(DriverBase):
         super().__init__(output_directory, config)
         self.bno = None
         self.i2c = None
-
-    @staticmethod
-    def enabled() -> bool:
-        return False
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_SENSOR_3
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "Telemetry-I2C-Driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:

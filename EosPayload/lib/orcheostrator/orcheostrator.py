@@ -1,26 +1,20 @@
 from datetime import datetime, timedelta
 from multiprocessing import Process
 from queue import Queue
-import inspect
-import json
 import logging
 import os
-import re
 import threading
 import time
 import traceback
 
-import EosLib
 from EosLib.device import Device
 from EosLib.packet.packet import Packet
 
-from EosPayload.lib.driver_base import DriverBase
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client, Topic
-from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status, StatusUpdate
+from EosPayload.lib.orcheostrator.device_container import Status, StatusUpdate
 from EosPayload.lib.config import OrcheostratorConfigParser
-import EosPayload.drivers as drivers
 
 
 def get_pretty_id(config: dict) -> str:

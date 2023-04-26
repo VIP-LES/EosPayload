@@ -1,7 +1,6 @@
 import queue
 import re
 import logging
-import serial
 import datetime
 import pyudev
 

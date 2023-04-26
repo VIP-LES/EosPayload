@@ -2,7 +2,6 @@ import time
 import logging
 
 from EosLib.format.position import Position, FlightState
-from EosLib.device import Device
 
 from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
 
