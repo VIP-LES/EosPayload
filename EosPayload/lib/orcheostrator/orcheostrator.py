@@ -16,15 +16,6 @@ from EosPayload.lib.mqtt.client import Client, Topic
 from EosPayload.lib.orcheostrator.device_container import Status, StatusUpdate
 from EosPayload.lib.config import OrcheostratorConfigParser
 
-
-def get_pretty_id(config: dict) -> str:
-    """ :return: a unique string identifier formed by concatenating the device_name
-                 with the device_id (padded to 3 digits)
-    """
-    device_id =config.get("device_id")
-    name = config.get("name")
-    return f"{name}-{device_id:03}"
-
 class OrchEOStrator:
 
     #
@@ -105,7 +96,7 @@ class OrchEOStrator:
                     container.update_status(Status.INVALID)
                     self._drivers['<' + driver.__name__ + '>'] = container
                     continue
-                self._logger.info(f"spawning process for device '{get_pretty_id(driver_config)}' from"
+                self._logger.info(f"spawning process for device '{driver_config.get('pretty_id')}' from"
                                   f" class '{driver.__name__}'")
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
@@ -181,7 +172,7 @@ class OrchEOStrator:
                     self._logger.critical(f"haven't received a health ping from driver {key} in 30s -- marking unhealthy")
                     driver.update_status(Status.UNHEALTHY)
 
-                the_key = key if driver.status in [Status.NONE, Status.INVALID] else get_pretty_id(driver.config)
+                the_key = key if driver.status in [Status.NONE, Status.INVALID] else driver.config.get("pretty_id")
                 report[driver.status].append(f"{the_key} ({driver.thread_count} threads)"
                                              f" as of {driver.status_since} (reported by {driver.status_reporter}"
                                              f" [{Device(driver.status_reporter).name}])")

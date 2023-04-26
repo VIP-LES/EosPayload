@@ -12,6 +12,7 @@ from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Statu
 
 base_drivers = ["DriverBase", "PositionAwareDriverBase"]
 
+
 class OrcheostratorConfig:
     def __init__(self):
         self.global_config = {}
@@ -63,6 +64,15 @@ class OrcheostratorConfigParser:
                 available_drivers.update({attribute_name: driver})
         return available_drivers
 
+    @staticmethod
+    def get_pretty_id_from_config(config: dict) -> str:
+        """ :return: a unique string identifier formed by concatenating the device_name
+                     with the device_id (padded to 3 digits)
+        """
+        device_id = config.get("device_id")
+        name = config.get("name")
+        return f"{name}-{device_id:03}"
+
     def configure_device(self, device_config: dict) -> None:
         device_name = device_config.get("name")
 
@@ -105,6 +115,10 @@ class OrcheostratorConfigParser:
 
         self.logger.info(f"{self.config_indent}Device ID: {device_id}")
         self.used_device_ids.append(device_id)
+
+        pretty_id = self.get_pretty_id_from_config(device_config)
+        device_config.update({"pretty_id": pretty_id})
+        self.logger.info(f"{self.config_indent}Pretty ID: {pretty_id}")
 
         driver_class_name = device_config.get("driver_class")
         self.logger.info(f"{self.config_indent}Driver Class: {driver_class_name}")

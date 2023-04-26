@@ -18,7 +18,6 @@ from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
 
-
 class DriverBase(ABC):
 
     #
@@ -43,14 +42,6 @@ class DriverBase(ABC):
         # Exists mostly for backwards compatibility
         return self._config.get('name')
 
-    def get_device_pretty_id(self) -> str:
-        """ :return: a unique string identifier formed by concatenating the device_name
-                     with the device_id (padded to 3 digits)
-        """
-        # Exists mostly for backwards compatibility
-        # This local import is to avoid a circular dependency, I can't tell if it's a rancid solution or not
-        from EosPayload.lib.orcheostrator.orcheostrator import get_pretty_id
-        return get_pretty_id(self._config)
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -106,6 +97,7 @@ class DriverBase(ABC):
 
         self._config = config
         self._settings = config.get("driver_settings")
+        self._pretty_id = config.get("pretty_id")
 
         #
         # INITIALIZATION
@@ -114,11 +106,11 @@ class DriverBase(ABC):
         # set up output location and data file
         self._output_directory = output_directory
         # I don't think there's a need for validation here since orchEOStrator guarantees it's set up
-        self.__data_file = open(os.path.join(self._output_directory, 'data', self.get_device_pretty_id() + '.dat'), 'a')
+        self.__data_file = open(os.path.join(self._output_directory, 'data', self._pretty_id + '.dat'), 'a')
 
         # set up logging
-        init_logging(os.path.join(self._output_directory, 'logs', self.get_device_pretty_id() + '.log'))
-        self._logger = logging.getLogger(self.get_device_pretty_id())
+        init_logging(os.path.join(self._output_directory, 'logs', self._pretty_id + '.log'))
+        self._logger = logging.getLogger(self._pretty_id)
 
         # set up mqtt
         try:
@@ -177,7 +169,7 @@ class DriverBase(ABC):
 
             if self.read_thread_enabled():
                 self._logger.info("starting read thread")
-                read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
+                read_logger = logging.getLogger(self._pretty_id + '.device_read')
                 self.__read_thread = threading.Thread(
                     None,
                     self.__device_read_wrapper,
@@ -192,7 +184,7 @@ class DriverBase(ABC):
 
             if self.command_thread_enabled():
                 self._logger.info("starting command thread")
-                command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
+                command_logger = logging.getLogger(self._pretty_id + '.device_command')
                 self.__command_thread = threading.Thread(
                     None,
                     self.__device_command_wrapper,
