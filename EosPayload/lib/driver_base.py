@@ -96,7 +96,7 @@ class DriverBase(ABC):
         self._output_directory = None
 
         self._config = config
-        self._settings = config.get("driver_settings")
+        self._settings = config.get("settings")
         self._pretty_id = config.get("pretty_id")
 
         #

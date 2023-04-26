@@ -27,7 +27,7 @@ class OrcheostratorConfigParser:
         self.config_filepath = config_filepath
         self.orcheostrator_config = OrcheostratorConfig()
         self.used_device_ids = []
-        self.available_drivers = {}
+        self.valid_driver_classes = {}
         self.disabled_drivers = []
         self.unused_drivers = {}
 
@@ -56,13 +56,13 @@ class OrcheostratorConfigParser:
         )
 
     @staticmethod
-    def collect_available_drivers() -> dict[str, DriverBase]:
-        available_drivers = {}
+    def collect_valid_driver_classes() -> dict[str, DriverBase]:
+        valid_driver_classes = {}
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
             if OrcheostratorConfigParser.valid_driver(driver):
-                available_drivers.update({attribute_name: driver})
-        return available_drivers
+                valid_driver_classes.update({attribute_name: driver})
+        return valid_driver_classes
 
     @staticmethod
     def get_pretty_id_from_config(config: dict) -> str:
@@ -127,30 +127,30 @@ class OrcheostratorConfigParser:
             self.logger.error(f"{self.config_indent}Driver Class is None, skipping")
             return
 
-        if driver_class_name not in self.available_drivers:
+        if driver_class_name not in self.valid_driver_classes:
             self.logger.error(f"{self.config_indent}Driver Class {driver_class_name} is not available, skipping")
             return
 
-        driver_class = self.available_drivers.get(driver_class_name)
-        driver_settings = device_config.get("driver_settings")
-        if driver_settings:
-            optional_driver_settings = device_config.get("driver_settings").copy()
+        driver_class = self.valid_driver_classes.get(driver_class_name)
+        settings = device_config.get("settings")
+        if settings:
+            optional_driver_settings = device_config.get("settings").copy()
         else:
-            optional_driver_settings = device_config.get("driver_settings")
+            optional_driver_settings = device_config.get("settings")
 
         if driver_class.get_required_config_fields():
-            if driver_settings is None:
+            if settings is None:
                 self.logger.error(f"{self.config_indent}Driver settings are required but not provided, skipping")
                 return
             self.logger.info(f"{self.config_indent}Required driver settings:")
             for required_config_field in driver_class.get_required_config_fields():
-                if driver_settings.get(required_config_field) is None:
+                if settings.get(required_config_field) is None:
                     self.logger.error(f"{self.config_indent}{self.config_indent}Driver setting "
                                       f"{required_config_field} is required but not provided, skipping")
                     return
                 else:
                     self.logger.info(f"{self.config_indent}{self.config_indent}{required_config_field}: "
-                                     f"{driver_settings.get(required_config_field)}")
+                                     f"{settings.get(required_config_field)}")
                     optional_driver_settings.pop(required_config_field)
 
         if optional_driver_settings:
@@ -169,8 +169,8 @@ class OrcheostratorConfigParser:
 
     def parse_config(self) -> OrcheostratorConfig:
         raw_config = self.get_raw_config()
-        self.available_drivers = self.collect_available_drivers()
-        self.unused_drivers = self.collect_available_drivers()
+        self.valid_driver_classes = self.collect_valid_driver_classes()
+        self.unused_drivers = self.collect_valid_driver_classes()
         device_configs = raw_config.pop("devices")
         self.orcheostrator_config.global_config = raw_config
 
