@@ -11,11 +11,10 @@ from EosPayload.lib.driver_base import DriverBase
 class Status(Enum):
     NONE = 0
     INVALID = 1
-    DISABLED = 2
-    HEALTHY = 3
-    UNHEALTHY = 4
-    TERMINATED = 5
-    INITIALIZED = 6
+    HEALTHY = 2
+    UNHEALTHY = 3
+    TERMINATED = 4
+    INITIALIZED = 5
 
 
 class StatusUpdate:

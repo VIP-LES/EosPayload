@@ -85,6 +85,11 @@ class OrcheostratorConfigParser:
 
         self.logger.info(f"Configuring device \"{device_name}\"")
 
+        if device_config.get("enabled") != "true":
+            self.logger.info(f"{self.config_indent}Driver disabled, skipping")
+            self.disabled_drivers.append(device_name)
+            return
+
         device_id = device_config.get("device_id")
         if device_id is None:
             self.logger.error(f"{self.config_indent}No device ID provided, skipping.")
@@ -139,10 +144,6 @@ class OrcheostratorConfigParser:
             for driver_setting in optional_driver_settings:
                 self.logger.info(f"{self.config_indent}{self.config_indent}{driver_setting}: "
                                  f"{optional_driver_settings.get(driver_setting)}")
-
-        if device_config.get("enabled") =="false":
-            self.logger.info("Driver disabled")
-            self.disabled_drivers.append(device_name)
 
 
         self.logger.info("Device config complete")

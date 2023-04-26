@@ -115,7 +115,6 @@ class OrchEOStrator:
                                   f" class '{driver.__name__}'")
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
-                container.update_status(Status.HEALTHY, 1)
                 proc.start()
                 self._drivers[driver_config.get("device_id")] = container
             except Exception as e:
