@@ -4,7 +4,7 @@ import logging
 import os
 import re
 
-import EosLib
+from EosLib import device
 
 from EosPayload import drivers
 from EosPayload.lib.driver_base import DriverBase
@@ -98,7 +98,7 @@ class OrcheostratorConfigParser:
             self.logger.error(f"{self.config_indent}Device ID {device_id} already in use, skipping.")
             return
         try:
-            device_id = EosLib.Device[device_config["device_id"]].value
+            device_id = device.Device[device_config["device_id"]].value
             device_config.update({"device_id": device_id})
         except KeyError:
             self.logger.error(f"{self.config_indent}Device ID {device_id} is invalid, skipping.")

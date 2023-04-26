@@ -3,7 +3,9 @@ import logging
 import time
 import traceback
 
-from EosLib import Device, Priority, Type
+from EosLib import Priority, Type
+from EosLib.device import Device
+
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.packet import Packet
 from EosPayload.lib.driver_base import DriverBase
@@ -46,10 +48,8 @@ class PingDriver(DriverBase):
             counter = counter + 1
             time.sleep(60)
 
-    @staticmethod
-    def ping_reply(client, user_data, message):
+    def ping_reply(self, client, user_data, message):
         try:
-            packet = None
             try:
                 packet = Packet.decode(message.payload)
             except Exception as e:
@@ -67,7 +67,7 @@ class PingDriver(DriverBase):
                 response_command = PingDriver.Commands.ERR.value + f" invalid command '{command}': '{packet.body.decode('utf8')}'"
                 response_header = DataHeader(
                     data_type=Type.WARNING,
-                    sender=PingDriver.get_device_id(),
+                    sender=self.get_device_id(),
                     priority=Priority.TELEMETRY,
                     destination=packet.data_header.sender
                 )
@@ -83,7 +83,7 @@ class PingDriver(DriverBase):
                 response_command = PingDriver.Commands.ACK.value + (f" {param}" if param else '')
                 response_header = DataHeader(
                     data_type=Type.TELEMETRY,
-                    sender=PingDriver.get_device_id(),
+                    sender=self.get_device_id(),
                     priority=Priority.TELEMETRY,
                     destination=packet.data_header.sender
                 )
@@ -105,7 +105,7 @@ class PingDriver(DriverBase):
         command = f"{PingDriver.Commands.PING.value} {counter}"
         header = DataHeader(
             data_type=Type.TELEMETRY,
-            sender=PingDriver.get_device_id(),
+            sender=self.get_device_id(),
             priority=Priority.TELEMETRY
         )
         packet = Packet(bytes(command, 'utf8'), header)

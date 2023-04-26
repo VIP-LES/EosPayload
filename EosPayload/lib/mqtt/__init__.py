@@ -18,4 +18,5 @@ class Topic(str, Enum):
     HEALTH_HEARTBEAT = 'health/heartbeat'
     POSITION_UPDATE = 'position/update'
     PING_COMMAND = 'ping/command'
+    CUTDOWN_COMMAND = 'cutdown/command'
     # register new topics by appending them to the above list

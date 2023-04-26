@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum, unique
 from multiprocessing import Process
 
-from EosLib import Device
+from EosLib.device import Device
 
 from EosPayload.lib.driver_base import DriverBase
 

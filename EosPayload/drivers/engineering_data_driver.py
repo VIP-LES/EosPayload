@@ -5,7 +5,8 @@ import serial
 import datetime
 import pyudev
 
-from EosLib.packet.definitions import Device, Type, Priority
+from EosLib.packet.definitions import Type, Priority
+from EosLib.device import Device
 from EosLib.packet.packet import DataHeader, Packet
 from EosLib.format.position import Position, FlightState
 
@@ -94,8 +95,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
             raise EnvironmentError()
 
         esp = device_list[0]
-        self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
-        self.ser_connection.readline()  # Flush any incomplete lines in buffer
+        #self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
+        #self.ser_connection.readline()  # Flush any incomplete lines in buffer
 
     def fetch_data(self) -> str:  # This function might seem weird, but it exists to make mocking easier
         return self.ser_connection.readline().decode()[:-1]
