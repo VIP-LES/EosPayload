@@ -11,7 +11,7 @@ from EosLib.packet.packet import DataHeader, Packet
 from EosLib.packet.definitions import Type, Priority
 import datetime
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
 

@@ -6,7 +6,7 @@ from EosLib.device import Device
 
 from EosLib.format.position import Position, FlightState
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 

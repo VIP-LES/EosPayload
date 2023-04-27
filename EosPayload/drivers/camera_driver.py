@@ -4,7 +4,7 @@ import os
 import time
 
 import cv2
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class Camera1Driver(DriverBase):

@@ -7,7 +7,7 @@ import re
 from EosLib import device
 
 from EosPayload import drivers
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status
 
 base_drivers = ["DriverBase", "PositionAwareDriverBase"]
@@ -51,8 +51,8 @@ class OrcheostratorConfigParser:
         return (
                 (driver is not None)
                 and inspect.isclass(driver)
+                and inspect.getmodule(driver).__name__.startswith("EosPayload.drivers")
                 and issubclass(driver, DriverBase)
-                and driver.__name__ not in base_drivers
         )
 
     @staticmethod

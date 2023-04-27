@@ -2,7 +2,7 @@ import Adafruit_BBIO.GPIO as GPIO
 import logging
 import time
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class LEDDriver(DriverBase):

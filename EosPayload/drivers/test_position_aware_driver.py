@@ -3,7 +3,7 @@ import logging
 
 from EosLib.format.position import Position, FlightState
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):

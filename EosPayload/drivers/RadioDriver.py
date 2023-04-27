@@ -13,7 +13,7 @@ from digi.xbee.devices import XBee64BitAddress
 from EosLib.device import Device
 from EosLib.packet.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 

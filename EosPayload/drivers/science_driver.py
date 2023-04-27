@@ -2,7 +2,7 @@ import logging
 import time
 import busio
 import traceback
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 from adafruit_pm25.i2c import PM25_I2C
 from adafruit_blinka.microcontroller.am335x import pin

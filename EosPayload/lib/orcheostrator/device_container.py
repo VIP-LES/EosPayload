@@ -4,7 +4,7 @@ from multiprocessing import Process
 
 from EosLib.device import Device
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 @unique

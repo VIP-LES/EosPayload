@@ -9,7 +9,7 @@ from EosLib.device import Device
 from EosLib.packet.packet import DataHeader, Packet
 from EosLib.format.position import Position, FlightState
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
 

@@ -7,7 +7,7 @@ from EosLib import Priority, Type
 
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.packet import Packet
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 """

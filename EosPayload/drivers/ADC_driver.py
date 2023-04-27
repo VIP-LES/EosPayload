@@ -3,7 +3,7 @@ import time
 
 import Adafruit_BBIO.ADC as ADC
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class ADCDriver(DriverBase):
