@@ -163,7 +163,7 @@ class OrchEOStrator:
                 report[status] = []
             for key, driver in self._drivers.items():
                 # auto set terminated if it died
-                if driver.status in [Status.HEALTHY, Status.UNHEALTHY] and (driver.process is None or not driver.process.is_alive()):
+                if driver.status in [Status.HEALTHY, Status.UNHEALTHY, Status.INITIALIZED] and (driver.process is None or not driver.process.is_alive()):
                     self._logger.critical(f"process for driver {key} is no longer running -- marking terminated")
                     driver.update_status(Status.TERMINATED)
 
