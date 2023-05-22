@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # read args
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--output-directory', required=False, default='.')
-    parser.add_argument('-c', '--config-filepath', required=True)
+    parser.add_argument('-c', '--config-filepath', required=False, default='config.json')
     args = parser.parse_args()
 
     # do the things

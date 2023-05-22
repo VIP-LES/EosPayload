@@ -3,14 +3,13 @@ import json
 import logging
 import os
 import re
+from copy import deepcopy
 
 from EosLib import device
 
 from EosPayload import drivers
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status
-
-base_drivers = ["DriverBase", "PositionAwareDriverBase"]
 
 
 class OrcheostratorConfig:
@@ -32,12 +31,9 @@ class OrcheostratorConfigParser:
         self.unused_drivers = {}
 
     def get_raw_config(self) -> dict | None:
-        try:
-            with open(self.config_filepath) as config_file:
-                raw_config = json.load(config_file)
-        except OSError:
-            self.logger.critical("Unable to open config file")
-            return None
+        with open(self.config_filepath) as config_file:
+            raw_config = json.load(config_file)
+
         self.logger.info(f"Opened config file at {os.path.abspath(self.config_filepath)}")
         return raw_config
 
@@ -78,7 +74,7 @@ class OrcheostratorConfigParser:
 
         if device_name is not None and \
             (not device_name.isascii() or not device_name.replace("-", "").isalnum()):
-            self.logger.error(f"Device name \"{device_name}\" is invalid, falling back to generated name")
+            self.logger.warning(f"Device name \"{device_name}\" is invalid, falling back to generated name")
 
         if device_name is None:
             # Convert default name from CamelCase to lowercase with dashes
@@ -112,6 +108,7 @@ class OrcheostratorConfigParser:
             device_config.update({"device_id": device_id})
         except KeyError:
             self.logger.error(f"{self.config_indent}Device ID {device_id} is invalid, skipping.")
+            return
 
         self.logger.info(f"{self.config_indent}Device ID: {device_id}")
         self.used_device_ids.append(device_id)
@@ -133,10 +130,7 @@ class OrcheostratorConfigParser:
 
         driver_class = self.valid_driver_classes.get(driver_class_name)
         settings = device_config.get("settings")
-        if settings:
-            optional_driver_settings = device_config.get("settings").copy()
-        else:
-            optional_driver_settings = device_config.get("settings")
+        optional_driver_settings = deepcopy(device_config.get("settings"))
 
         if driver_class.get_required_config_fields():
             if settings is None:
@@ -175,7 +169,10 @@ class OrcheostratorConfigParser:
         self.orcheostrator_config.global_config = raw_config
 
         for device_config in device_configs:
-            self.configure_device(device_config)
+            try:
+                self.configure_device(device_config)
+            except Exception as e:
+                self.logger.error(f"Encountered unhandled error while configuring device: {e}")
 
         unused_drivers_string = ", ".join(list(self.unused_drivers.keys()))
         self.logger.info(f"Existing drivers with no config: {unused_drivers_string}")

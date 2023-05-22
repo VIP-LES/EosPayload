@@ -90,12 +90,6 @@ class OrchEOStrator:
             driver = container.driver
             driver_config = container.config
             try:
-                if driver_config.get("device_id") is None:
-                    self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"
-                                       " because device id is not defined")
-                    container.update_status(Status.INVALID)
-                    self._drivers['<' + driver.__name__ + '>'] = container
-                    continue
                 self._logger.info(f"spawning process for device '{driver_config.get('pretty_id')}' from"
                                   f" class '{driver.__name__}'")
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
