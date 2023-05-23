@@ -25,12 +25,12 @@ Windows example: `"C:\Program Files\mosquitto\mosquitto_sub.exe" -V 5 -q 2 -t # 
 - `mosquitto_pub` - a simple message publish tool that is also useful for sending test MQTT messages to your device.
 Windows example: `"C:\Program Files\mosquitto\mosquitto_pub.exe" -t "health/heartbeat" -m "yo" -q 2`  
 
-Note: for the sub/pub tools to work on mac you may need to run `brew link mosquitto` first  
+Note: for the sub/pub tools to work on Mac you may need to run `brew link mosquitto` first  
 
 More info on the command line tools can be found here: https://mosquitto.org/man/
 
 ## Running EosPayload
-Prereq: Start the MQTT server by running mosquitto (see above)
+Pre-req: Start the MQTT server by running mosquitto (see above)
 
 ### From Terminal
 1. Navigate to your EosPayload repository root using the `cd` command (all OS's)
@@ -61,6 +61,27 @@ Prereq: Start the MQTT server by running mosquitto (see above)
 - You must extend DriverBase or a derivative of DriverBase, which provide several functions out-of-the-box to simplify development and multithreading.
 - Keep the driver runner code tidy.  Consider making a file or module in `EosPayload/Lib` to put your logic
 - DriverBase offers two threads for Drivers to implement: device_read() and device_command().  Most drivers will not need to use both
+
+### Configuring Payload and Drivers
+Each Payload is configured with a JSON file, by default it is stored at `config.json`, though a custom path can be set 
+with the `-c` field when you run EosPayload. Currently top level fields are unused, and each device is configured using 
+an entry in the `devices` list.
+
+A minimal device config requires:
+
+| Field        | Value                                                  |
+|--------------|--------------------------------------------------------|
+| driver_class | The Python class that will be used to spawn the device |
+| device_id    | A unique value of `EosLib.device.Device`               |
+| enabled      | `true` or `false`, to enable or disable the device     |
+
+Additionally, the following optional fields are available:
+
+| Field    | Value                                                       |
+|----------|-------------------------------------------------------------|
+| name     | A plaintext name that overrides the auto-generated name     |
+| settings | A JSON dict of settings that are passed to the driver class |
+
 
 ### Adding Dependencies
 - In your terminal in your venv, run `pip install <your dependency>`

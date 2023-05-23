@@ -31,6 +31,10 @@ class OrcheostratorConfigParser:
         self.unused_drivers = {}
 
     def get_raw_config(self) -> dict:
+        """ Reads the JSON file specified by config_filepath and converts it to a python dict
+
+        :return: The dict representation of the config JSON file
+        """
         try:
             with open(self.config_filepath) as config_file:
                 raw_config = json.load(config_file)
@@ -57,6 +61,10 @@ class OrcheostratorConfigParser:
 
     @staticmethod
     def collect_valid_driver_classes() -> dict[str, DriverBase]:
+        """ Iterates over all drivers and returns a dict that maps their name to their class object
+
+        :return: A dict of driver names and classes
+        """
         valid_driver_classes = {}
         for attribute_name in dir(drivers):
             driver = getattr(drivers, attribute_name)
@@ -74,6 +82,11 @@ class OrcheostratorConfigParser:
         return f"{name}-{device_id:03}"
 
     def configure_device(self, device_config: dict) -> None:
+        """ Takes a device config dict and validates/populates it
+
+        :param device_config:
+        :return:
+        """
         device_name = device_config.get("name")
 
         if device_name is not None and \
@@ -167,6 +180,10 @@ class OrcheostratorConfigParser:
             self.unused_drivers.pop(driver_class_name)
 
     def parse_config(self) -> OrcheostratorConfig:
+        """ Parses and populates all device configs and orchEOStrator global config
+
+        :return:
+        """
         raw_config = self.get_raw_config()
         self.valid_driver_classes = self.collect_valid_driver_classes()
         self.unused_drivers = self.collect_valid_driver_classes()
