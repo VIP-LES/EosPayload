@@ -30,9 +30,13 @@ class OrcheostratorConfigParser:
         self.disabled_drivers = []
         self.unused_drivers = {}
 
-    def get_raw_config(self) -> dict | None:
-        with open(self.config_filepath) as config_file:
-            raw_config = json.load(config_file)
+    def get_raw_config(self) -> dict:
+        try:
+            with open(self.config_filepath) as config_file:
+                raw_config = json.load(config_file)
+        except OSError as e:
+            self.logger.critical("Unable to open config file")
+            raise e
 
         self.logger.info(f"Opened config file at {os.path.abspath(self.config_filepath)}")
         return raw_config
@@ -125,7 +129,8 @@ class OrcheostratorConfigParser:
             return
 
         if driver_class_name not in self.valid_driver_classes:
-            self.logger.error(f"{self.config_indent}Driver Class {driver_class_name} is not available, skipping")
+            self.logger.error(f"{self.config_indent}Driver Class {driver_class_name} is invalid or does not exist"
+                              f", skipping")
             return
 
         driver_class = self.valid_driver_classes.get(driver_class_name)

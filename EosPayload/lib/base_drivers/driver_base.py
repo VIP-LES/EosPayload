@@ -1,5 +1,4 @@
 import threading
-from abc import ABC
 from datetime import datetime
 import logging
 import os
@@ -18,7 +17,7 @@ from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
 
-class DriverBase(ABC):
+class DriverBase:
 
     #
     # CONFIGURATION
