@@ -1,23 +1,12 @@
 import logging
 import time
-import traceback
 
 import Adafruit_BBIO.ADC as ADC
 
-#from EosLib.packet.definitions import Device
-from EosLib.device import Device
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class ADCDriver(DriverBase):
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_SENSOR_2
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "ADC-Driver"
 
     def setup(self) -> None:
         super().setup()
@@ -110,6 +99,3 @@ class ADCDriver(DriverBase):
         #     count += 1
         #     time.sleep(1)
 
-    @staticmethod
-    def enabled() -> bool:
-        return False

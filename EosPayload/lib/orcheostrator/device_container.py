@@ -4,17 +4,17 @@ from multiprocessing import Process
 
 from EosLib.device import Device
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 @unique
 class Status(Enum):
     NONE = 0
     INVALID = 1
-    DISABLED = 2
-    HEALTHY = 3
-    UNHEALTHY = 4
-    TERMINATED = 5
+    HEALTHY = 2
+    UNHEALTHY = 3
+    TERMINATED = 4
+    INITIALIZED = 5
 
 
 class StatusUpdate:
@@ -26,11 +26,12 @@ class StatusUpdate:
         self.effective = effective
 
 
-class DriverContainer:
+class DeviceContainer:
 
-    def __init__(self, driver: DriverBase, process: Process = None):
+    def __init__(self, driver: DriverBase, process: Process = None, config: dict = None):
         self.driver = driver
         self.process = process
+        self.config = config
         self.status = Status.NONE
         self.thread_count = 0
         self.status_reporter = Device.NO_DEVICE

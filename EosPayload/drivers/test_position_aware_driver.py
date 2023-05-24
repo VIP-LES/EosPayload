@@ -2,23 +2,11 @@ import time
 import logging
 
 from EosLib.format.position import Position, FlightState
-from EosLib.device import Device
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
-    @staticmethod
-    def enabled() -> bool:
-        return False
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_2
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "test-position-aware-driver"
 
     def device_command(self, logger: logging.Logger) -> None:
         old_position = Position()

@@ -2,17 +2,14 @@ import logging
 import time
 
 import busio
-import board
 from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
-
-from EosLib.device import Device
 
 from EosLib.packet.data_header import DataHeader
 from EosLib import Priority, Type
 from EosLib.packet.packet import Packet
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosLib.format.telemetry_data import TelemetryData
 from adafruit_blinka.microcontroller.am335x import pin
 from EosPayload.lib.mqtt import Topic
@@ -20,30 +17,18 @@ from EosPayload.lib.mqtt import Topic
 
 class TelemetryI2CDriver(DriverBase):
 
-    @staticmethod
-    def enabled() -> bool:
-        return False
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_SENSOR_3
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "Telemetry-I2C-Driver"
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
+        self.bno = None
+        self.i2c = None
 
     @staticmethod
     def read_thread_enabled() -> bool:
         return True
 
-    def __int__(self):
-        self.i2c = None
-        self.bno = None
-
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
-
         self.bno = BNO055_I2C(self.i2c)
         count = 0
 

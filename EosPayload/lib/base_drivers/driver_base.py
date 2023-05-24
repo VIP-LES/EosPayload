@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
+import threading
 from datetime import datetime
 import logging
 import os
-import threading
 import time
 import traceback
 
@@ -18,50 +17,30 @@ from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
 
-
-class DriverBase(ABC):
+class DriverBase:
 
     #
     # CONFIGURATION
     #
 
-    @staticmethod
-    @abstractmethod
-    def get_device_id() -> Device:
-        """ [REQUIRED] Returns the unique Device ID defined in EosLib.
+    def get_device_id(self) -> Device:
+        """ Returns the unique Device ID provided in provided the config file.
         IDs must be unique or there will be undefined behavior.
-        Add device IDs by generating a new EosLib patch version and bumping the version number in requirements.txt
-        Must be defined by subclass of DriverBase.
 
         :return: the device name
         """
-        raise NotImplementedError("Drivers must implement a get_device_id method")
+        # Exists mostly for backwards compatibility
+        return self._config.get('device_id')
 
-    @staticmethod
-    @abstractmethod
-    def get_device_name() -> str:
-        """ [REQUIRED] Returns the string name or type of the device (eg, "temp-sensor").
+    def get_device_name(self) -> str:
+        """ Returns the string name or type of the device (eg, "temp-sensor") as set in provided the config file.
         Only alphanumeric symbols and hyphens allowed.
-        Must be defined by subclass of DriverBase.
 
         :return: the device name
         """
-        raise NotImplementedError("Drivers must implement a get_device_name method")
+        # Exists mostly for backwards compatibility
+        return self._config.get('name')
 
-    @classmethod
-    def get_device_pretty_id(cls) -> str:
-        """ :return: a unique string identifier formed by concatenating the device_name
-                     with the device_id (padded to 3 digits)
-        """
-        return f"{cls.get_device_name()}-{cls.get_device_id():03}"
-
-    @staticmethod
-    def enabled() -> bool:
-        """ [OPTIONAL] Defaults to True.
-
-        :return: True if driver is enabled, False otherwise
-        """
-        return True
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -79,16 +58,26 @@ class DriverBase(ABC):
         """
         return False
 
+    @staticmethod
+    def get_required_config_fields() -> list[str]:
+        """ [OPTIONAL] Defaults to empty list. Provides a list of names of required config fields which must be
+        provided in the config json and which are guaranteed to be present in _device_config
+
+        :return: List of required config fields.
+        """
+        return []
+
     #
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str):
+    def __init__(self, output_directory: str, config: dict):
         """ Driver constructor.  Responsible for initialization tasks.
         Should only be overriden by subclasses to initialize instance variables to zero-values/constants.
         Calling `super().__init__(output_directory)` at the beginning is required.
         For all other initialization purposes, use the setup() method instead.
         Should only ever be invoked by orchEOStrator.
+        :param config:
         """
 
         #
@@ -105,28 +94,28 @@ class DriverBase(ABC):
         self._mqtt = None
         self._output_directory = None
 
+        self._config = config
+        self._settings = config.get("settings")
+        self._pretty_id = config.get("pretty_id")
+
         #
         # INITIALIZATION
         #
 
-        # Validate device name
-        if not (self.get_device_name().isascii() and self.get_device_name().replace('-', '').isalnum()):
-            raise GenericDriverException("Driver names may only contain alphanumeric characters and hyphens.")
-
         # set up output location and data file
         self._output_directory = output_directory
-        # i don't think there's a need for validation here since orchEOStrator guarantees it's set up
-        self.__data_file = open(os.path.join(self._output_directory, 'data', self.get_device_pretty_id() + '.dat'), 'a')
+        # I don't think there's a need for validation here since orchEOStrator guarantees it's set up
+        self.__data_file = open(os.path.join(self._output_directory, 'data', self._pretty_id + '.dat'), 'a')
 
         # set up logging
-        init_logging(os.path.join(self._output_directory, 'logs', self.get_device_pretty_id() + '.log'))
-        self._logger = logging.getLogger(self.get_device_pretty_id())
+        init_logging(os.path.join(self._output_directory, 'logs', self._pretty_id + '.log'))
+        self._logger = logging.getLogger(self._pretty_id)
 
         # set up mqtt
         try:
             self._mqtt = Client(MQTT_HOST)
         except Exception as e:
-            self._logger.critical(f"Failed to set up MQTT: {e}\n{traceback.format_exc()}")
+            self._logger.critical(f"Failed to setup MQTT: {e}\n{traceback.format_exc()}")
 
         self._logger.info("init complete")
 
@@ -166,13 +155,8 @@ class DriverBase(ABC):
         Should only ever be invoked by orchEOStrator.
         """
 
+        self._logger.info("device starting up in " + os.getcwd())
         try:
-            if not self.enabled():
-                self._logger.info("device is not enabled, terminating before startup")
-                return
-
-            self._logger.info("device starting up in " + os.getcwd())
-
             self._logger.info("running setup")
             try:
                 self.setup()
@@ -184,7 +168,7 @@ class DriverBase(ABC):
 
             if self.read_thread_enabled():
                 self._logger.info("starting read thread")
-                read_logger = logging.getLogger(self.get_device_pretty_id() + '.device_read')
+                read_logger = logging.getLogger(self._pretty_id + '.device_read')
                 self.__read_thread = threading.Thread(
                     None,
                     self.__device_read_wrapper,
@@ -199,7 +183,7 @@ class DriverBase(ABC):
 
             if self.command_thread_enabled():
                 self._logger.info("starting command thread")
-                command_logger = logging.getLogger(self.get_device_pretty_id() + '.device_command')
+                command_logger = logging.getLogger(self._pretty_id + '.device_command')
                 self.__command_thread = threading.Thread(
                     None,
                     self.__device_command_wrapper,

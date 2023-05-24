@@ -1,19 +1,17 @@
-from abc import ABC
-
 import EosLib.packet.packet
 from EosLib import Type
 from EosLib.device import Device
 
 from EosLib.format.position import Position, FlightState
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 
-class PositionAwareDriverBase(DriverBase, ABC):
+class PositionAwareDriverBase(DriverBase):
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.latest_position = Position()
 
     def setup(self) -> None:
