@@ -1,5 +1,5 @@
 {
-  "payload_name": "Kian_2",
+  "payload_name": "David_1",
   "devices":
   [
 
@@ -17,6 +17,12 @@
         {
           "print_text": "printing text"
         }
+    },
+
+    {
+      "driver_class": "TelemetryI2CDriver",
+      "device_id": "MISC_SENSOR_1",
+      "enabled": "true"
     },
 
     {
