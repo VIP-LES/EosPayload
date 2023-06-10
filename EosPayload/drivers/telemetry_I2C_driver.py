@@ -36,7 +36,7 @@ class TelemetryI2CDriver(DriverBase):
         count = 0
 
         while True:
-            print((self.mprls.pressure,))
+            logger.info(self.mprls.pressure,)
             time.sleep(1)
 
         while True:
