@@ -26,6 +26,12 @@
     },
 
     {
+      "driver_class": "GPSDriver",
+      "device_id": "GPS",
+      "enabled": "true"
+    },
+
+    {
       "name": "secondary-printing-driver",
       "driver_class": "TestConfigDriver",
       "device_id": "MISC_TEST_3",
