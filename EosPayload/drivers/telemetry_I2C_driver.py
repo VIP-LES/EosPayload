@@ -20,7 +20,7 @@ class TelemetryI2CDriver(DriverBase):
 
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
-        self.bno = None
+        #self.bno = None
         self.mprls = None
         self.i2c = None
 
@@ -31,9 +31,13 @@ class TelemetryI2CDriver(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         self.i2c = busio.I2C(pin.I2C2_SCL, pin.I2C2_SDA)
-        self.bno = BNO055_I2C(self.i2c)
+        #self.bno = BNO055_I2C(self.i2c)
         self.mprls = MPRLS(self.i2c)
         count = 0
+
+        while True:
+            print((self.mprls.pressure,))
+            time.sleep(1)
 
         while True:
 
