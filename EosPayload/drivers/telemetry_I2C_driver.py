@@ -3,6 +3,7 @@ import time
 
 import busio
 from adafruit_bno055 import BNO055_I2C
+from adafruit_mprls import MPRLS
 from datetime import datetime
 
 from EosLib.packet.data_header import DataHeader
@@ -20,6 +21,7 @@ class TelemetryI2CDriver(DriverBase):
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
         self.bno = None
+        self.mprls = None
         self.i2c = None
 
     @staticmethod
@@ -30,6 +32,7 @@ class TelemetryI2CDriver(DriverBase):
         logger.info("Starting to poll for data!")
         self.i2c = busio.I2C(pin.I2C2_SCL, pin.I2C2_SDA)
         self.bno = BNO055_I2C(self.i2c)
+        self.mprls = MPRLS(self.i2c)
         count = 0
 
         while True:
