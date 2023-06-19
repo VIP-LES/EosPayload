@@ -1,20 +1,18 @@
 from multiprocessing import Process
 from queue import Queue
-import inspect
 import logging
 import os
 import time
 import traceback
 
-from EosLib import Device
+from EosLib.device import Device
 
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.config import OrcheostratorConfigParser
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client, Topic
-from EosPayload.lib.orcheostrator.driver_container import DriverContainer, Status
+from EosPayload.lib.orcheostrator.device_container import Status
 from EosPayload.lib.orcheostrator.health import Health
-import EosPayload.drivers as drivers
 
 
 class OrchEOStrator:
@@ -23,7 +21,7 @@ class OrchEOStrator:
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str):
+    def __init__(self, output_directory: str, config_filepath: str):
         """ Constructor.  Initializes output location, logger, mqtt, and health monitoring. """
         self._logger = None
         self._drivers = {}
@@ -38,6 +36,9 @@ class OrchEOStrator:
         self._logger = logging.getLogger('orchEOStrator')
         self._logger.info("initialization complete")
         self._logger.info("beginning boot process in " + os.getcwd())
+
+        config_parser = OrcheostratorConfigParser(self._logger, config_filepath)
+        self.orcheostrator_config = config_parser.parse_config()
 
         self._health_queue = Queue()
 
@@ -79,20 +80,6 @@ class OrchEOStrator:
                 driver.process.terminate()
                 driver.update_status(status=Status.TERMINATED)
 
-    @staticmethod
-    def valid_driver(driver) -> bool:
-        """ Determines if given class is a valid driver.
-
-        :param driver: the class in question
-        :return: True if valid, otherwise False
-        """
-        return (
-            (driver is not None)
-            and inspect.isclass(driver)
-            and issubclass(driver, DriverBase)
-            and driver.__name__ != "DriverBase"
-        )
-
     #
     # PROTECTED HELPER METHODS
     #
@@ -100,45 +87,37 @@ class OrchEOStrator:
     def _spawn_drivers(self) -> None:
         """ Enumerates over all the classes in the drivers dir and spins them up """
         self._logger.info("Spawning Drivers")
-        for attribute_name in dir(drivers):
-            driver = getattr(drivers, attribute_name)
-            if self.valid_driver(driver):
-                container = DriverContainer(driver)
-                try:
-                    if driver.get_device_id() is None:
-                        self._logger.error(f"can't spawn process for device from class '{driver.__name__}'"
-                                           " because device id is not defined")
-                        container.update_status(status=Status.INVALID)
-                        self._drivers['<' + driver.__name__ + '>'] = container
-                        continue
-                    if not driver.enabled():
-                        self._logger.warning(f"skipping device '{driver.get_device_pretty_id()}' from"
-                                             f" class '{driver.__name__}' because it is not enabled")
-                        container.update_status(status=Status.DISABLED)
-                        self._drivers[driver.get_device_id()] = container
-                        continue
-                    self._logger.info(f"spawning process for device '{driver.get_device_pretty_id()}' from"
-                                      f" class '{driver.__name__}'")
-                    proc = Process(target=self._driver_runner, args=(driver, self.output_directory), daemon=True)
-                    container.process = proc
-                    container.update_status(status=Status.HEALTHY, thread_count=1)
-                    proc.start()
-                    self._drivers[driver.get_device_id()] = container
-                except Exception as e:
-                    self._logger.critical("A fatal exception occurred when attempting to load driver from"
-                                          f" class '{driver.__name__}': {e}\n{traceback.format_exc()}")
-                    container.update_status(status=Status.INVALID)
-                    self._drivers['<' + driver.__name__ + '>'] = container
+        driver_list = self.orcheostrator_config.enabled_devices
+
+        for container in driver_list:
+            driver = container.driver
+            driver_config = container.config
+            try:
+                self._logger.info(f"spawning process for device '{driver_config.get('pretty_id')}' from"
+                                  f" class '{driver.__name__}'")
+                proc = Process(
+                    target=self._driver_runner,
+                    args=(driver, self.output_directory, driver_config),
+                    daemon=True
+                )
+                container.process = proc
+                proc.start()
+                self._drivers[driver_config.get("device_id")] = container
+            except Exception as e:
+                self._logger.critical("A fatal exception occurred when attempting to load driver from"
+                                      f" class '{driver.__name__}': {e}\n{traceback.format_exc()}")
+                container.update_status(Status.INVALID)
+                self._drivers['<' + driver.__name__ + '>'] = container
         self._logger.info("Done Spawning Drivers")
 
     @staticmethod
-    def _driver_runner(cls, output_directory: str) -> None:
+    def _driver_runner(cls, output_directory: str, config: dict) -> None:
         """ Wrapper to execute driver run() method.
 
         :param cls: the driver class.  Must have a run() method
         :param output_directory: the location to store output (logs, data, etc.)
         """
-        cls(output_directory).run()
+        cls(output_directory, config).run()
 
     @staticmethod
     def _spin() -> None:

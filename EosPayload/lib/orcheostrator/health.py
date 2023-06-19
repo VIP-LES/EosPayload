@@ -4,11 +4,11 @@ import logging
 import threading
 import traceback
 
-from EosLib import Device
+from EosLib.device import Device
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.mqtt.client import Client
-from EosPayload.lib.orcheostrator.driver_container import DriverContainer, Status, StatusUpdate
+from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status, StatusUpdate
 
 
 class Health:
@@ -44,7 +44,7 @@ class Health:
                                       f"\n{traceback.format_exc()}")
 
     @staticmethod
-    def health_check(driver_list: dict[Device|str, DriverContainer], update_queue: Queue,
+    def health_check(driver_list: dict[Device|str, DeviceContainer], update_queue: Queue,
                      logger: logging.Logger) -> None:
         try:
             logger.info("Starting Health Check")
@@ -73,14 +73,14 @@ class Health:
                             f" {e}\n{traceback.format_exc()}")
 
     @staticmethod
-    def generate_report(driver_list: dict[Device|str, DriverContainer]) -> str:
+    def generate_report(driver_list: dict[Device|str, DeviceContainer]) -> str:
         report = {}
         for status in Status:
             report[status] = []
 
         num_threads = threading.active_count()
         for key, driver in driver_list.items():
-            the_key = key if driver.status in [Status.NONE, Status.INVALID] else driver.driver.get_device_pretty_id()
+            the_key = key if driver.status in [Status.NONE, Status.INVALID] else driver.config.get("pretty_id")
             report[driver.status].append(f"{the_key} ({driver.status.thread_count} threads)"
                                          f" as of {driver.status.effective} (reported by {driver.status.reporter}"
                                          f" [{Device(driver.status.reporter).name}])")
@@ -95,6 +95,6 @@ class Health:
 
         return report_string
 
-    @staticmethod
-    def publish_health_update(mqtt: Client, logger: logging.Logger, device_id: Device, ):
-
+    #@staticmethod
+    #def publish_health_update(mqtt: Client, logger: logging.Logger, device_id: Device, ):
+    #    pass

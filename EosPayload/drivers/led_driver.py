@@ -2,30 +2,17 @@ import Adafruit_BBIO.GPIO as GPIO
 import logging
 import time
 
-from EosLib.packet.definitions import Device
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class LEDDriver(DriverBase):
 
     @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "led-driver"
-
-    @staticmethod
     def command_thread_enabled() -> bool:
         return True
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.pin_name = "P9_12"
 
     def setup(self) -> None:

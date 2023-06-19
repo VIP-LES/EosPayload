@@ -4,19 +4,10 @@ import os
 import time
 
 import cv2
-from EosLib import Device
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class Camera1Driver(DriverBase):
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "camera-driver"
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.CAMERA_1
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -36,8 +27,8 @@ class Camera1Driver(DriverBase):
             else:
                 file_num += 1
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.cap = None
         self.out = None
         self.path = output_directory + "/artifacts/video/"

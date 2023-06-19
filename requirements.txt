@@ -1,4 +1,4 @@
-git+https://github.com/VIP-LES/EosLib@v0.4.1#egg=EosLib
+git+https://github.com/VIP-LES/EosLib@v3.0.0#egg=EosLib
 attrs==22.1.0
 colorama==0.4.5
 digi-xbee==1.4.1
@@ -11,14 +11,21 @@ pyserial==3.5
 pytest==7.2.1
 tomli==2.0.1
 
-pyserial~=3.5
 DateTime~=4.7
 pyudev~=0.24.0
 opencv-python-headless>=4.6.0
 smbus2~=0.4.2
-adafruit-circuitpython-ms8607~=1.0.16
-adafruit-circuitpython-tsl2591~=1.3.9
-adafruit-circuitpython-ltr390~=1.1.12
+#adafruit-circuitpython-ms8607~=1.0.16
+#adafruit-circuitpython-tsl2591~=1.3.9
+#adafruit-circuitpython-ltr390~=1.1.12
+adafruit-circuitpython-tsl2591
+adafruit-circuitpython-ltr390
+adafruit-circuitpython-tmp117
+adafruit-circuitpython-bmp3xx
+adafruit-circuitpython-shtc3
+adafruit-circuitpython-bno055
+adafruit-circuitpython-gps
+adafruit-circuitpython-pm25
 Adafruit-BBIO~=1.2.0
 pip~=22.3.1
 wheel~=0.37.1

@@ -1,15 +1,15 @@
 import queue
 import re
 import logging
-import serial
 import datetime
 import pyudev
 
-from EosLib.packet.definitions import Device, Type, Priority
+from EosLib.packet.definitions import Type, Priority
+from EosLib.device import Device
 from EosLib.packet.packet import DataHeader, Packet
 from EosLib.format.position import Position, FlightState
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
 
@@ -19,8 +19,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
                        "humidity"]
     esp_data_time_format = "%H:%M:%S %d/%m/%Y"
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
         self.esp_id = "Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_de1ea05ac21bec119a14cb79f01c6278"
         self.esp_baud = 115200
         self.ser_connection = None
@@ -34,17 +34,6 @@ class EngineeringDataDriver(PositionAwareDriverBase):
         self.gotten_first_fix = False
         self.last_transmit_time = datetime.datetime.now()
 
-    @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.MISC_ENGINEERING_1
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "engineering-data-driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
@@ -105,8 +94,8 @@ class EngineeringDataDriver(PositionAwareDriverBase):
             raise EnvironmentError()
 
         esp = device_list[0]
-        self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
-        self.ser_connection.readline()  # Flush any incomplete lines in buffer
+        #self.ser_connection = serial.Serial(esp.device_node, self.esp_baud)
+        #self.ser_connection.readline()  # Flush any incomplete lines in buffer
 
     def fetch_data(self) -> str:  # This function might seem weird, but it exists to make mocking easier
         return self.ser_connection.readline().decode()[:-1]
