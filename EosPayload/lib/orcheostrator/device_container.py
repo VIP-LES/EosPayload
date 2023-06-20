@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, unique
 from multiprocessing import Process
@@ -17,13 +18,24 @@ class Status(Enum):
     INITIALIZED = 5
 
 
+@dataclass
 class StatusUpdate:
-    def __init__(self, driver_id: int, status: Status, thread_count: int, reporter: Device, effective: datetime):
-        self.driver_id = driver_id
-        self.status = status
-        self.thread_count = thread_count
-        self.reporter = reporter
-        self.effective = effective
+    driver_id: Device = None
+    status: Status = None
+    thread_count: int = None
+    reporter: Device = None
+    effective: datetime = None
+
+    def update(self, other):
+        if other.effective is not None and other.effective >= self.effective:
+            if other.driver_id is not None:
+                self.driver_id = other.driver_id
+            if other.status is not None:
+                self.status = other.status
+            if other.thread_count is not None:
+                self.thread_count = other.thread_count
+            if other.reporter is not None:
+                self.reporter = other.reporter
 
 
 class DeviceContainer:
@@ -32,18 +44,19 @@ class DeviceContainer:
         self.driver = driver
         self.process = process
         self.config = config
-        self.status = Status.NONE
-        self.thread_count = 0
-        self.status_reporter = Device.NO_DEVICE
-        self.status_since = datetime.now()
+        self.status = StatusUpdate(
+            status=Status.NONE,
+            thread_count=0,
+            reporter=Device.NO_DEVICE,
+            effective=datetime.now()
+        )
 
-    def update_status(self, status: Status, thread_count: int = 0, reporter: Device = Device.ORCHEOSTRATOR,
-                      effective: datetime = None):
-        if effective is None:
-            effective = datetime.now()
+    def update_status(self, status_update: StatusUpdate = None, status: Status = None, thread_count: int = None,
+                      reporter: Device = Device.ORCHEOSTRATOR, effective: datetime = None):
+        if status_update is None:
+            if effective is None:
+                effective = datetime.now()
+            status_update = StatusUpdate(status=status, thread_count=thread_count,
+                                         reporter=reporter, effective=effective)
 
-        if effective >= self.status_since:
-            self.status = status
-            self.thread_count = thread_count
-            self.status_reporter = reporter
-            self.status_since = effective
+        self.status.update(status_update)
