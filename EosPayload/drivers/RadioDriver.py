@@ -16,7 +16,6 @@ from EosLib.packet.transmit_header import TransmitHeader
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
-
 class RadioDriver(DriverBase):
     _thread_queue = PriorityQueue()
     sequence_number = 0
@@ -30,6 +29,9 @@ class RadioDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+        self.register_thread('device-read', self.device_read)
+        self.register_thread('device-command', self.device_command)
+
         serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
         context = pyudev.Context()
         devices = context.list_devices(ID_SERIAL=serial_id)
@@ -68,19 +70,8 @@ class RadioDriver(DriverBase):
                 self._logger.error(f"radio port not open: {e}")
                 time.sleep(10)
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
-
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        return True
-
-    @staticmethod
-    def enabled() -> bool:
-        return False
-
     def device_read(self, logger: logging.Logger) -> None:
+        # TODO: refactor to move this stuff to setup, a separate thread is pointless
         # Receives data from radio and sends it to MQTT
         def data_receive_callback(xbee_message):
             packet = xbee_message.data  # raw bytearray packet
@@ -112,11 +103,12 @@ class RadioDriver(DriverBase):
 
         self._mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
         self.port.add_data_received_callback(data_receive_callback)
-        self.spin()
+        self.thread_spin(logger)
 
     # queue thread stuff
     def device_command(self, logger: logging.Logger) -> None:
         while True:
+            # TODO: refactor to be non-blocking so stop signal can be checked
             (priority, timestamp, packet) = self._thread_queue.get()
             logger.info(f":: = {packet.body}")
             try:

@@ -13,10 +13,13 @@ from EosLib.packet.packet import Packet
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client, Topic
-from EosPayload.lib.orcheostrator.device_container import Status, StatusUpdate
+from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status, StatusUpdate
 from EosPayload.lib.config import OrcheostratorConfigParser
 
+
 class OrchEOStrator:
+
+    _drivers: dict[str, DeviceContainer]
 
     #
     # INITIALIZATION AND DESTRUCTION METHODS
@@ -71,11 +74,11 @@ class OrchEOStrator:
 
     def terminate(self) -> None:
         self._logger.info("terminating processes")
-        for device_id, driver in self._drivers.items():
-            if driver.status in [Status.HEALTHY, Status.UNHEALTHY]:
+        for device_id, device_container in self._drivers.items():
+            if device_container.status in [Status.HEALTHY, Status.UNHEALTHY]:
                 self._logger.info(f"terminating process for device id {device_id}")
-                driver.process.terminate()
-                driver.update_status(Status.TERMINATED)
+                device_container.process.terminate()
+                device_container.update_status(Status.TERMINATED)
 
     #
     # PROTECTED HELPER METHODS
@@ -123,7 +126,7 @@ class OrchEOStrator:
 
             user_data['logger'].info(f"received health packet from device id={packet.data_header.sender}")
 
-            is_healthy, thread_count, _ = packet.body.decode('ascii').split(',', 2)
+            is_healthy, thread_count = packet.body.decode('ascii').split(',', 1)
 
             status_update = StatusUpdate(
                 driver_id=packet.data_header.sender,
@@ -184,12 +187,6 @@ class OrchEOStrator:
         except Exception as e:
             self._logger.critical("An exception occurred when attempting to perform health check:"
                                   f" {e}\n{traceback.format_exc()}")
-
-    @staticmethod
-    def _spin() -> None:
-        """ Spins to keep the software alive.  Never returns. """
-        while True:
-            time.sleep(10)
 
     def _output_mkdir(self, subdirectory: str) -> None:
         """ Make a subdirectory of the output location (if it doesn't already exist)

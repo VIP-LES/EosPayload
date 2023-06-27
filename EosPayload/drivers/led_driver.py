@@ -1,15 +1,10 @@
 import Adafruit_BBIO.GPIO as GPIO
 import logging
-import time
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
 class LEDDriver(DriverBase):
-
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        return True
 
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
@@ -17,6 +12,8 @@ class LEDDriver(DriverBase):
 
     def setup(self) -> None:
         super(LEDDriver, self).setup()
+        self.register_thread('device-command', self.device_command)
+
         GPIO.setup(self.pin_name, GPIO.OUT)
 
     def device_command(self, logger: logging.Logger) -> None:
@@ -27,7 +24,7 @@ class LEDDriver(DriverBase):
                 pin_state = 1
             else:
                 pin_state = 0
-            time.sleep(5)
+            self.thread_sleep(logger, 5)
 
     def cleanup(self):
         super(LEDDriver, self).cleanup()

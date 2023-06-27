@@ -1,4 +1,3 @@
-import time
 import logging
 
 from EosLib.format.position import Position, FlightState
@@ -8,10 +7,14 @@ from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAware
 
 class TestPositionAwareDriver(PositionAwareDriverBase):
 
+    def setup(self) -> None:
+        super().setup()
+        self.register_thread('device-command', self.device_command)
+
     def device_command(self, logger: logging.Logger) -> None:
         old_position = Position()
         while True:
-            time.sleep(1)
+            self.thread_sleep(logger, 1)
             if old_position.timestamp != self.latest_position.timestamp:
                 flight_state_str = FlightState(self.latest_position.flight_state).name
                 logger.info("New position found at {}. "

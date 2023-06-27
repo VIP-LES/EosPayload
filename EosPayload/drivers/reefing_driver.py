@@ -1,5 +1,4 @@
 import logging
-import time
 
 import Adafruit_BBIO.PWM as PWM
 
@@ -10,10 +9,6 @@ from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAware
 
 class ReefingDriver(PositionAwareDriverBase):
 
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        return True
-
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
         self.pwm_pin = "P9_14"
@@ -23,6 +18,8 @@ class ReefingDriver(PositionAwareDriverBase):
 
     def setup(self) -> None:
         super().setup()
+        self.register_thread('device-command', self.device_command)
+
         PWM.start(self.pwm_pin, 0)
         self.current_reef_amount = 0
 
@@ -53,4 +50,4 @@ class ReefingDriver(PositionAwareDriverBase):
 
             # This check/update ensures that a crash somewhere that prevents position updates will cause a full dis-reef
             self.old_position = self.latest_position
-            time.sleep(self.update_interval)
+            self.thread_sleep(logger, self.update_interval)

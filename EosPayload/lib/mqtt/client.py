@@ -1,4 +1,5 @@
 from typing import Any, Callable
+import threading
 
 import paho.mqtt.client as mosquitto
 
@@ -43,4 +44,8 @@ class Client(mosquitto.Client):
         """
         self.message_callback_add(topic, callback)
         self.subscribe(topic, QOS.DELIVER_AT_MOST_ONCE)
+
+    def get_thread(self) -> threading.Thread | None:
+        """ :return: the MQTT background thread or None if none exists """
+        return self._thread
 
