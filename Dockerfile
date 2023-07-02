@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Docker compose mounts EosPayload into this directory
 ENV PYTHONPATH /usr/src/app/EosPayload
 
-CMD [ "python", "-m", "EosPayload", "-o", "eos_artifacts"]
+CMD [ "python", "-m", "EosPayload", "-o", "eos_artifacts", "-c", "config.json"]

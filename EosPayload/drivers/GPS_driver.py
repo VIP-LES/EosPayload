@@ -11,7 +11,7 @@ from EosLib.packet.packet import DataHeader, Packet
 from EosLib.packet.definitions import Type, Priority
 import datetime
 
-from EosPayload.lib.position_aware_driver_base import PositionAwareDriverBase
+from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
 
@@ -40,18 +40,6 @@ class GPSDriver(PositionAwareDriverBase):
 
         self.gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
         self.gps.send_command(b"PMTK220,1000")
-
-    @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.GPS
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "GPS-Driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:

@@ -13,7 +13,7 @@ from digi.xbee.devices import XBee64BitAddress
 from EosLib.device import Device
 from EosLib.packet.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
-from EosPayload.lib.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 
@@ -67,14 +67,6 @@ class RadioDriver(DriverBase):
             except Exception as e:
                 self._logger.error(f"radio port not open: {e}")
                 time.sleep(10)
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.RADIO
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "radio-driver"
 
     @staticmethod
     def read_thread_enabled() -> bool:
