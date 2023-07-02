@@ -30,8 +30,8 @@ class CutdownDriver(PositionAwareDriverBase):
     def read_thread_enabled() -> bool:
         return True
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict) -> None:
+        super().__init__(output_directory, config)
         self.has_triggered = False
         self._command_queue = Queue()
 

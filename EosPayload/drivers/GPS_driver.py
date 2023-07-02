@@ -17,8 +17,8 @@ from EosPayload.lib.mqtt import Topic
 class GPSDriver(PositionAwareDriverBase):
     data_time_format = "%H:%M:%S %d/%m/%Y"
 
-    def __init__(self, output_directory: str):
-        super().__init__(output_directory)
+    def __init__(self, output_directory: str, config: dict) -> None:
+        super().__init__(output_directory, config)
         self.emit_rate = datetime.timedelta(seconds=1)
         self.transmit_rate = datetime.timedelta(seconds=10)
         self.state_update_rate = datetime.timedelta(seconds=15)
