@@ -1,7 +1,8 @@
-import threading
 from datetime import datetime
 import logging
 import os
+import sys
+import threading
 import time
 import traceback
 
@@ -13,11 +14,17 @@ from EosLib.device import Device
 
 from EosLib.packet.packet import Packet
 
+from EosPayload.lib.thread_container import ThreadStatus, ThreadContainer
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
+from EosPayload.lib.util import validate_process_name
+
 
 class DriverBase:
+
+    _mqtt: Client | None
+    __threads: dict[str, ThreadContainer]
 
     #
     # CONFIGURATION
@@ -41,23 +48,6 @@ class DriverBase:
         # Exists mostly for backwards compatibility
         return self._config.get('name')
 
-
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        """ [OPTIONAL] Defaults to False.  device_read() should be overriden if enabled
-
-        :return: True if read thread is enabled, False otherwise.
-        """
-        return False
-
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        """ [OPTIONAL] Defaults to False.  device_command() should be overriden if enabled
-
-        :return: True if command thread is enabled, False otherwise.
-        """
-        return False
-
     @staticmethod
     def get_required_config_fields() -> list[str]:
         """ [OPTIONAL] Defaults to empty list. Provides a list of names of required config fields which must be
@@ -71,7 +61,7 @@ class DriverBase:
     # INITIALIZATION AND DESTRUCTION METHODS
     #
 
-    def __init__(self, output_directory: str, config: dict):
+    def __init__(self, output_directory: str, config: dict) -> None:
         """ Driver constructor.  Responsible for initialization tasks.
         Should only be overriden by subclasses to initialize instance variables to zero-values/constants.
         Calling `super().__init__(output_directory)` at the beginning is required.
@@ -85,12 +75,12 @@ class DriverBase:
         #
 
         # private -- these variables should never be referenced by subclasses
-        self.__read_thread = None
-        self.__command_thread = None
+        self.__threads = {}
+        self.__stop_signal = threading.Event()
         self.__data_file = None
 
         # protected -- these variables may be referenced by subclasses.  see restrictions below.
-        self._logger = None  # may be referenced by subclasses only in methods that run in the main thread (setup, cleanup, etc)
+        self._logger = None  # may be referenced only in methods that run in the main thread (setup, cleanup, etc)
         self._mqtt = None
         self._output_directory = None
 
@@ -105,17 +95,10 @@ class DriverBase:
         # set up output location and data file
         self._output_directory = output_directory
         # I don't think there's a need for validation here since orchEOStrator guarantees it's set up
-        self.__data_file = open(os.path.join(self._output_directory, 'data', self._pretty_id + '.dat'), 'a')
 
         # set up logging
         init_logging(os.path.join(self._output_directory, 'logs', self._pretty_id + '.log'))
         self._logger = logging.getLogger(self._pretty_id)
-
-        # set up mqtt
-        try:
-            self._mqtt = Client(MQTT_HOST)
-        except Exception as e:
-            self._logger.critical(f"Failed to setup MQTT: {e}\n{traceback.format_exc()}")
 
         self._logger.info("init complete")
 
@@ -126,23 +109,55 @@ class DriverBase:
         Declare instance variables by overriding __init__ to set them to zero-values.  Define them here.
         Recommended to call super().setup() in first line of implementation.
         """
-        pass
+        # unset stop signal if cleanup() was called prior
+        if self.__stop_signal.is_set():
+            self.__stop_signal.clear()
+
+        # for completeness
+        self.__threads['main'] = ThreadContainer('main', threading.main_thread(), ThreadStatus.ALIVE)
+
+        # set up mqtt
+        try:
+            self._mqtt = Client(MQTT_HOST)
+            self.__threads['mqtt'] = ThreadContainer('mqtt', self._mqtt.get_thread(), ThreadStatus.ALIVE)
+        except Exception as e:
+            self._logger.critical(f"Failed to setup MQTT: {e}\n{traceback.format_exc()}")
+
+        # open data file
+        self.__data_file = open(os.path.join(self._output_directory, 'data', self._pretty_id + '.dat'), 'a')
 
     def __del__(self):
         """ Driver destructor.  Responsible for cleanup tasks on graceful shutdown.
         Should never be overriden by subclasses.  Use the cleanup() method instead.
         """
         self.cleanup()
-        self.__data_file.close()
         logging.shutdown()
 
     def cleanup(self):
         """ [OPTIONAL] Subclass-defined method to do any clean-up / deinitialization on graceful shutdown.
         Executes in Driver Main Thread.
         This method will not execute on an unexpected termination and therefore shouldn't be heavily relied upon.
-        Recommended to call super().cleanup() in last line of implementation.
+        Required to call super().cleanup() in last line of implementation.
+        This method requests all non-main threads to terminate.  If stop_signal is not respected in a
+        thread main function, or the thread is hanging, the cleanup will not in fact be clean
         """
-        pass
+        self._logger.info("Starting cleanup")
+
+        # close data file
+        self.__data_file.flush()
+        self.__data_file.close()
+
+        # kill mqtt client
+        self._mqtt.loop_stop()  # blocking.  this will join the thread, no way around it sadly
+        self._mqtt.disconnect()
+        self._mqtt.__del__()  # explicitly closing sockets just in case
+        self._mqtt = None
+
+        # request shutdown for all registered threads
+        self.__stop_signal.set()
+        self.__threads = {}
+
+        self._logger.info("Cleanup complete")
 
     #
     # CORE METHODS
@@ -166,118 +181,138 @@ class DriverBase:
 
             # thread setup
 
-            if self.read_thread_enabled():
-                self._logger.info("starting read thread")
-                read_logger = logging.getLogger(self._pretty_id + '.device_read')
-                self.__read_thread = threading.Thread(
-                    None,
-                    self.__device_read_wrapper,
-                    f"{self.get_device_id()}-read-thread",
-                    (),
-                    {"logger": read_logger}
-                )
-                self.__read_thread.daemon = True
-                self.__read_thread.start()
-            else:
-                self._logger.info("skipping starting read thread because it is not enabled")
+            self._logger.info("starting threads")
+            thread_container: ThreadContainer
+            for name, thread_container in self.__threads.items():
+                if thread_container.status == ThreadStatus.REGISTERED:
+                    try:
+                        thread_container.thread.start()
+                        thread_container.status = ThreadStatus.ALIVE
+                    except RuntimeError as err:
+                        self._logger.critical(f"failed to start thread '{name}': {err}\n{traceback.format_exc()}")
+                        thread_container.status = ThreadStatus.INVALID
 
-            if self.command_thread_enabled():
-                self._logger.info("starting command thread")
-                command_logger = logging.getLogger(self._pretty_id + '.device_command')
-                self.__command_thread = threading.Thread(
-                    None,
-                    self.__device_command_wrapper,
-                    f"{self.get_device_id()}-command-thread",
-                    (),
-                    {"logger": command_logger}
-                )
-                self.__command_thread.daemon = True
-                self.__command_thread.start()
-            else:
-                self._logger.info("skipping starting command thread because it is not enabled")
+            self._logger.info("done starting threads")
 
             self._logger.info("device startup complete")
 
             # health check loop
             while True:
                 if not self.is_healthy():
-                    read_thread_message = "disabled"
-                    if self.read_thread_enabled():
-                        read_thread_message = str(self.__read_thread.is_alive())
-                    command_thread_message = "disabled"
-                    if self.command_thread_enabled():
-                        command_thread_message = self.__command_thread.is_alive()
-                    self._logger.error(
-                        f"device unhealthy:"
-                        f"\n\tread_thread running: {read_thread_message}"
-                        f"\n\tcommand thread running: {command_thread_message}"
-                    )
+                    log_message = f"device unhealthy:"
+                    for name, thread_container in self.__threads.items():
+                        if thread_container.status == ThreadStatus.ALIVE and not thread_container.thread.is_alive():
+                            thread_container.status = ThreadStatus.DEAD
+                        log_message += f"\n\tthread-{name} status: {thread_container.status.name}"
+                    self._logger.critical(log_message)
 
                 self.__send_heartbeat()
                 time.sleep(10)
         except Exception as err:
             self._logger.error(f"Error occurred in driver run() method: {err}\n{traceback.format_exc()}")
 
-    def device_read(self, logger: logging.Logger) -> None:
-        """ [OPTIONAL] Main function for Driver Read Thread.
-        Used to read from device.
-        Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
-
-        :param logger: can be used to log info / error messages to disk and console
-        """
-        logger.info("device_read not implemented for this driver")
-        self.spin()
-
-    def __device_read_wrapper(self, logger: logging.Logger) -> None:
-        """ Runs the device_read function with exception reporting.  Do not override.
-
-        :param logger: can be used to log info / error messages to disk and console
-        """
-        try:
-            self.device_read(logger)
-        except Exception as err:
-            self._logger.critical(f"Fatal error occurred in read thread: {err}\n{traceback.format_exc()}")
-
-    def device_command(self, logger: logging.Logger) -> None:
-        """ [OPTIONAL] Main function for Driver Command Thread.
-        Used to write to device.
-        Method should not return, which would terminate the thread.  Use self.spin() to keep alive.
-
-        :param logger: can be used to log info / error messages to disk and console
-        """
-        logger.info("device_command not implemented for this driver")
-        self.spin()
-
-    def __device_command_wrapper(self, logger: logging.Logger) -> None:
-        """ Runs the device_command function with exception reporting.  Do not override.
-
-        :param logger: can be used to log info / error messages to disk and console
-        """
-        try:
-            self.device_command(logger)
-        except Exception as err:
-            self._logger.critical(f"Fatal error occurred in command thread: {err}\n{traceback.format_exc()}")
-
     #
-    # UTILITY METHODS
+    # THREADING METHODS
     #
+
+    def register_thread(self, name: str, thread_main: callable) -> None:
+        """ [OPTIONAL] Invoke this method in setup() to declare a driver thread.  Threads run in parallel
+        (simultaneously) and you should take care to use thread-safe data structures and constructs for any shared
+        data.
+
+        :param name: a unique alphanumeric (+hyphens) identifier for the thread
+        :param thread_main: the main function for the thread.  Should take three params: self, and a logging.Logger
+                            object.  The function must use the provided logger not self._logger.  The function must
+                            call self.check_stop_signal() at least once per second, which may also be accomplished by
+                            calling self.thread_sleep() instead of time.sleep() within an infinite loop.  The function
+                            should have return type None; any returned value will be ignored.
+        """
+        if not validate_process_name(name):
+            self._logger.critical(f"Failed to register thread '{name}':"
+                                  f" name must be alphanumeric (hyphens also allowed)")
+            self.__threads[name] = ThreadContainer(name, None, ThreadStatus.INVALID)
+            return
+        elif name in self.__threads.keys():
+            self._logger.critical(f"Failed to register thread '{name}':"
+                                  f" a thread with the same name has already been registered")
+            self.__threads[name] = ThreadContainer(name, None, ThreadStatus.INVALID)
+            return
+
+        full_name = f"{self.get_device_id()}-thread-{name}"
+        thread_logger = logging.getLogger(self._pretty_id + f".thread-{name}")
+
+        thread = threading.Thread(
+            None,
+            self.__thread_wrapper,
+            full_name,
+            (),
+            {"logger": thread_logger, "thread_main": thread_main}
+        )
+        thread.daemon = True
+
+        self.__threads[name] = ThreadContainer(name, thread, ThreadStatus.REGISTERED)
+        self._logger.info(f"registered thread '{name}' with main method '{thread_main.__name__}'")
 
     @staticmethod
-    def spin() -> None:
-        """ Loops forever. """
+    def __thread_wrapper(logger: logging.Logger, thread_main: callable) -> None:
+        """ Runs the thread_main function with exception reporting.  Do not override.
+
+        :param logger: can be used to log info / error messages to disk and console
+        :param thread_main: the main method for the thread
+        """
+        try:
+            thread_main(logger)
+        except Exception as err:
+            logger.critical(f"Terminating due to fatal uncaught exception: {err}\n{traceback.format_exc()}")
+
+    def check_stop_signal(self, logger: logging.Logger) -> None:
+        """ Terminates the thread upon receiving the stop signal.
+        This method must be periodically invoked by registered threads within the thread's main function.
+
+        :param logger:
+        """
+        if self.__stop_signal.is_set():
+            logger.info("Received stop signal, terminating")
+            sys.exit()
+
+    def thread_sleep(self, logger: logging.Logger, seconds: float) -> None:
+        """ Sleeps a thread while secretly checking for the stop signal every second
+
+        :param logger:
+        :param seconds:
+        """
+        elapsed = 0.0
+        while elapsed < seconds:
+            sleep_seconds = min(seconds - elapsed, 1.0)
+            time.sleep(sleep_seconds)
+            elapsed += sleep_seconds
+            self.check_stop_signal(logger)
+
+    def thread_spin(self, logger: logging.Logger) -> None:
+        """ Keeps a thread alive by spinning forever (unless the stop signal is received)
+
+        :param logger:
+        """
         while True:
-            time.sleep(10)
+            self.thread_sleep(logger, 1)
+
+    #
+    # HEALTH REPORTING METHODS
+    #
 
     def is_healthy(self) -> bool:
-        """ Reports if the driver is operating properly
+        """ [OPTIONAL] Reports if the driver is operating properly
 
         :return: True if all threads are alive, False otherwise
         """
 
-        read_thread_healthy = self.__read_thread.is_alive() if self.read_thread_enabled() else True
-        command_thread_healthy = self.__command_thread.is_alive() if self.command_thread_enabled() else True
-
-        return read_thread_healthy and command_thread_healthy
+        all_threads_alive = True
+        for thread_container in self.__threads.values():
+            if thread_container.status != ThreadStatus.ALIVE:
+                return False
+            else:
+                all_threads_alive &= thread_container.thread.is_alive()
+        return all_threads_alive
 
     def __send_heartbeat(self) -> bool:
         """ Dispatches a heartbeat message to MQTT.
@@ -287,8 +322,6 @@ class DriverBase:
           single utf8-encoded CSV row of the following fields:
             is_healthy: 0 if unhealthy, 1 if healthy
             thread_count: number of threads in use
-            read_thread_status: -1 if dead, 0 if disabled, 1 if running
-            command_thread_status: -1 if dead, 0 if disabled, 1 if running
 
         :return: True if heartbeat successfully sent, False otherwise
         """
@@ -299,23 +332,9 @@ class DriverBase:
                 sender=self.get_device_id(),
                 priority=Priority.NO_TRANSMIT,
             )
-            read_thread_status = 0
-            if self.read_thread_enabled():
-                if self.__read_thread.is_alive():
-                    read_thread_status = 1
-                else:
-                    read_thread_status = -1
-            command_thread_status = 0
-            if self.command_thread_enabled():
-                if self.__command_thread.is_alive():
-                    command_thread_status = 1
-                else:
-                    command_thread_status = -1
             status = ','.join([
                 str(int(self.is_healthy())),
                 str(threading.active_count()),
-                str(read_thread_status),
-                str(command_thread_status)
             ])
             packet = Packet(
                 data_header=header,
@@ -332,6 +351,10 @@ class DriverBase:
         else:
             self._logger.warning("heartbeat failed to send")
         return succeeded
+
+    #
+    # DATA REPORTING METHODS
+    #
 
     def data_log(self, data: list[str]) -> bool:
         """ Logs row of data to a CSV file

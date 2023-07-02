@@ -1,6 +1,4 @@
 import logging
-import time
-
 import board
 import busio
 from adafruit_bno055 import BNO055_I2C
@@ -23,9 +21,9 @@ class TelemetryI2CDriver(DriverBase):
         self.bno = None
         self.i2c = None
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
+    def setup(self) -> None:
+        super().setup()
+        self.register_thread('device-read', self.device_read)
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
@@ -69,5 +67,5 @@ class TelemetryI2CDriver(DriverBase):
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
 
             count += 1
-            time.sleep(2)
+            self.thread_sleep(logger, 2)
 

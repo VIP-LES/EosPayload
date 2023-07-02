@@ -13,12 +13,12 @@ class TestQueueDriver(DriverBase):
         super().__init__(output_directory, config)
         self._thread_queue = PriorityQueue()
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
+    def setup(self) -> None:
+        super().setup()
+        self.register_thread('device-read', self.device_read)
+        self.register_thread('device-command', self.device_command)
 
     def device_read(self, logger: logging.Logger) -> None:
-
         counter = 0
         while True:
             for priority in [randint(0, 10) for _i in range(0, 10)]:
@@ -27,15 +27,10 @@ class TestQueueDriver(DriverBase):
                 counter = counter + 1
                 time.sleep(0.001)
 
-            time.sleep(10)
-
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        return True
+            self.thread_sleep(logger, 10)
 
     def device_command(self, logger: logging.Logger) -> None:
-
         while True:
             (priority, timestamp, value) = self._thread_queue.get()
             logger.info(f"popped item #{value} (priority = {priority}, timestamp = {timestamp})")
-            time.sleep(0.1)
+            self.thread_sleep(logger, 0.1)

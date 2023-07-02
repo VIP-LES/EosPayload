@@ -1,5 +1,4 @@
 import logging
-import time
 import busio
 import traceback
 from EosPayload.lib.base_drivers.driver_base import DriverBase
@@ -12,11 +11,8 @@ import adafruit_ltr390
 import adafruit_shtc3
 import adafruit_bmp3xx
 
-class ScienceDriver(DriverBase):
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return False
+class ScienceDriver(DriverBase):
 
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
@@ -30,6 +26,8 @@ class ScienceDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+        self.register_thread('device-read', self.device_read)
+
         self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
 
         self.sht = adafruit_shtc3.SHTC3(self.i2c)
@@ -43,8 +41,6 @@ class ScienceDriver(DriverBase):
         logger.info("Starting to poll for science data!")
 
         while True:
-            time.sleep(1)
-
             try:
                 row = []
 
@@ -93,4 +89,4 @@ class ScienceDriver(DriverBase):
                                       f"\n{traceback.format_exc()}")
 
             self.count += 1
-            time.sleep(1)
+            self.thread_sleep(logger, 1)

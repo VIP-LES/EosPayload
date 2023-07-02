@@ -9,10 +9,6 @@ from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 class Camera1Driver(DriverBase):
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
-
     def video_writer_setup(self):
         return cv2.VideoWriter(os.path.join(self.path, self.video_name_format.format(self.video_num)),
                                self.fourcc, self.camera_fps, self.camera_res)
@@ -44,6 +40,9 @@ class Camera1Driver(DriverBase):
         self.still_num = 0
 
     def setup(self) -> None:
+        super().setup()
+        self.register_thread('device-read', self.device_read)
+
         self.still_name_format = "camera-{camera}-still-image-{num}.jpg".format(camera=self.camera_num, num='{}')
         self.video_name_format = "camera-{camera}-video-{num}.avi".format(camera=self.camera_num, num='{}')
         self.video_num = self.find_next_file_num(self.video_name_format)
@@ -93,7 +92,7 @@ class Camera1Driver(DriverBase):
                 video_start_time = datetime.datetime.now()
                 self.out.release()
                 self.out = self.video_writer_setup()
-            time.sleep(1/self.camera_fps)
+            self.thread_sleep(logger, 1/self.camera_fps)
             ret, frame = self.cap.read()
             if not ret:
                 logger.warning("Video frame capture failed")
