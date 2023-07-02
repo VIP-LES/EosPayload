@@ -10,6 +10,7 @@ from EosLib import device
 from EosPayload import drivers
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status
+from EosPayload.lib.util import validate_process_name
 
 
 class OrcheostratorConfig:
@@ -90,7 +91,7 @@ class OrcheostratorConfigParser:
         device_name = device_config.get("name")
 
         if device_name is not None and \
-            (not device_name.isascii() or not device_name.replace("-", "").isalnum()):
+            (not validate_process_name(device_name)):
             self.logger.warning(f"Device name \"{device_name}\" is invalid, falling back to generated name")
 
         if device_name is None:

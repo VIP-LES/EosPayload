@@ -10,7 +10,7 @@ Eos is the software platform for Georgia Tech's "Lightning from the Edge of Spac
 2. Clone the repo: `git clone https://github.com/VIP-LES/EosPayload.git`
 3. Initialize virtual env: `python -m venv venv` (PyCharm can also do this for you)
 4. Run `source ./venv/bin/activate` (linux / mac) or `.\venv\Scripts\activate` (windows).  You'll have to do this every time you want to enter the venv. 
-5. Install dependencies: `pip install -r requirements.txt` 
+5. Install dependencies: `pip install -r requirements.txt`.  On Windows where some dependencies can't be installed, this command may be useful: `FOR /F %k in (requirements.txt) DO ( if NOT # == %k ( pip install %k ) )` 
 6. Install Eclipse Mosquitto: https://mosquitto.org/download/
 
 Note: to exit the venv, run `deactivate`
@@ -60,7 +60,7 @@ Pre-req: Start the MQTT server by running mosquitto (see above)
 - Add all new drivers to `EosPayload/drivers`.
 - You must extend DriverBase or a derivative of DriverBase, which provide several functions out-of-the-box to simplify development and multithreading.
 - Keep the driver runner code tidy.  Consider making a file or module in `EosPayload/Lib` to put your logic
-- DriverBase offers two threads for Drivers to implement: device_read() and device_command().  Most drivers will not need to use both
+- DriverBase allows for multithreaded drivers.  Most drivers will need to spawn at least one extra thread.  See the docstring for `DriverBase.register_thread()`
 
 ### Configuring Payload and Drivers
 Each Payload is configured with a JSON file, by default it is stored at `config.json`, though a custom path can be set 

@@ -1,6 +1,5 @@
 from enum import Enum, unique
 import logging
-import time
 import traceback
 
 from EosLib import Priority, Type
@@ -33,9 +32,9 @@ class PingDriver(DriverBase):
         ACK = "ACK"
         ERR = "ERR"
 
-    @staticmethod
-    def command_thread_enabled() -> bool:
-        return True
+    def setup(self) -> None:
+        super().setup()
+        self.register_thread('device-command', self.device_command)
 
     def device_command(self, logger: logging.Logger) -> None:
         if self._mqtt:
@@ -45,7 +44,7 @@ class PingDriver(DriverBase):
         while True:
             self.ping_ground(counter, logger)
             counter = counter + 1
-            time.sleep(60)
+            self.thread_sleep(logger, 60)
 
     def ping_reply(self, client, user_data, message):
         try:
