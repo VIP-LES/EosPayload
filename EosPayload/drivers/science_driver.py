@@ -81,6 +81,10 @@ class ScienceDriver(DriverBase):
                         concentration units (standard): pm 1.0, pm 2.5, pm 10.0,
                         concentration units (environmental): pm 1.0, pm 2.5, pm 10.0,
                         particles > 0.3um / 0.1L air, > 0.5um, > 1.0um, > 2.5um, > 5.0um, > 10.0um
+
+                        From library docs: Note that “standard” concentrations are those when corrected to standard
+                        atmospheric conditions (288.15 K, 1013.25 hPa), and “environmental” concentrations are those
+                        measured in the current atmospheric conditions.
                     '''
                     self.data_log(row)
                 except Exception as e:
