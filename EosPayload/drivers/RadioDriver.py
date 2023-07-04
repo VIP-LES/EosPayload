@@ -34,16 +34,19 @@ class RadioDriver(DriverBase):
 
         serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
         context = pyudev.Context()
-        devices = context.list_devices(ID_SERIAL=serial_id)
         device_list = []
-        for device in devices:
-            device_list.append(device)
-        if len(device_list) == 0:
-            self._logger.error("Could not find device")
-            raise EnvironmentError()
-        xbee_node = None
+        retries_left = 4
+        while retries_left > 0:
+            retries_left -= 1
+            device_list = list(context.list_devices(ID_SERIAL=serial_id))
+            if len(device_list) > 0:
+                self._logger.info(f"Detected serial devices: {device_list}")
+                break
+            else:
+                self._logger.error(f"Could not find device.  Retries left: {retries_left}")
+                time.sleep(3)
 
-        self._logger.info(device_list)
+        xbee_node = None
         for device in device_list:
             self._logger.info(f'trying {device.device_node}')
             try:
@@ -53,7 +56,7 @@ class RadioDriver(DriverBase):
                 xbee_node = device.device_node
                 break
             except Exception as e:
-                self._logger.info(e)
+                self._logger.info(f"Got exception while trying {device.device_node}: {e}")
             finally:
                 self.test_port.close()
 
