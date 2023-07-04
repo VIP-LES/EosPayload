@@ -51,25 +51,33 @@ class Camera1Driver(DriverBase):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-        self.cap = cv2.VideoCapture(self.camera_num)
-        self._logger.info(f'Setting up camera {self.camera_num}')
-        self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 32)
-        self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_res[0])
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.camera_res[1])
-        self.cap.set(cv2.CAP_PROP_FPS, self.camera_fps)
-        self.cap.set(cv2.CAP_PROP_FOURCC, self.fourcc)
-        self.out = self.video_writer_setup()
-        try:
-            assert self.cap.isOpened()
-        except AssertionError:
-            self._logger.warning(f'Unable to open camera')
+        retries_left = 4
+        while retries_left > 0:
+            retries_left -= 1
+            self.cap = cv2.VideoCapture(self.camera_num)
+            self._logger.info(f'Setting up camera {self.camera_num}')
+            self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 32)
+            self.cap.set(cv2.CAP_PROP_CONTRAST, 16)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_res[0])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.camera_res[1])
+            self.cap.set(cv2.CAP_PROP_FPS, self.camera_fps)
+            self.cap.set(cv2.CAP_PROP_FOURCC, self.fourcc)
+            if self.cap.isOpened():
+                self._logger.info(f"Camera {self.camera_num} opened")
+                break
+            else:
+                self._logger.error(f'Unable to open camera {self.camera_num}.  Retries left: {retries_left}')
+                time.sleep(3)
 
-        try:
-            assert self.out.isOpened()
-        except AssertionError:
-            self._logger.warning(f'Unable to open video writer')
-            raise EnvironmentError
+        retries_left = 4
+        while retries_left > 0:
+            retries_left -= 1
+            self.out = self.video_writer_setup()
+            if self.out.isOpened():
+                self._logger.info("Video writer opened")
+            else:
+                self._logger.error(f"Unable to open video writer.  Retries left: {retries_left}")
+                time.sleep(3)
 
         time.sleep(1)
 
@@ -85,7 +93,7 @@ class Camera1Driver(DriverBase):
 
         last_still_time = datetime.datetime.now()
         video_start_time = datetime.datetime.now()
-        logger.info("Starting to poll for data!")
+        logger.info("Starting frame capture loop!")
         while True:
             if self.cap.isOpened():
                 if (datetime.datetime.now() - video_start_time) > self.video_capture_length:
@@ -107,6 +115,6 @@ class Camera1Driver(DriverBase):
                     last_still_time = datetime.datetime.now()
                 self.out.write(frame)
             else:
-                logger.warning("Video writer is not open")
+                logger.warning("Camera is not open")
                 self.thread_sleep(logger, 1)
 
