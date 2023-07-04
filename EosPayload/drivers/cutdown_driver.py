@@ -2,7 +2,6 @@ from queue import Queue
 import logging
 import time
 
-from EosLib.device import Device
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
@@ -12,7 +11,7 @@ import Adafruit_BBIO.GPIO as GPIO
 class CutdownDriver(PositionAwareDriverBase):
     cutdown_pin = "P8_10"
     time_pulled_high = 7  # seconds
-    auto_cutdown_altitude = 21000
+    auto_cutdown_altitude = 23000
 
     def __init__(self, output_directory: str, config: dict) -> None:
         super().__init__(output_directory, config)
@@ -68,5 +67,3 @@ class CutdownDriver(PositionAwareDriverBase):
         user_data['logger'].info("received cutdown command")
         user_data['queue'].put(1)
 
-    def cleanup(self):
-        GPIO.cleanup()
