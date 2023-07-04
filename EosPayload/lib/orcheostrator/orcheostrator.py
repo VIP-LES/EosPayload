@@ -165,7 +165,8 @@ class OrchEOStrator:
                     driver.update_status(Status.TERMINATED)
 
                 # auto set unhealthy if we haven't had a ping in the last 30s from this device
-                if driver.status == Status.HEALTHY and driver.status_since < (datetime.now() - timedelta(seconds=30)):
+                if driver.status in [Status.INITIALIZED, Status.HEALTHY] \
+                        and driver.status_since < (datetime.now() - timedelta(seconds=30)):
                     self._logger.critical(f"haven't received a health ping from driver {key} in 30s -- marking unhealthy")
                     driver.update_status(Status.UNHEALTHY)
 
