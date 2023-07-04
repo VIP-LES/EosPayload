@@ -1,0 +1,10 @@
+# Based on https://www.bacpeters.com/2020/01/25/configuring-the-beaglebone-black-gpio-pins-permanently/
+[Unit]
+Description=Setup for BBB pins
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/debian/EosPayload/beaglebone_pin_setup/pin_setup.sh
+
+[Install]
+WantedBy=multi-user.target
