@@ -66,7 +66,7 @@ class Camera1Driver(DriverBase):
                 self._logger.info(f"Camera {self.camera_num} opened")
                 break
             else:
-                self._logger.error(f'Unable to open camera {self.camera_num}.  Retries left: {retries_left}')
+                self._logger.error(f"Failed to open camera {self.camera_num}.  Retries left: {retries_left}")
                 time.sleep(3)
 
         retries_left = 4
@@ -75,8 +75,9 @@ class Camera1Driver(DriverBase):
             self.out = self.video_writer_setup()
             if self.out.isOpened():
                 self._logger.info("Video writer opened")
+                break
             else:
-                self._logger.error(f"Unable to open video writer.  Retries left: {retries_left}")
+                self._logger.error(f"Failed to open video writer.  Retries left: {retries_left}")
                 time.sleep(3)
 
         time.sleep(1)
