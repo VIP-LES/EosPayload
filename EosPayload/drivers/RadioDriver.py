@@ -27,6 +27,11 @@ class RadioDriver(DriverBase):
         Device.CUTDOWN: Topic.CUTDOWN_COMMAND
     }
 
+    def __init__(self, output_directory: str, config: dict) -> None:
+        super().__init__(output_directory, config)
+        self.port = None
+        self.remote = None
+
     def setup(self) -> None:
         super().setup()
         self.register_thread('device-read', self.device_read)
@@ -46,32 +51,23 @@ class RadioDriver(DriverBase):
                 self._logger.error(f"Could not find device.  Retries left: {retries_left}")
                 time.sleep(3)
 
-        xbee_node = None
         for device in device_list:
-            self._logger.info(f'trying {device.device_node}')
+            self._logger.info(f"Trying to initialize XBee with device {device.device_node}")
             try:
-                self.test_port = XBeeDevice(device.device_node, 9600)
-                self.test_port.open()
-                self.test_port.send_data_broadcast("Testing")
-                xbee_node = device.device_node
-                break
-            except Exception as e:
-                self._logger.info(f"Got exception while trying {device.device_node}: {e}")
-            finally:
-                self.test_port.close()
-
-        con = True
-        while con:
-            try:
-                self.port = XBeeDevice(xbee_node, 9600)
+                self._logger.info("Configuring port")
+                self.port = XBeeDevice(device.device_node, 9600)
+                self._logger.info("Opening port")
                 self.port.open()
+                self._logger.info("Sending test broadcast")
+                self.port.send_data_broadcast("Testing")
+                self._logger.info("Configuring remote")
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
                 self.remote.disable_acknowledgement = True
-                con = False
+                self._logger.info("Successfully initialized XBee")
+                break
             except Exception as e:
-                self._logger.error(f"radio port not open: {e}")
-                time.sleep(10)
+                self._logger.info(f"Got exception while trying device {device.device_node}: {e}")
 
     def device_read(self, logger: logging.Logger) -> None:
         # TODO: refactor to move this stuff to setup, a separate thread is pointless
