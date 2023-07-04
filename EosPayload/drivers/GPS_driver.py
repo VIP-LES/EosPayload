@@ -115,3 +115,4 @@ class GPSDriver(PositionAwareDriverBase):
 
     def cleanup(self):
         self.uart.close()
+        super().cleanup()

@@ -77,6 +77,7 @@ class Camera1Driver(DriverBase):
         self.cap.release()
         self.out.release()
         cv2.destroyAllWindows()
+        super().cleanup()
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting at video number {}".format(self.video_num))

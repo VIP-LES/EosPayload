@@ -27,5 +27,5 @@ class LEDDriver(DriverBase):
             self.thread_sleep(logger, 5)
 
     def cleanup(self):
-        super(LEDDriver, self).cleanup()
         GPIO.output(self.pin_name, 0)
+        super().cleanup()

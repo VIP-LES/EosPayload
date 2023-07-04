@@ -64,6 +64,7 @@ class ReefingDriver(PositionAwareDriverBase):
         self.set_reefing_level(0, self._logger)
         PWM.stop("P9_14")
         PWM.cleanup()
+        super().cleanup()
 
         '''
 

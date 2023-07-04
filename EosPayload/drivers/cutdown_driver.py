@@ -14,22 +14,6 @@ class CutdownDriver(PositionAwareDriverBase):
     time_pulled_high = 7  # seconds
     auto_cutdown_altitude = 21000
 
-    @staticmethod
-    def enabled() -> bool:
-        return True
-
-    @staticmethod
-    def get_device_id() -> Device:
-        return Device.CUTDOWN
-
-    @staticmethod
-    def get_device_name() -> str:
-        return "Cutdown-Driver"
-
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
-
     def __init__(self, output_directory: str, config: dict) -> None:
         super().__init__(output_directory, config)
         self.has_triggered = False
@@ -37,11 +21,18 @@ class CutdownDriver(PositionAwareDriverBase):
 
     def setup(self):
         super().setup()
+        self.register_thread('device-read', self.device_read)
+
         GPIO.setup(CutdownDriver.cutdown_pin, GPIO.OUT)
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         if self._mqtt:
-            self._mqtt.user_data_set({'logger': self._logger, 'queue': self._command_queue})
+            mqtt_logger = logging.getLogger(self._pretty_id + ".cutdown-subscriber")
+            self._mqtt.user_data_set({'logger': mqtt_logger, 'queue': self._command_queue})
             self._mqtt.register_subscriber(Topic.CUTDOWN_COMMAND, self.cutdown_trigger_mqtt)
+
+    def cleanup(self):
+        GPIO.cleanup()
+        super().cleanup()
 
     def device_read(self, logger: logging.Logger) -> None:
         while True:
@@ -76,22 +67,6 @@ class CutdownDriver(PositionAwareDriverBase):
     def cutdown_trigger_mqtt(client, user_data, message):
         user_data['logger'].info("received cutdown command")
         user_data['queue'].put(1)
-        '''
-        def device_read(self, logger: logging.Logger) -> None:
-            GPIO.output("P8_10", GPIO.LOW)
-            logger.info("Countdown")
-            for i in range(10):
-                logger.info("COUNT: " + str(i))
-                time.sleep(1)
-
-            GPIO.output("P8_10", GPIO.HIGH)
-            for i in range(5):
-                logger.info("COUNT: " + str(i))
-                time.sleep(1)
-
-            GPIO.output("P8_10", GPIO.LOW)
-            logger.info("END OF TEST")
-        '''
 
     def cleanup(self):
         GPIO.cleanup()
