@@ -86,22 +86,27 @@ class Camera1Driver(DriverBase):
         last_still_time = datetime.datetime.now()
         video_start_time = datetime.datetime.now()
         logger.info("Starting to poll for data!")
-        while self.cap.isOpened():
-            if (datetime.datetime.now() - video_start_time) > self.video_capture_length:
-                self.video_num += 1
-                logger.info("Starting video {}".format(self.video_num))
-                video_start_time = datetime.datetime.now()
-                self.out.release()
-                self.out = self.video_writer_setup()
-            self.thread_sleep(logger, 1/self.camera_fps)
-            ret, frame = self.cap.read()
-            if not ret:
-                logger.warning("Video frame capture failed")
+        while True:
+            if self.cap.isOpened():
+                if (datetime.datetime.now() - video_start_time) > self.video_capture_length:
+                    self.video_num += 1
+                    logger.info("Starting video {}".format(self.video_num))
+                    video_start_time = datetime.datetime.now()
+                    self.out.release()
+                    self.out = self.video_writer_setup()
+                self.thread_sleep(logger, 1/self.camera_fps)
+                ret, frame = self.cap.read()
+                if not ret:
+                    logger.warning("Video frame capture failed")
+                    continue
 
-            if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
-                cv2.imwrite(os.path.join(self.path, self.still_name_format.format(self.still_num)), frame)
-                logger.info("Saving still image {}".format(self.still_num))
-                self.still_num += 1
-                last_still_time = datetime.datetime.now()
-            self.out.write(frame)
+                if (datetime.datetime.now() - last_still_time) > self.still_capture_interval:
+                    cv2.imwrite(os.path.join(self.path, self.still_name_format.format(self.still_num)), frame)
+                    logger.info("Saving still image {}".format(self.still_num))
+                    self.still_num += 1
+                    last_still_time = datetime.datetime.now()
+                self.out.write(frame)
+            else:
+                logger.warning("Video writer is not open")
+                self.thread_sleep(logger, 1)
 
