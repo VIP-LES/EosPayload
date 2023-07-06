@@ -75,9 +75,10 @@ class OrchEOStrator:
     def terminate(self) -> None:
         self._logger.info("terminating processes")
         for device_id, device_container in self._drivers.items():
-            if device_container.status in [Status.HEALTHY, Status.UNHEALTHY]:
+            if device_container.status in [Status.INITIALIZED, Status.HEALTHY, Status.UNHEALTHY]:
                 self._logger.info(f"terminating process for device id {device_id}")
                 device_container.process.terminate()
+                device_container.process.close()
                 device_container.update_status(Status.TERMINATED)
 
     #
@@ -98,6 +99,10 @@ class OrchEOStrator:
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
                 proc.start()
+                time.sleep(0.5)
+                if not proc.is_alive():
+                    proc.close()
+                    raise Exception("process is not alive after start")
                 self._drivers[driver_config.get("device_id")] = container
             except Exception as e:
                 self._logger.critical("A fatal exception occurred when attempting to load driver from"
@@ -162,6 +167,8 @@ class OrchEOStrator:
                 # auto set terminated if it died
                 if driver.status in [Status.HEALTHY, Status.UNHEALTHY, Status.INITIALIZED] and (driver.process is None or not driver.process.is_alive()):
                     self._logger.critical(f"process for driver {key} is no longer running -- marking terminated")
+                    if driver.process is not None:
+                        driver.process.close()
                     driver.update_status(Status.TERMINATED)
 
                 # auto set unhealthy if we haven't had a ping in the last 30s from this device
