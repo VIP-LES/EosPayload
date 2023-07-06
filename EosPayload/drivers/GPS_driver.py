@@ -74,7 +74,6 @@ class GPSDriver(PositionAwareDriverBase):
                                                                            time_month, time_year)
                 data_datetime = datetime.datetime.strptime(data_datetime_string, GPSDriver.data_time_format)
                 date_time = data_datetime.timestamp()
-                logger.info(f"Parsed timestamp from GPS: {data_datetime.isoformat()} ({date_time})")
             except Exception as e:
                 data_datetime = datetime.datetime.now()
                 date_time = data_datetime.timestamp()
@@ -84,7 +83,10 @@ class GPSDriver(PositionAwareDriverBase):
                                "\nusing current system time instead")
 
             data_points = [date_time, gps_lat, gps_long, gps_alt, gps_speed, gps_sat]
-            self.data_log(data_points)
+            try:
+                self.data_log([str(datum) for datum in data_points])
+            except Exception as e:
+                logger.warning(f"exception thrown while logging data: {e}\n{traceback.format_exc()}")
 
             if None in data_points:
                 logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
