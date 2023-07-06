@@ -54,34 +54,18 @@ class GPSDriver(PositionAwareDriverBase):
                 self.thread_sleep(logger, 1)
                 continue
 
-            logger.info("=" * 40)
             time_hr = self.gps.timestamp_utc.tm_hour
             time_min = self.gps.timestamp_utc.tm_min
             time_sec = self.gps.timestamp_utc.tm_sec
             time_day = self.gps.timestamp_utc.tm_mday
             time_month = self.gps.timestamp_utc.tm_mon
             time_year = self.gps.timestamp_utc.tm_year
-            logger.info(
-                "Fix timestamp: {}/{}/{} {:02}:{:02}:{:02}".format(
-                    time_month,  # Grab parts of the time from the
-                    time_day,  # struct_time object that holds
-                    time_year,  # the fix time.  Note you might
-                    time_hr,  # not get all data like year, day,
-                    time_min,  # month!
-                    time_sec,
-                )
-            )
 
             gps_lat = self.gps.latitude
-            gps_lon = self.gps.longitude
+            gps_long = self.gps.longitude
             gps_alt = self.gps.altitude_m
             gps_speed = self.gps.speed_knots
             gps_sat = self.gps.satellites
-
-            logger.info("Latitude: {0:.6f} degrees".format(self.gps.latitude))
-            logger.info("Longitude: {0:.6f} degrees".format(self.gps.longitude))
-            if self.gps.altitude_m is not None:
-                logger.info("Altitude: {} meters".format(self.gps.altitude_m))
 
             # time
             try:
@@ -94,28 +78,35 @@ class GPSDriver(PositionAwareDriverBase):
             except Exception as e:
                 data_datetime = datetime.datetime.now()
                 date_time = data_datetime.timestamp()
-                logger.warning("Error parsing timestamp from GPS, using current system time instead:"
-                               f" {e}\n{traceback.format_exc()}")
+                logger.warning(f"Error parsing timestamp from GPS: {e}\n{traceback.format_exc()}"
+                               f"\nGPS time parts: hour={time_hr}, min={time_min}, sec={time_sec}, day={time_day}"
+                               f", month={time_month}, year={time_year}"
+                               "\nusing current system time instead")
 
-            logger.info(f"Timestamp: {data_datetime.isoformat()} ({date_time})")
+            data_points = [date_time, gps_lat, gps_long, gps_alt, gps_speed, gps_sat]
+            self.data_log(data_points)
 
-            position_bytes = Position.encode_position(date_time, float(gps_lat),
-                                                      float(gps_lon), float(gps_alt),
-                                                      float(gps_speed), int(gps_sat),
-                                                      self.current_flight_state)
+            if None in data_points:
+                logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
+                               f", alt={gps_alt}, speed={gps_speed}, sat={gps_sat}")
+            else:
+                position_bytes = Position.encode_position(date_time, float(gps_lat),
+                                                          float(gps_long), float(gps_alt),
+                                                          float(gps_speed), int(gps_sat),
+                                                          self.current_flight_state)
 
-            gps_packet = Packet(position_bytes, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
+                gps_packet = Packet(position_bytes, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
 
-            if self.gotten_first_fix is False:
-                position = Position.decode_position(gps_packet)
-                if position.valid:
-                    self.gotten_first_fix = True
-                    logger.info("Got first GPS fix")
+                if self.gotten_first_fix is False:
+                    position = Position.decode_position(gps_packet)
+                    if position.valid:
+                        self.gotten_first_fix = True
+                        logger.info("Got first valid GPS fix")
 
-            self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
-            if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
-                self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
-                self.last_transmit_time = datetime.datetime.now()
+                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
+                if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+                    self.last_transmit_time = datetime.datetime.now()
 
             self.thread_sleep(logger, 1)
 
