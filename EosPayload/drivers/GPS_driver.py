@@ -1,5 +1,7 @@
 import logging
 import queue
+import traceback
+
 import adafruit_gps
 import serial
 import Adafruit_BBIO.UART as UART
@@ -87,13 +89,17 @@ class GPSDriver(PositionAwareDriverBase):
                 data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day,
                                                                            time_month, time_year)
                 data_datetime = datetime.datetime.strptime(data_datetime_string, GPSDriver.data_time_format)
-                date_time = str(data_datetime.timestamp())
-            except Exception:
-                date_time = str(datetime.datetime.now())
+                date_time = data_datetime.timestamp()
+                logger.info(f"Parsed timestamp from GPS: {data_datetime.isoformat()} ({date_time})")
+            except Exception as e:
+                data_datetime = datetime.datetime.now()
+                date_time = data_datetime.timestamp()
+                logger.warning("Error parsing timestamp from GPS, using current system time instead:"
+                               f" {e}\n{traceback.format_exc()}")
 
-            logger.info(date_time)
+            logger.info(f"Timestamp: {data_datetime.isoformat()} ({date_time})")
 
-            position_bytes = Position.encode_position(float(date_time), float(gps_lat),
+            position_bytes = Position.encode_position(date_time, float(gps_lat),
                                                       float(gps_lon), float(gps_alt),
                                                       float(gps_speed), int(gps_sat),
                                                       self.current_flight_state)
