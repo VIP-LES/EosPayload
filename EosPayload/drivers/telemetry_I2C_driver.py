@@ -1,4 +1,6 @@
 import logging
+import traceback
+
 import board
 import busio
 from adafruit_bno055 import BNO055_I2C
@@ -38,10 +40,16 @@ class TelemetryI2CDriver(DriverBase):
                 x_rotation = self.bno.euler[0]
                 y_rotation = self.bno.euler[1]
                 z_rotation = self.bno.euler[2]
-                logger.info("Euler angle: {}".format(self.bno.euler))
-                logger.info("Temperature: {} degrees C".format(self.bno.temperature))
-            except:
-                temperature, x_rotation, y_rotation, z_rotation = -1
+            except Exception as e:
+                logger.error(f"failed to retrieve data from sensor: {e}\n{traceback.format_exc()}")
+                self.thread_sleep(logger, 2)
+                continue
+
+            try:
+                self.data_log([str(temperature), str(round(x_rotation, 4)),
+                               str(round(y_rotation, 4)), str(round(z_rotation, 4))])
+            except Exception as e:
+                logger.warning(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
 
             current_time = datetime.now()
 
