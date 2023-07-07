@@ -94,6 +94,9 @@ class RadioDriver(DriverBase):
                 new_transmit_header = TransmitHeader(self.sequence_number)
                 packet_from_mqtt.transmit_header = new_transmit_header
 
+                # Store to data file
+                self.data_log(["sending",packet_from_mqtt.encode_to_string()])
+
                 # add packet to queue
                 priority = packet_from_mqtt.data_header.priority
                 logger.info(f"Enqueuing packet seq={self.sequence_number}")
