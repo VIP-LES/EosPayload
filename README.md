@@ -100,3 +100,6 @@ If you plan to install/use EosPayload via docker, you can ignore all the above s
 3. Clone the repo: `git clone https://github.com/VIP-LES/EosPayload.git`
 4. Run `docker compose up`
 5. Everything should install and run automatically
+
+### Configuring BeagleBone Pins
+If you need to change the default pin behavior, you can add `config-pin` commands to `beaglebone_pin_setup/pin_setup.sh`, which runs on startup  

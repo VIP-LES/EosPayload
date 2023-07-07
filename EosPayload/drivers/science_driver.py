@@ -36,7 +36,13 @@ class ScienceDriver(DriverBase):
         self.tsl = adafruit_tsl2591.TSL2591(self.i2c)
         self.pm25 = PM25_I2C(self.i2c)
 
+    def cleanup(self):
+        if self.i2c is not None:
+            self.i2c.deinit()
+        super().cleanup()
+
     def device_read(self, logger: logging.Logger) -> None:
+
         logger.info("Starting to poll for science data!")
 
         while True:

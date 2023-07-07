@@ -24,8 +24,13 @@ class RadioDriver(DriverBase):
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
-        Device.MISC_ENGINEERING_2: Topic.CUTDOWN_COMMAND
+        Device.CUTDOWN: Topic.CUTDOWN_COMMAND
     }
+
+    def __init__(self, output_directory: str, config: dict) -> None:
+        super().__init__(output_directory, config)
+        self.port = None
+        self.remote = None
 
     def setup(self) -> None:
         super().setup()
@@ -34,41 +39,35 @@ class RadioDriver(DriverBase):
 
         serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
         context = pyudev.Context()
-        devices = context.list_devices(ID_SERIAL=serial_id)
         device_list = []
-        for device in devices:
-            device_list.append(device)
-        if len(device_list) == 0:
-            self._logger.error("Could not find device")
-            raise EnvironmentError()
-        xbee_node = None
-
-        self._logger.info(device_list)
-        for device in device_list:
-            self._logger.info(f'trying {device.device_node}')
-            try:
-                self.test_port = XBeeDevice(device.device_node, 9600)
-                self.test_port.open()
-                self.test_port.send_data_broadcast("Testing")
-                xbee_node = device.device_node
+        retries_left = 4
+        while retries_left > 0:
+            retries_left -= 1
+            device_list = list(context.list_devices(ID_SERIAL=serial_id))
+            if len(device_list) > 0:
+                self._logger.info(f"Detected serial devices: {device_list}")
                 break
-            except Exception as e:
-                self._logger.info(e)
-            finally:
-                self.test_port.close()
+            else:
+                self._logger.error(f"Could not find device.  Retries left: {retries_left}")
+                time.sleep(3)
 
-        con = True
-        while con:
+        for device in device_list:
+            self._logger.info(f"Trying to initialize XBee with device {device.device_node}")
             try:
-                self.port = XBeeDevice(xbee_node, 9600)
+                self._logger.info("Configuring port")
+                self.port = XBeeDevice(device.device_node, 9600)
+                self._logger.info("Opening port")
                 self.port.open()
+                self._logger.info("Sending test broadcast")
+                self.port.send_data_broadcast("Testing")
+                self._logger.info("Configuring remote")
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                     "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
                 self.remote.disable_acknowledgement = True
-                con = False
+                self._logger.info("Successfully initialized XBee")
+                break
             except Exception as e:
-                self._logger.error(f"radio port not open: {e}")
-                time.sleep(10)
+                self._logger.info(f"Got exception while trying device {device.device_node}: {e}")
 
     def device_read(self, logger: logging.Logger) -> None:
         # TODO: refactor to move this stuff to setup, a separate thread is pointless
@@ -77,7 +76,7 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
-            packet_object = Packet.decode(packet)   # convert packet bytearray to packet object
+            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
@@ -88,18 +87,21 @@ class RadioDriver(DriverBase):
         # Receives data from MQTT and sends it down to ground station according to priority
         def xbee_send_callback(_client, _userdata, message):
             # gets message from MQTT and convert transmit_packet to packet object (look at Thomas code)
-            packet_from_mqtt = Packet.decode(message.payload)
+            try:
+                packet_from_mqtt = Packet.decode(message.payload)
 
-            # append transmit header
-            new_transmit_header = TransmitHeader(self.sequence_number)
-            packet_from_mqtt.transmit_header = new_transmit_header
+                # append transmit header
+                new_transmit_header = TransmitHeader(self.sequence_number)
+                packet_from_mqtt.transmit_header = new_transmit_header
 
-            # add packet to queue
-            priority = packet_from_mqtt.data_header.priority
-            logger.info(f"Enqueuing packet seq={self.sequence_number}")
-            self._thread_queue.put((priority, datetime.now(), packet_from_mqtt,))
+                # add packet to queue
+                priority = packet_from_mqtt.data_header.priority
+                logger.info(f"Enqueuing packet seq={self.sequence_number}")
+                self._thread_queue.put((priority, datetime.now(), packet_from_mqtt,))
 
-            self.sequence_number = (self.sequence_number + 1) % 256  # sequence number can't exceed 255
+                self.sequence_number = (self.sequence_number + 1) % 256  # sequence number can't exceed 255
+            except Exception as e:
+                logger.error(f"Failed to transmit packet: {e}\n{traceback.format_exc()}\n{message.payload}")
 
         self._mqtt.register_subscriber(Topic.RADIO_TRANSMIT, xbee_send_callback)
         self.port.add_data_received_callback(data_receive_callback)
@@ -119,3 +121,5 @@ class RadioDriver(DriverBase):
 
     def cleanup(self):
         self.port.close()
+        super().cleanup()
+

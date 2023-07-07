@@ -1,34 +1,54 @@
 {
-  "payload_name": "Kian_2",
+  "payload_name": "Gabe",
   "devices":
   [
-
     {
-      "driver_class": "TestDriver",
-      "device_id": "MISC_TEST_1",
-      "enabled":  "true"
-    },
-
-    { "name": "printing-driver",
-      "driver_class": "TestConfigDriver",
-      "device_id": "MISC_TEST_2",
-      "enabled": "true",
-        "settings":
-        {
-          "print_text": "printing text"
-        }
+      "name": "radio-driver",
+      "driver_class": "RadioDriver",
+      "device_id": "RADIO",
+      "enabled": "true"
     },
 
     {
-      "name": "secondary-printing-driver",
-      "driver_class": "TestConfigDriver",
-      "device_id": "MISC_TEST_3",
-      "enabled": "false",
-      "settings":
-      {
-        "print_text": "second printing text",
-        "test_filler_setting": "filler_setting"
-      }
+      "name": "ping-driver",
+      "driver_class": "PingDriver",
+      "device_id": "MISC_RADIO_1",
+      "enabled": "true"
+    },
+
+    {
+      "name": "camera-driver",
+      "driver_class": "Camera1Driver",
+      "device_id": "CAMERA_1",
+      "enabled": "true"
+    },
+
+    {
+      "name": "cutdown-driver",
+      "driver_class": "CutdownDriver",
+      "device_id": "CUTDOWN",
+      "enabled": "true"
+    },
+
+    {
+      "name": "gps-driver",
+      "driver_class": "GPSDriver",
+      "device_id": "GPS",
+      "enabled": "true"
+    },
+
+    {
+      "name": "science-driver",
+      "driver_class": "ScienceDriver",
+      "device_id": "MISC_SENSOR_1",
+      "enabled": "true"
+    },
+
+    {
+      "name": "telemetry-driver",
+      "driver_class": "TelemetryI2CDriver",
+      "device_id": "MISC_SENSOR_2",
+      "enabled": "true"
     }
   ]
 }
