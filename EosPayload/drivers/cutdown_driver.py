@@ -9,7 +9,7 @@ import Adafruit_BBIO.GPIO as GPIO
 
 
 class CutdownDriver(PositionAwareDriverBase):
-    cutdown_pin = "P8_10"
+    cutdown_pin = "P9_30"
     time_pulled_high = 10  # seconds
     auto_cutdown_altitude = 23000
 
