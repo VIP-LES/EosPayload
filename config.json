@@ -49,6 +49,13 @@
       "driver_class": "TelemetryI2CDriver",
       "device_id": "MISC_SENSOR_2",
       "enabled": "true"
+    },
+
+    {
+      "name": "led-driver",
+      "driver_class": "LEDDriver",
+      "device_id": "MISC_SENSOR_3",
+      "enabled": "true"
     }
   ]
 }
