@@ -19,8 +19,7 @@ class LEDDriver(DriverBase):
         self.led_3 = "P9_25"
 
     def setup(self) -> None:
-        #super(LEDDriver, self).setup()
-        super().setup()
+        super(LEDDriver).setup()
         self.register_thread('device-command', self.device_command)
 
         GPIO.setup(self.led_1, GPIO.OUT)
@@ -38,7 +37,12 @@ class LEDDriver(DriverBase):
             self.thread_sleep(logger, 2)
 
     def cleanup(self):
-        super(LEDDriver, self).cleanup()
         GPIO.output(self.led_1, 0)
         GPIO.output(self.led_2, 0)
         GPIO.output(self.led_3, 0)
+
+        GPIO.cleanup(self.led_1)
+        GPIO.cleanup(self.led_2)
+        GPIO.cleanup(self.led_3)
+
+        super(LEDDriver, self).cleanup()
