@@ -19,7 +19,7 @@ class LEDDriver(DriverBase):
         self.led_3 = "P9_25"
 
     def setup(self) -> None:
-        super(LEDDriver).setup()
+        super().setup()
         self.register_thread('device-command', self.device_command)
 
         GPIO.setup(self.led_1, GPIO.OUT)
