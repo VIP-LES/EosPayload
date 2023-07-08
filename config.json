@@ -54,7 +54,7 @@
     {
       "name": "led-driver",
       "driver_class": "LEDDriver",
-      "device_id": "MISC_SENSOR_3",
+      "device_id": "MISC_2",
       "enabled": "true"
     }
   ]
