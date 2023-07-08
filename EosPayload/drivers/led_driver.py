@@ -41,8 +41,6 @@ class LEDDriver(DriverBase):
         GPIO.output(self.led_2, 0)
         GPIO.output(self.led_3, 0)
 
-        GPIO.cleanup(self.led_1)
-        GPIO.cleanup(self.led_2)
-        GPIO.cleanup(self.led_3)
+        GPIO.cleanup()
 
         super(LEDDriver, self).cleanup()
