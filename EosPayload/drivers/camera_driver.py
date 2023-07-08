@@ -7,7 +7,7 @@ import cv2
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 
-class Camera1Driver(DriverBase):
+class CameraDriver(DriverBase):
 
     def video_writer_setup(self):
         return cv2.VideoWriter(os.path.join(self.path, self.video_name_format.format(self.video_num)),

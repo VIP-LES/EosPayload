@@ -18,7 +18,7 @@
 
     {
       "name": "camera-driver",
-      "driver_class": "Camera1Driver",
+      "driver_class": "CameraDriver",
       "device_id": "CAMERA_1",
       "enabled": "true"
     },
@@ -48,6 +48,13 @@
       "name": "telemetry-driver",
       "driver_class": "TelemetryI2CDriver",
       "device_id": "MISC_SENSOR_2",
+      "enabled": "true"
+    },
+
+    {
+      "name": "position-aware-logging-driver",
+      "driver_class": "PositionAwareLoggingDriver",
+      "device_id": "MISC_1",
       "enabled": "true"
     },
 

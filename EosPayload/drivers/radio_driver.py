@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime
 from queue import PriorityQueue
 
@@ -31,6 +32,7 @@ class RadioDriver(DriverBase):
         super().__init__(output_directory, config)
         self.port = None
         self.remote = None
+        self.log_lock = threading.Lock()
 
     def setup(self) -> None:
         super().setup()
@@ -77,6 +79,17 @@ class RadioDriver(DriverBase):
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
             packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+
+            # Try to data log the packet, but we really don't want to block in a callback
+            if self.log_lock.acquire(blocking=False):
+                try:
+                    self.data_log(["received", packet_object.encode_to_string()])
+                except Exception as e:
+                    logger.error(f"Exception occurred while logging packet: {e}")
+                self.log_lock.release()
+            else:
+                logger.warning("Unable to acquire lock to log received packet")
+
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
@@ -93,6 +106,17 @@ class RadioDriver(DriverBase):
                 # append transmit header
                 new_transmit_header = TransmitHeader(self.sequence_number)
                 packet_from_mqtt.transmit_header = new_transmit_header
+
+                # Store to data file
+                if self.log_lock.acquire(blocking=False):
+                    try:
+                        self.data_log(["sent", packet_from_mqtt.encode_to_string()])
+                    except Exception as e:
+                        logger.error(f"Exception occurred while logging packet: {e}")
+
+                    self.log_lock.release()
+                else:
+                    logger.warning("Unable to acquire lock to log sent packet")
 
                 # add packet to queue
                 priority = packet_from_mqtt.data_header.priority
