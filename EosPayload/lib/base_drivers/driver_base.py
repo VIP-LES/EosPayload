@@ -337,7 +337,7 @@ class DriverBase:
 
             # TODO: undo this after health format classes are implemented
             self._logger.warning("Health is currently disabled pending format classes."""
-                                 f"Here is the current status string: {status}")
+                                 f"  Here is the current status string: {status}")
             return False
 
             packet = Packet(
