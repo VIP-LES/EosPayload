@@ -1,6 +1,6 @@
 import logging
 
-from EosLib.format.position import Position, FlightState
+from EosLib.format.formats.position import Position, FlightState
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 
@@ -12,7 +12,7 @@ class TestPositionAwareDriver(PositionAwareDriverBase):
         self.register_thread('device-command', self.device_command)
 
     def device_command(self, logger: logging.Logger) -> None:
-        old_position = Position()
+        old_position = Position(None, 0, 0, 0, 0, 0)
         while True:
             self.thread_sleep(logger, 1)
             if old_position.timestamp != self.latest_position.timestamp:

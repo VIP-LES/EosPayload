@@ -1,17 +1,20 @@
 import logging
 import traceback
-
-import board
+try:
+    import board
+except NotImplementedError:
+    pass
 import busio
 from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
 
+from EosLib.format import Type
+from EosLib.format.formats.telemetry_data import TelemetryData
+from EosLib.packet import Packet
 from EosLib.packet.data_header import DataHeader
-from EosLib import Priority, Type
-from EosLib.packet.packet import Packet
+from EosLib.packet.definitions import Priority
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
-from EosLib.format.telemetry_data import TelemetryData
 from EosPayload.lib.mqtt import Topic
 
 
@@ -24,6 +27,12 @@ class TelemetryI2CDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            board
+        except NameError:
+            raise Exception("failed to import board library")
+
         self.register_thread('device-read', self.device_read)
 
     def device_read(self, logger: logging.Logger) -> None:

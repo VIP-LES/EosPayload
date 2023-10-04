@@ -1,8 +1,11 @@
 import logging
 
-import Adafruit_BBIO.PWM as PWM
+try:
+    import Adafruit_BBIO.PWM as PWM
+except ModuleNotFoundError:
+    pass
 
-from EosLib.format.position import FlightState
+from EosLib.format.formats.position import FlightState
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 
@@ -25,6 +28,12 @@ class ReefingDriver(PositionAwareDriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            PWM
+        except NameError:
+            raise Exception("failed to import PWM library")
+
         self.register_thread('device-command', self.device_command)
 
         PWM.start(self.pwm_pin, 0)

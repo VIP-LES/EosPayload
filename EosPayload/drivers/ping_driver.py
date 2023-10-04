@@ -2,10 +2,11 @@ from enum import Enum, unique
 import logging
 import traceback
 
-from EosLib import Priority, Type
-
+from EosLib.format import Type
 from EosLib.packet.data_header import DataHeader
+from EosLib.packet.definitions import Priority
 from EosLib.packet.packet import Packet
+
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
@@ -34,6 +35,10 @@ class PingDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        # TODO: remove this when ping command format is implemented
+        raise Exception("Ping driver is temporary disabled until ping format class is implemented")
+
         self.register_thread('device-command', self.device_command)
 
     def device_command(self, logger: logging.Logger) -> None:

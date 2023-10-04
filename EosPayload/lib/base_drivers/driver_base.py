@@ -6,13 +6,11 @@ import threading
 import time
 import traceback
 
-from paho.mqtt.client import MQTTMessageInfo
-
-from EosLib.packet.data_header import DataHeader
-from EosLib import Priority, Type
 from EosLib.device import Device
-
-from EosLib.packet.packet import Packet
+from EosLib.format import Type
+from EosLib.packet import Packet
+from EosLib.packet.data_header import DataHeader
+from EosLib.packet.definitions import Priority
 
 from EosPayload.lib.thread_container import ThreadStatus, ThreadContainer
 from EosPayload.lib.logger import init_logging
@@ -336,13 +334,19 @@ class DriverBase:
                 str(int(self.is_healthy())),
                 str(threading.active_count()),
             ])
+
+            # TODO: undo this after health format classes are implemented
+            self._logger.warning("Health is currently disabled pending format classes."""
+                                 f"Here is the current status string: {status}")
+            return False
+
             packet = Packet(
                 data_header=header,
                 body=status.encode('utf8')
             )
             succeeded = False
             try:
-                succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, packet.encode())
+                succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send heartbeat: {e}"
                                    f"\n{traceback.format_exc()}")
@@ -356,40 +360,18 @@ class DriverBase:
     # DATA REPORTING METHODS
     #
 
-    def data_log(self, data: list[str]) -> bool:
+    def data_log(self, data: str | list[str]) -> bool:
         """ Logs row of data to a CSV file
         This function is not thread safe -- invoke from at most 1 thread.
 
-        :param data: an array of strings
+        :param data: an array of strings, or a pre-encoded csv row
         :return: True on success, False otherwise
         """
         timestamp = datetime.now().isoformat()
-        data_str = ','.join([timestamp, *data]) + "\n"
+        if isinstance(data, str):
+            data_str = data + "\n"
+        else:
+            data_str = ','.join([timestamp, *data]) + "\n"
         self.__data_file.write(data_str)
         self.__data_file.flush()
         return True
-
-    def data_transmit(self, data: list[str], telemetry: bool = False) -> MQTTMessageInfo:
-        """ Sends row of simple CSV data to the ground station
-
-        :param data: an array of strings
-        :param telemetry: optional, defaults to False.  Set to True if this is telemetry data.
-        :return MQTTMessageInfo object or None on total failure -- see Paho docs
-        """
-
-        header = DataHeader(
-            data_type=Type.TELEMETRY if telemetry else Type.DATA,
-            sender=self.get_device_id(),
-            priority=Priority.TELEMETRY if telemetry else Priority.DATA,
-        )
-
-        packet = Packet(
-            body=bytes(','.join(data), encoding='utf8'),
-            data_header=header,
-        )
-
-        return self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode()) if self._mqtt else None
-
-
-class GenericDriverException(Exception):
-    pass

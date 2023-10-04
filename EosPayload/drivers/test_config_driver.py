@@ -16,4 +16,3 @@ class TestConfigDriver(TestDriver):
             self.check_stop_signal(logger)
             print(self._settings.get("print_text"))
             self.thread_sleep(logger, 5)
-

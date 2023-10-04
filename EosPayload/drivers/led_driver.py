@@ -1,4 +1,7 @@
-import Adafruit_BBIO.GPIO as GPIO
+try:
+    import Adafruit_BBIO.GPIO as GPIO
+except ModuleNotFoundError:
+    pass
 import logging
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
@@ -20,6 +23,12 @@ class LEDDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            GPIO
+        except NameError:
+            raise Exception("failed to import GPIO library")
+
         self.register_thread('device-command', self.device_command)
 
         GPIO.setup(self.led_1, GPIO.OUT)

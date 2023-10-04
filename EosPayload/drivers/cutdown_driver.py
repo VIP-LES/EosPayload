@@ -5,7 +5,10 @@ import time
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 
-import Adafruit_BBIO.GPIO as GPIO
+try:
+    import Adafruit_BBIO.GPIO as GPIO
+except ModuleNotFoundError:
+    pass
 
 
 class CutdownDriver(PositionAwareDriverBase):
@@ -20,6 +23,12 @@ class CutdownDriver(PositionAwareDriverBase):
 
     def setup(self):
         super().setup()
+
+        try:
+            GPIO
+        except NameError:
+            raise Exception("failed to import GPIO library")
+
         self.register_thread('device-read', self.device_read)
 
         GPIO.setup(CutdownDriver.cutdown_pin, GPIO.OUT)

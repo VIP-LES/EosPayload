@@ -4,7 +4,10 @@ import traceback
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 from adafruit_pm25.i2c import PM25_I2C
-from adafruit_blinka.microcontroller.am335x import pin
+try:
+    from adafruit_blinka.microcontroller.am335x import pin
+except RuntimeError:
+    pass
 
 import adafruit_tsl2591
 import adafruit_ltr390
@@ -26,6 +29,12 @@ class ScienceDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            pin
+        except NameError:
+            raise Exception("failed to import pin library")
+
         self.register_thread('device-read', self.device_read)
 
         self.i2c = busio.I2C(pin.I2C1_SCL, pin.I2C1_SDA)
@@ -88,7 +97,8 @@ class ScienceDriver(DriverBase):
 
             if self.count % 2 == 0:
                 try:
-                    self.data_transmit(row)
+                    # TODO: transmit packet once format is implemented
+                    pass
                 except Exception as e:
                     logger.error(f"An unhandled exception occurred while transmitting data: {e}"
                                       f"\n{traceback.format_exc()}")
