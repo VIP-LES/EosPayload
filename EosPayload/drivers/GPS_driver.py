@@ -103,7 +103,7 @@ class GPSDriver(PositionAwareDriverBase):
                 logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
                                f", alt={gps_alt}, speed={gps_speed}, sat={gps_sat}")
             else:
-                position = Position(date_time, float(gps_lat), float(gps_long), float(gps_alt),
+                position = Position(data_datetime, float(gps_lat), float(gps_long), float(gps_alt),
                                     float(gps_speed), int(gps_sat), self.current_flight_state)
 
                 gps_packet = Packet(position, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
