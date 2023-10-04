@@ -14,7 +14,7 @@ class PositionAwareLoggingDriver(PositionAwareDriverBase):
         super().position_callback(_client, _userdata, _message)
         try:
             if self.latest_position is not None:
-                self.data_log([str(self.latest_position.timestamp),
+                self.data_log([str(self.latest_position.gps_time.isoformat()),
                                str(self.latest_position.latitude),
                                str(self.latest_position.longitude),
                                str(self.latest_position.altitude),

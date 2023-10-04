@@ -11,7 +11,7 @@ class PositionAwareDriverBase(DriverBase):
 
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
-        self.latest_position = Position(None, 0, 0, 0, 0, 0)
+        self.latest_position: Position | None = Position(None, 0, 0, 0, 0, 0)
 
     def setup(self) -> None:
         super().setup()
