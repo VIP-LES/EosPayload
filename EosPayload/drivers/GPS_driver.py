@@ -113,9 +113,9 @@ class GPSDriver(PositionAwareDriverBase):
                         self.gotten_first_fix = True
                         logger.info("Got first valid GPS fix")
 
-                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
+                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet)
                 if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
-                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet)
                     self.last_transmit_time = datetime.datetime.now()
 
             self.thread_sleep(logger, 1)

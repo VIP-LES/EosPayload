@@ -37,7 +37,7 @@ class TelemetryI2CDriver(DriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        self.i2c = i2c = busio.I2C(board.SCL, board.SDA)
+        self.i2c = busio.I2C(board.SCL, board.SDA)
         self.bno = BNO055_I2C(self.i2c)
         count = 0
 
@@ -65,8 +65,7 @@ class TelemetryI2CDriver(DriverBase):
             pressure = -1
             humidity = -1
 
-            telemetry_obj = TelemetryData(current_time, temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
-            telemetry_bytes = telemetry_obj.encode()
+            telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
 
             header = DataHeader(
                 data_type=Type.TELEMETRY_DATA,
@@ -74,10 +73,10 @@ class TelemetryI2CDriver(DriverBase):
                 priority=Priority.TELEMETRY,
             )
             packet = Packet(
-                body=telemetry_bytes,
+                body=telemetry_obj,
                 data_header=header,
             )
-            self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
 
             count += 1
             self.thread_sleep(logger, 2)
