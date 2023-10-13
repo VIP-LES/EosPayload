@@ -155,6 +155,7 @@ class RadioDriver(DriverBase):
                                    f"\n{traceback.format_exc()}")
 
     def cleanup(self):
-        self.port.close()
+        if self.port:
+            self.port.close()
         super().cleanup()
 

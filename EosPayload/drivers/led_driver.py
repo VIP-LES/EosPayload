@@ -46,10 +46,13 @@ class LEDDriver(DriverBase):
             self.thread_sleep(logger, 2)
 
     def cleanup(self):
-        GPIO.output(self.led_1, 0)
-        GPIO.output(self.led_2, 0)
-        GPIO.output(self.led_3, 0)
+        try:
+            GPIO.output(self.led_1, 0)
+            GPIO.output(self.led_2, 0)
+            GPIO.output(self.led_3, 0)
 
-        GPIO.cleanup()
+            GPIO.cleanup()
+        except NameError:
+            pass
 
         super(LEDDriver, self).cleanup()

@@ -70,9 +70,12 @@ class ReefingDriver(PositionAwareDriverBase):
             self.thread_sleep(logger, self.update_interval)
 
     def cleanup(self):
-        self.set_reefing_level(0, self._logger)
-        PWM.stop("P9_14")
-        PWM.cleanup()
+        try:
+            self.set_reefing_level(0, self._logger)
+            PWM.stop("P9_14")
+            PWM.cleanup()
+        except NameError:
+            pass
         super().cleanup()
 
         '''

@@ -121,5 +121,6 @@ class GPSDriver(PositionAwareDriverBase):
             self.thread_sleep(logger, 1)
 
     def cleanup(self):
-        self.uart.close()
+        if self.uart:
+            self.uart.close()
         super().cleanup()

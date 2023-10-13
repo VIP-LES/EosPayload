@@ -39,7 +39,10 @@ class CutdownDriver(PositionAwareDriverBase):
             self._mqtt.register_subscriber(Topic.CUTDOWN_COMMAND, self.cutdown_trigger_mqtt)
 
     def cleanup(self):
-        GPIO.cleanup()
+        try:
+            GPIO.cleanup()
+        except NameError:
+            pass
         super().cleanup()
 
     def device_read(self, logger: logging.Logger) -> None:
