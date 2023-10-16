@@ -27,7 +27,7 @@ class OrchEOStrator:
 
     def __init__(self, output_directory: str, config_filepath: str):
         """ Constructor.  Initializes output location, logger, mqtt, and health monitoring. """
-        self._logger = None
+        self._logger: logging.Logger | None = None
         self._drivers = {}
         self.output_directory = output_directory
         if not os.path.exists(self.output_directory):
@@ -55,9 +55,11 @@ class OrchEOStrator:
 
     def __del__(self):
         """ Destructor.  Terminates all drivers. """
-        self._logger.info("shutting down")
+        if self._logger:
+            self._logger.info("shutting down")
         self.terminate()
-        self._health_check()
+        if self._logger:
+            self._health_check()
         logging.shutdown()
 
     #
@@ -73,10 +75,12 @@ class OrchEOStrator:
             #         or MQTT things
 
     def terminate(self) -> None:
-        self._logger.info("terminating processes")
+        if self._logger:
+            self._logger.info("terminating processes")
         for device_id, device_container in self._drivers.items():
             if device_container.status in [Status.INITIALIZED, Status.HEALTHY, Status.UNHEALTHY]:
-                self._logger.info(f"terminating process for device id {device_id}")
+                if self._logger:
+                    self._logger.info(f"terminating process for device id {device_id}")
                 device_container.process.terminate()
                 device_container.process.close()
                 device_container.update_status(Status.TERMINATED)

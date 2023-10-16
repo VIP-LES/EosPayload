@@ -4,12 +4,17 @@ import traceback
 
 import adafruit_gps
 import serial
-import Adafruit_BBIO.UART as UART
+try:
+    import Adafruit_BBIO.UART as UART
+except ModuleNotFoundError:
+    pass
 
 from EosLib.device import Device
-from EosLib.format.position import Position, FlightState
-from EosLib.packet.packet import DataHeader, Packet
-from EosLib.packet.definitions import Type, Priority
+from EosLib.format import Type
+from EosLib.format.formats.position import Position, FlightState
+from EosLib.packet import Packet
+from EosLib.packet.data_header import DataHeader
+from EosLib.packet.definitions import Priority
 import datetime
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
@@ -35,6 +40,12 @@ class GPSDriver(PositionAwareDriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            UART
+        except NameError:
+            raise Exception("failed to import UART library")
+
         self.register_thread('device-read', self.device_read)
 
         UART.setup("UART1")
@@ -92,26 +103,24 @@ class GPSDriver(PositionAwareDriverBase):
                 logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
                                f", alt={gps_alt}, speed={gps_speed}, sat={gps_sat}")
             else:
-                position_bytes = Position.encode_position(date_time, float(gps_lat),
-                                                          float(gps_long), float(gps_alt),
-                                                          float(gps_speed), int(gps_sat),
-                                                          self.current_flight_state)
+                position = Position(data_datetime, float(gps_lat), float(gps_long), float(gps_alt),
+                                    float(gps_speed), int(gps_sat), self.current_flight_state)
 
-                gps_packet = Packet(position_bytes, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
+                gps_packet = Packet(position, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
 
                 if self.gotten_first_fix is False:
-                    position = Position.decode_position(gps_packet)
                     if position.valid:
                         self.gotten_first_fix = True
                         logger.info("Got first valid GPS fix")
 
-                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet.encode())
+                self._mqtt.send(Topic.POSITION_UPDATE, gps_packet)
                 if datetime.datetime.now() - self.last_transmit_time > self.transmit_rate:
-                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet.encode())
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet)
                     self.last_transmit_time = datetime.datetime.now()
 
             self.thread_sleep(logger, 1)
 
     def cleanup(self):
-        self.uart.close()
+        if self.uart:
+            self.uart.close()
         super().cleanup()

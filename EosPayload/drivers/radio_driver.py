@@ -3,7 +3,10 @@ from datetime import datetime
 from queue import PriorityQueue
 
 import logging
-import pyudev
+try:
+    import pyudev
+except ModuleNotFoundError:
+    pass
 import time
 import traceback
 
@@ -12,10 +15,12 @@ from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
-from EosLib.packet.packet import Packet
+from EosLib.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
+
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
+
 
 class RadioDriver(DriverBase):
     _thread_queue = PriorityQueue()
@@ -36,6 +41,12 @@ class RadioDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            pyudev
+        except NameError:
+            raise Exception("failed to import pyudev library")
+
         self.register_thread('device-read', self.device_read)
         self.register_thread('device-command', self.device_command)
 
@@ -144,6 +155,7 @@ class RadioDriver(DriverBase):
                                    f"\n{traceback.format_exc()}")
 
     def cleanup(self):
-        self.port.close()
+        if self.port:
+            self.port.close()
         super().cleanup()
 

@@ -1,7 +1,8 @@
-from typing import Any, Callable
+from typing import Callable
+import paho.mqtt.client as mosquitto
 import threading
 
-import paho.mqtt.client as mosquitto
+from EosLib.packet import Packet
 
 from EosPayload.lib.mqtt import QOS, Topic
 
@@ -24,15 +25,15 @@ class Client(mosquitto.Client):
         self.loop_stop()
         super(Client, self).__del__()
 
-    def send(self, topic: Topic, payload: Any) -> mosquitto.MQTTMessageInfo:
-        """ Send an MQTT message.  Will internally queue messages even if not connected.  Will not notify on error.
+    def send(self, topic: Topic, payload: Packet) -> mosquitto.MQTTMessageInfo:
+        """ Send a packet over MQTT.  Will internally queue messages even if not connected.  Will not notify on error.
             Async (Non-Blocking).
 
         :param topic: the topic to send
-        :param payload: the stringified message body
+        :param payload: the packet to send
         :return: MQTTMessageInfo object, which has a wait_for_publish() method if you want to block on this message
         """
-        return self.publish(topic, payload, QOS.DELIVER_AT_MOST_ONCE)
+        return self.publish(topic, payload.encode(), QOS.DELIVER_AT_MOST_ONCE)
 
     def register_subscriber(self, topic: Topic, callback: Callable) -> None:
         """ Receive an MQTT message.

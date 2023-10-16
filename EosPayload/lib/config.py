@@ -109,7 +109,7 @@ class OrcheostratorConfigParser:
 
         self.logger.info(f"Configuring device \"{device_name}\"")
 
-        if device_config.get("enabled") != "true":
+        if not device_config.get("enabled"):
             self.logger.info(f"{self.config_indent}Driver disabled, skipping")
             self.disabled_drivers.append(device_name)
             return

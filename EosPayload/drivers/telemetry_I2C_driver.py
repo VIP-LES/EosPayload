@@ -1,17 +1,20 @@
 import logging
 import traceback
-
-import board
+try:
+    import board
+except NotImplementedError:
+    pass
 import busio
 from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
 
+from EosLib.format import Type
+from EosLib.format.formats.telemetry_data import TelemetryData
+from EosLib.packet import Packet
 from EosLib.packet.data_header import DataHeader
-from EosLib import Priority, Type
-from EosLib.packet.packet import Packet
+from EosLib.packet.definitions import Priority
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
-from EosLib.format.telemetry_data import TelemetryData
 from EosPayload.lib.mqtt import Topic
 
 
@@ -24,11 +27,17 @@ class TelemetryI2CDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
+
+        try:
+            board
+        except NameError:
+            raise Exception("failed to import board library")
+
         self.register_thread('device-read', self.device_read)
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
-        self.i2c = i2c = busio.I2C(board.SCL, board.SDA)
+        self.i2c = busio.I2C(board.SCL, board.SDA)
         self.bno = BNO055_I2C(self.i2c)
         count = 0
 
@@ -56,8 +65,7 @@ class TelemetryI2CDriver(DriverBase):
             pressure = -1
             humidity = -1
 
-            telemetry_obj = TelemetryData(current_time, temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
-            telemetry_bytes = telemetry_obj.encode()
+            telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
 
             header = DataHeader(
                 data_type=Type.TELEMETRY_DATA,
@@ -65,10 +73,10 @@ class TelemetryI2CDriver(DriverBase):
                 priority=Priority.TELEMETRY,
             )
             packet = Packet(
-                body=telemetry_bytes,
+                body=telemetry_obj,
                 data_header=header,
             )
-            self._mqtt.send(Topic.RADIO_TRANSMIT, packet.encode())
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
 
             count += 1
             self.thread_sleep(logger, 2)

@@ -29,7 +29,8 @@ class TestDriver(DriverBase):
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row)
+                # TODO: transmit using some format class i guess
+                pass
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
