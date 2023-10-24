@@ -7,7 +7,7 @@ except ModuleNotFoundError:
 
 
 class ElectricFieldSensor(DriverBase):
-    adc_pin = "ENTER PIN # HERE"
+    adc_pin = "32"
     ADC.setup()
     try:
         while True:
