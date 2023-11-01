@@ -1,4 +1,4 @@
-from EosPayload.lib.base_drivers.driver_base import DriverBase
+.from EosPayload.lib.base_drivers.driver_base import DriverBase
 import time
 import logging
 try:
@@ -34,7 +34,7 @@ class ElectricFieldSensor(DriverBase):
                 values = [ADC.read(pin) for pin in adc_pins]
                 voltages = [value * 1.8 for value in values]  # BeagleBone Black has a 1.8V reference voltage
                 for i, pin in adc_pins:
-                    logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
+                    self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
                 self.thread_sleep(1)
 
         except Exception as e:
