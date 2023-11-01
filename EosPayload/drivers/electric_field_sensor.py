@@ -32,7 +32,7 @@ class ElectricFieldSensor(DriverBase):
             while True:
                 # Read the voltage from the ADC pin
                 values = [ADC.read(pin) for pin in adc_pins]
-                voltages = [value * 1.0 for value in values]  # BeagleBone Black has a 1.8V reference voltage
+                voltages = [value * 1.0 for value in values]
                 for i, pin in enumerate(adc_pins):
                     self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
                 self.thread_sleep(logger, 2)
