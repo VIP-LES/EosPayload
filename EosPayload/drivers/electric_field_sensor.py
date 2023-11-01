@@ -9,10 +9,25 @@ except ModuleNotFoundError:
 
 
 class ElectricFieldSensor(DriverBase):
+    def __init__(self, output_directory: str, config: dict):
+        super().__init__(output_directory, config)
+        self.pin_1 = "P9_36"
+        self.pin_2 = "P9_38"
+        self.pin_3 = "P9_40"
+    def setup(self) -> None:
+        super().setup()
+        try:
+            ADC
+        except NameError:
+            raise Exception("failed to import ADC library")
+
+        self.register_thread('device-read', self.device_read)
+
+        ADC.setup(self.pin_1)
+        ADC.setup(self.pin_2)
+        ADC.setup(self.pin_3)
     def device_read(self, logger: logging.Logger) -> None:
-        adc_pins = ["P9_36", "P9_38", "P9_40"]
-        for pin in adc_pins:
-            ADC.setup(pin)
+        adc_pins = [self.pin_1, self.pin_2, self.pin_3]
         try:
             while True:
                 # Read the voltage from the ADC pin
@@ -20,7 +35,15 @@ class ElectricFieldSensor(DriverBase):
                 voltages = [value * 1.8 for value in values]  # BeagleBone Black has a 1.8V reference voltage
                 for i, pin in adc_pins:
                     logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
-                time.sleep(1)
+                self.thread_sleep(1)
 
         except Exception as e:
             logger.info(f"An error occurred: {e}")
+
+    def cleanup(self):
+        try:
+            ADC.cleanup()
+        except NameError:
+            pass
+        super(ElectricFieldSensor, self).cleanup()
+        
