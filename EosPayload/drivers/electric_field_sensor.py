@@ -35,10 +35,10 @@ class ElectricFieldSensor(DriverBase):
                 voltages = [value * 1.8 for value in values]  # BeagleBone Black has a 1.8V reference voltage
                 for i, pin in enumerate(adc_pins):
                     self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
-                self.thread_sleep(1)
+                self.thread_sleep(logger, 2)
 
         except Exception as e:
-            logger.info(f"An error occurred: {e}")
+            self._logger.info(f"An error occurred: {e}")
 
     def cleanup(self):
         try:
