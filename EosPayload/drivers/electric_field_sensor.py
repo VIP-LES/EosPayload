@@ -1,4 +1,4 @@
-.from EosPayload.lib.base_drivers.driver_base import DriverBase
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 import time
 import logging
 try:
