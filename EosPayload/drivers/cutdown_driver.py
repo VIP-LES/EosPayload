@@ -4,6 +4,8 @@ import time
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
+from EosLib.format.formats.cutdown import CutDown
+from EosLib.format.definitions import Type
 
 try:
     import Adafruit_BBIO.GPIO as GPIO
@@ -60,8 +62,8 @@ class CutdownDriver(PositionAwareDriverBase):
 
             # manual cutdown based on command from ground station
             if not self._command_queue.empty():
-                self._command_queue.get(block=False)
-                logger.info("received cutdown command, triggering cutdown")
+                decoded_msg = self._command_queue.get(block=False)
+                logger.info(f"received cutdown command {decoded_msg}, triggering cutdown")
                 self.has_triggered = True
                 self.cutdown_trigger()
 
@@ -76,6 +78,12 @@ class CutdownDriver(PositionAwareDriverBase):
 
     @staticmethod
     def cutdown_trigger_mqtt(client, user_data, message):
-        user_data['logger'].info("received cutdown command")
-        user_data['queue'].put(1)
+        try:
+            decoded_msg = CutDown.decode(message)
+            if decoded_msg.get_format_type() != Type.CutDown:
+                raise TypeError("incorrect type")
 
+            user_data['logger'].info("received cutdown command" + str(decoded_msg.ack))
+            user_data['queue'].put(decoded_msg.ack)
+        except TypeError:
+            pass
