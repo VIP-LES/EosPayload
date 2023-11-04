@@ -24,6 +24,7 @@ adafruit-circuitpython-bno055
 adafruit-circuitpython-gps
 adafruit-circuitpython-pm25
 sparkfun-ublox-gps
+spidev
 Adafruit-BBIO~=1.2.0
 Adafruit-Blinka==8.22.4
 adafruit-platformdetect>=3.52.3
