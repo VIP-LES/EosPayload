@@ -9,6 +9,7 @@ try:
 except ModuleNotFoundError:
     pass
 
+
 from EosLib.device import Device
 from EosLib.format import Type
 from EosLib.format.formats.position import Position, FlightState

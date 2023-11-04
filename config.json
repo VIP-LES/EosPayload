@@ -20,19 +20,26 @@
       "name": "camera-driver",
       "driver_class": "CameraDriver",
       "device_id": "CAMERA_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "cutdown-driver",
       "driver_class": "CutdownDriver",
       "device_id": "CUTDOWN",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "gps-driver",
       "driver_class": "GPSDriver",
+      "device_id": "GPS",
+      "enabled": false
+    },
+
+    {
+      "name": "gps-driver-new",
+      "driver_class": "NewGPSDriver",
       "device_id": "GPS",
       "enabled": true
     },
@@ -41,28 +48,28 @@
       "name": "science-driver",
       "driver_class": "ScienceDriver",
       "device_id": "MISC_SENSOR_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "telemetry-driver",
       "driver_class": "TelemetryI2CDriver",
       "device_id": "MISC_SENSOR_2",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "position-aware-logging-driver",
       "driver_class": "PositionAwareLoggingDriver",
       "device_id": "MISC_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "led-driver",
       "driver_class": "LEDDriver",
       "device_id": "MISC_2",
-      "enabled": true
+      "enabled": false
     }
   ]
 }
