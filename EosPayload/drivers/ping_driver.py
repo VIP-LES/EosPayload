@@ -57,8 +57,8 @@ class PingDriver(DriverBase):
                 return
 
             decoded_packet = Ping.decode(packet.body)
-            command = decoded_packet[0]
-            seq_num = decoded_packet[1]
+            command = decoded_packet.ping
+            seq_num = decoded_packet.num
 
             # if command not in [cmd.value for cmd in PingDriver.Commands]:
             #     user_data['logger'].warning(f"received invalid command '{command}'"
