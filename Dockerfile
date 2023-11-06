@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 RUN apt-get update
 
-RUN apt-get install -y libgl1-mesa-glx git build-essential
+RUN apt-get install -y libgl1-mesa-glx git build-essential --fix-missing
 
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
