@@ -24,8 +24,8 @@ class NewGPSDriver(PositionAwareDriverBase):
         logger.info("Starting NEW GPS Driver!")
         while True:
             sat_data = self.gps.satellites()
-            logger.info(sat_data.numSvs)
-            if sat_data.numSvs < 3:
+            logger.info(sat_data.svUsed)
+            if sat_data.svUsed < 3:
                 logger.info("Waiting for fix...")
                 self.thread_sleep(logger, 1)
                 continue
