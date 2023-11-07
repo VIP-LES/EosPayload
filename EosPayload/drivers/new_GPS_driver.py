@@ -37,11 +37,11 @@ class NewGPSDriver(PositionAwareDriverBase):
         logger.info("Starting GPS Driver!")
         while True:
             geo = self.gps.geo_coords()
-            if geo.gpsFix == 0:
-                # Try again if we don't have a fix yet.
-                logger.info("Waiting for fix...")
-                self.thread_sleep(logger, 1)
-                continue
+            #if geo.fixType == 0:
+            #    # Try again if we don't have a fix yet.
+            #    logger.info("Waiting for fix...")
+            #    self.thread_sleep(logger, 1)
+            #    continue
 
             gps_time = self.gps.date_time()
             time_sec = gps_time.sec
