@@ -90,11 +90,12 @@ class RadioDriver(DriverBase):
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
             packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+            data_header = packet_object.data_header
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["received", packet_object.encode_to_string()])
+                    self.data_log(["received", data_header.encode_to_string()])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -121,7 +122,7 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
-                        self.data_log(["sent", packet_from_mqtt.encode_to_string()])
+                        self.data_log(["sent", packet_from_mqtt.transmit_header.encode_to_string()])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 

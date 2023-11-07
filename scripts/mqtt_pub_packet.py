@@ -11,11 +11,10 @@ from EosLib.packet.transmit_header import TransmitHeader
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
 
-from EosLib.format.formats.ping_format import Ping
+from EosLib.format.formats.ping_format import Ping, PingEnum
 
 # example usage:
-# python scripts/mqtt_pub_packet.py -t "ping/command" -b "PING 420" -d "{\"priority\":2, \"sender\":12, \"destination\":19, \"data_type\":2}" -r "{\"send_seq_num\":42}"
-
+# python scripts/mqtt_pub_packet.py -t "ping/command" -b "PING 420" -d "{\"priority\":2, \"sender\":12, \"destination\":19, \"data_type\":10}" -r "{\"send_seq_num\":0}"
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--topic', required=True)
@@ -31,7 +30,7 @@ if __name__ == "__main__":
     if not isinstance(args.body, str):
         raise Exception("body must be a str")
     # body = bytes(args.body, 'utf8')
-    body = Ping(True, 120)
+    body = Ping(PingEnum.PING, 111)
 
     if args.data_header is not None and not isinstance(args.data_header, str):
         raise Exception("data header must be dict json string or None")
