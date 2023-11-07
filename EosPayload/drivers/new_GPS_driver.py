@@ -23,12 +23,32 @@ class NewGPSDriver(PositionAwareDriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting NEW GPS Driver!")
         while True:
-            try:
-                coords = self.gps.geo_coords()
-                logger.info(coords.lon)
-                logger.info(coords.lat)
-            except (ValueError, IOError) as err:
-                logger.info(err)
+            if not self.gps.has_fix:
+                logger.info("Waiting for fix...")
+                self.thread_sleep(logger, 1)
+                continue
+
+            gps_time = self.gps.date_time()
+            time_sec = gps_time.sec
+            time_min = gps_time.min
+            time_hr = gps_time.hour
+            time_day = gps_time.day
+            time_month = gps_time.month
+            time_year = gps_time.year
+
+            #time_min = self.gps.timestamp_utc.tm_min
+            #time_sec = self.gps.timestamp_utc.tm_sec
+            #time_day = self.gps.timestamp_utc.tm_mday
+            #time_month = self.gps.timestamp_utc.tm_mon
+            #time_year = self.gps.timestamp_utc.tm_year
+
+
+            #try:
+            #    coords = self.gps.geo_coords()
+            #    logger.info(coords.lon)
+            #    logger.info(coords.lat)
+            #except (ValueError, IOError) as err:
+            #    logger.info(err)
 
     def cleanup(self):
         if self.uart:
