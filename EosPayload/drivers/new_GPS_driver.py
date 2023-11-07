@@ -17,7 +17,7 @@ class NewGPSDriver(PositionAwareDriverBase):
         super().setup()
 
         self.register_thread('device-read', self.device_read)
-        self.uart = serial.Serial('/dev/ttyO1', baudrate=38400, timeout=1)
+        self.uart = serial.Serial('/dev/ttyO1', baudrate=9600, timeout=1)
         self.gps = UbloxGps(self.uart)
 
     def device_read(self, logger: logging.Logger) -> None:
