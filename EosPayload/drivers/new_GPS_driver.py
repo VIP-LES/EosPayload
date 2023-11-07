@@ -23,7 +23,8 @@ class NewGPSDriver(PositionAwareDriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting NEW GPS Driver!")
         while True:
-            if not self.gps.satellites() < 3:
+            sat_data = self.gps.satellites()
+            if sat_data < 3:
                 logger.info("Waiting for fix...")
                 self.thread_sleep(logger, 1)
                 continue
