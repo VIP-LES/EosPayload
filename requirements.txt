@@ -1,4 +1,4 @@
-git+https://github.com/VIP-LES/EosLib@v4.0.0#egg=EosLib
+git+https://github.com/VIP-LES/EosLib@v4.1.3#egg=EosLib
 attrs==22.1.0
 colorama==0.4.5
 digi-xbee==1.4.1
