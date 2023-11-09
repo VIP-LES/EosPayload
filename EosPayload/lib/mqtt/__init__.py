@@ -19,4 +19,5 @@ class Topic(str, Enum):
     POSITION_UPDATE = 'position/update'
     PING_COMMAND = 'ping/command'
     CUTDOWN_COMMAND = 'cutdown/command'
+    VALVE_COMMAND = 'valve/command'
     # register new topics by appending them to the above list
