@@ -18,7 +18,7 @@ class ValveDriver(PositionAwareDriverBase):
     # Electrical team you will have to change this pin because this is currently used by cutdown
     valve_pin = "P9_30"  
     time_valve_open = 5  
-    auto_valve_altitude = 25000 
+    auto_valve_altitude = 17000 
 
     def __init__(self, output_directory: str, config: dict) -> None:
         super().__init__(output_directory, config)
