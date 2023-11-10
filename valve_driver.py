@@ -86,13 +86,13 @@ class ValveDriver(PositionAwareDriverBase):
         try:
 
             packet = Packet.decode(message)
-            if packet.data_header.data_type != Type.CUTDOWN:
-                user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
+            if packet.data_header.data_type != Type.VALVE:
+                user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected Valve")
                 return
 
             decoded_msg = Valve.decode(packet.body)
 
-            user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
+            user_data['logger'].info(f"received valve open command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
         except TypeError:
             pass
