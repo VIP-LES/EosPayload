@@ -4,6 +4,10 @@ import time
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
+from EosLib.format.formats.valve import Valve
+from EosLib.format.definitions import Type
+from EosLib.packet import Packet
+from EosLib.format.definitions import Type
 
 try:
     import Adafruit_BBIO.GPIO as GPIO
@@ -11,6 +15,7 @@ except ModuleNotFoundError:
     pass
 
 class ValveDriver(PositionAwareDriverBase):
+    # Electrical team you will have to change this pin because this is currently used by cutdown
     valve_pin = "P9_30"  
     time_valve_open = 5  
     auto_valve_altitude = 25000 
@@ -60,17 +65,17 @@ class ValveDriver(PositionAwareDriverBase):
 
             # Manual valve opening based on command from ground station
             if not self._command_queue.empty():
-                self._command_queue.get(block=False)
-                logger.info("Received valve open command, opening the valve")
+                decoded_msg = self._command_queue.get(block=False)
+                logger.info(f"Received valve open command {decoded_msg}, opening the valve")
                 self.has_valve_opened = True
                 self.valve_trigger()
 
-            time.sleep(5)
+            self.thread_sleep(logger, 5)
 
     def valve_trigger(self):
         self._logger.info("~~~OPENING VALVE~~~")
         GPIO.output(ValveDriver.valve_pin, GPIO.HIGH)
-        time.sleep(ValveDriver.time_valve_open)
+        self.thread_sleep(self._logger, ValveDriver.time_valve_open)
         GPIO.output(ValveDriver.valve_pin, GPIO.LOW)
         self._logger.info("~~~CLOSING VALVE~~~")
 
@@ -78,3 +83,16 @@ class ValveDriver(PositionAwareDriverBase):
     def valve_trigger_mqtt(client, user_data, message):
         user_data['logger'].info("Received valve open command")
         user_data['queue'].put(1)
+        try:
+
+            packet = Packet.decode(message)
+            if packet.data_header.data_type != Type.CUTDOWN:
+                user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
+                return
+
+            decoded_msg = Valve.decode(packet.body)
+
+            user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
+            user_data['queue'].put(decoded_msg.ack)
+        except TypeError:
+            pass
