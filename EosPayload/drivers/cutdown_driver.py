@@ -1,6 +1,7 @@
 from queue import Queue
 import logging
-import time
+
+from EosLib.packet import Packet
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
@@ -67,23 +68,27 @@ class CutdownDriver(PositionAwareDriverBase):
                 self.has_triggered = True
                 self.cutdown_trigger()
 
-            time.sleep(5)
+            self.thread_sleep(logger, 5)
 
     def cutdown_trigger(self):
         self._logger.info("~~~PULLING PIN HIGH~~~")
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.HIGH)
-        time.sleep(CutdownDriver.time_pulled_high)
+        self.thread_sleep(self._logger, CutdownDriver.time_pulled_high)
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         self._logger.info("~~~PULLING PIN LOW~~~")
 
     @staticmethod
     def cutdown_trigger_mqtt(client, user_data, message):
         try:
-            decoded_msg = CutDown.decode(message)
-            if decoded_msg.get_format_type() != Type.CutDown:
-                raise TypeError("incorrect type")
 
-            user_data['logger'].info("received cutdown command" + str(decoded_msg.ack))
+            packet = Packet.decode(message)
+            if packet.data_header.data_type != Type.CUTDOWN:
+                user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
+                return
+
+            decoded_msg = CutDown.decode(packet.body)
+
+            user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
         except TypeError:
             pass
