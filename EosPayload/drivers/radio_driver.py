@@ -104,7 +104,7 @@ class RadioDriver(DriverBase):
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
-                self._mqtt.send(mqtt_topic, packet)
+                self._mqtt.send(mqtt_topic, packet_object)
             else:
                 logger.info("no mqtt destination mapping")
 
