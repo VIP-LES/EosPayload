@@ -1,6 +1,5 @@
 from random import randint
 import logging
-import time
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 
@@ -9,15 +8,17 @@ from EosPayload.lib.base_drivers.driver_base import DriverBase
 
 class TestDriver(DriverBase):
 
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
+    def setup(self) -> None:
+        super().setup()
+        self.register_thread("device-read", self.device_read)
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting to poll for data!")
         while True:
             # this is where you would poll a device for data or whatever
             data = randint(0, 256)
+            print(f"received data: {data}, data^2: {data*data}")
+
             csv_row = [str(data), str(data*data)]
 
             # this saves data to a file
@@ -28,8 +29,9 @@ class TestDriver(DriverBase):
 
             # this sends data to the radio to get relayed to the ground station
             try:
-                self.data_transmit(csv_row)
+                # TODO: transmit using some format class i guess
+                pass
             except Exception as e:
                 logger.error(f"unable to transmit data: {e}")
 
-            time.sleep(3)
+            self.thread_sleep(logger, 3)

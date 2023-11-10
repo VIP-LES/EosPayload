@@ -1,14 +1,11 @@
 import logging
-import time
 
 from EosPayload.drivers.test_driver import TestDriver
 
 # this example shows how you can pass custom config fields into a driver
 
+
 class TestConfigDriver(TestDriver):
-    @staticmethod
-    def read_thread_enabled() -> bool:
-        return True
 
     @staticmethod
     def get_required_config_fields() -> list[str]:
@@ -16,6 +13,6 @@ class TestConfigDriver(TestDriver):
 
     def device_read(self, logger: logging.Logger) -> None:
         while True:
+            self.check_stop_signal(logger)
             print(self._settings.get("print_text"))
-            time.sleep(5)
-
+            self.thread_sleep(logger, 5)

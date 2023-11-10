@@ -6,6 +6,7 @@ import pyudev
 
 from EosLib.packet.definitions import Type, Priority
 from EosLib.device import Device
+
 from EosLib.packet.packet import DataHeader, Packet
 from EosLib.format.position import Position, FlightState
 

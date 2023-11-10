@@ -13,10 +13,13 @@ from EosLib.packet.packet import Packet
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST
 from EosPayload.lib.mqtt.client import Client, Topic
-from EosPayload.lib.orcheostrator.device_container import Status, StatusUpdate
+from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Status, StatusUpdate
 from EosPayload.lib.config import OrcheostratorConfigParser
 
+
 class OrchEOStrator:
+
+    _drivers: dict[str, DeviceContainer]
 
     #
     # INITIALIZATION AND DESTRUCTION METHODS
@@ -24,7 +27,7 @@ class OrchEOStrator:
 
     def __init__(self, output_directory: str, config_filepath: str):
         """ Constructor.  Initializes output location, logger, mqtt, and health monitoring. """
-        self._logger = None
+        self._logger: logging.Logger | None = None
         self._drivers = {}
         self.output_directory = output_directory
         if not os.path.exists(self.output_directory):
@@ -52,9 +55,11 @@ class OrchEOStrator:
 
     def __del__(self):
         """ Destructor.  Terminates all drivers. """
-        self._logger.info("shutting down")
+        if self._logger:
+            self._logger.info("shutting down")
         self.terminate()
-        self._health_check()
+        if self._logger:
+            self._health_check()
         logging.shutdown()
 
     #
@@ -70,12 +75,15 @@ class OrchEOStrator:
             #         or MQTT things
 
     def terminate(self) -> None:
-        self._logger.info("terminating processes")
-        for device_id, driver in self._drivers.items():
-            if driver.status in [Status.HEALTHY, Status.UNHEALTHY]:
-                self._logger.info(f"terminating process for device id {device_id}")
-                driver.process.terminate()
-                driver.update_status(Status.TERMINATED)
+        if self._logger:
+            self._logger.info("terminating processes")
+        for device_id, device_container in self._drivers.items():
+            if device_container.status in [Status.INITIALIZED, Status.HEALTHY, Status.UNHEALTHY]:
+                if self._logger:
+                    self._logger.info(f"terminating process for device id {device_id}")
+                device_container.process.terminate()
+                device_container.process.close()
+                device_container.update_status(Status.TERMINATED)
 
     #
     # PROTECTED HELPER METHODS
@@ -95,6 +103,10 @@ class OrchEOStrator:
                 proc = Process(target=self._driver_runner, args=(driver, self.output_directory, driver_config), daemon=True)
                 container.process = proc
                 proc.start()
+                time.sleep(0.5)
+                if not proc.is_alive():
+                    proc.close()
+                    raise Exception("process is not alive after start")
                 self._drivers[driver_config.get("device_id")] = container
             except Exception as e:
                 self._logger.critical("A fatal exception occurred when attempting to load driver from"
@@ -123,7 +135,7 @@ class OrchEOStrator:
 
             user_data['logger'].info(f"received health packet from device id={packet.data_header.sender}")
 
-            is_healthy, thread_count, _ = packet.body.decode('ascii').split(',', 2)
+            is_healthy, thread_count = packet.body.decode('ascii').split(',', 1)
 
             status_update = StatusUpdate(
                 driver_id=packet.data_header.sender,
@@ -159,10 +171,13 @@ class OrchEOStrator:
                 # auto set terminated if it died
                 if driver.status in [Status.HEALTHY, Status.UNHEALTHY, Status.INITIALIZED] and (driver.process is None or not driver.process.is_alive()):
                     self._logger.critical(f"process for driver {key} is no longer running -- marking terminated")
+                    if driver.process is not None:
+                        driver.process.close()
                     driver.update_status(Status.TERMINATED)
 
                 # auto set unhealthy if we haven't had a ping in the last 30s from this device
-                if driver.status == Status.HEALTHY and driver.status_since < (datetime.now() - timedelta(seconds=30)):
+                if driver.status in [Status.INITIALIZED, Status.HEALTHY] \
+                        and driver.status_since < (datetime.now() - timedelta(seconds=30)):
                     self._logger.critical(f"haven't received a health ping from driver {key} in 30s -- marking unhealthy")
                     driver.update_status(Status.UNHEALTHY)
 
@@ -184,12 +199,6 @@ class OrchEOStrator:
         except Exception as e:
             self._logger.critical("An exception occurred when attempting to perform health check:"
                                   f" {e}\n{traceback.format_exc()}")
-
-    @staticmethod
-    def _spin() -> None:
-        """ Spins to keep the software alive.  Never returns. """
-        while True:
-            time.sleep(10)
 
     def _output_mkdir(self, subdirectory: str) -> None:
         """ Make a subdirectory of the output location (if it doesn't already exist)
