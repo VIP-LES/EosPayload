@@ -81,8 +81,6 @@ class ValveDriver(PositionAwareDriverBase):
 
     @staticmethod
     def valve_trigger_mqtt(client, user_data, message):
-        user_data['logger'].info("Received valve open command")
-        user_data['queue'].put(1)
         try:
 
             packet = Packet.decode(message)
