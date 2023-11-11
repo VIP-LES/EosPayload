@@ -15,6 +15,7 @@ from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
+from EosLib.format.decode_factory import decode_factory
 from EosLib.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
 
@@ -89,15 +90,15 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
-            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+            packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["LMAO THIS DOESN'T WORK but here is dest: "])#, packet_object.data_header.destination])
-                    # self.data_log(["received", str(packet_object)])
+                    #self.data_log(["LMAO THIS DOESN'T WORK but here is dest: "])#, packet_object.data_header.destination])
+                    self.data_log(["received", str(packet_object)])
                 except Exception as e:
-                    logger.error(f"Exception occurred while logging packet (LOCATION 1): {e}")
+                    logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
             else:
                 logger.warning("Unable to acquire lock to log received packet")
@@ -124,7 +125,7 @@ class RadioDriver(DriverBase):
                     try:
                         self.data_log(["sent", str(packet_from_mqtt)])
                     except Exception as e:
-                        logger.error(f"Exception occurred while logging packet (LOCATION 2): {e}")
+                        logger.error(f"Exception occurred while logging packet: {e}")
 
                     self.log_lock.release()
                 else:
