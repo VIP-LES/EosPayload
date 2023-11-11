@@ -94,10 +94,10 @@ class RadioDriver(DriverBase):
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["LMAO THIS DOESN'T WORK but here is dest: ", packet_object.data_header.destination])
+                    self.data_log(["LMAO THIS DOESN'T WORK but here is dest: "])#, packet_object.data_header.destination])
                     # self.data_log(["received", str(packet_object)])
                 except Exception as e:
-                    logger.error(f"Exception occurred while logging packet: {e}")
+                    logger.error(f"Exception occurred while logging packet (LOCATION 1): {e}")
                 self.log_lock.release()
             else:
                 logger.warning("Unable to acquire lock to log received packet")
@@ -124,7 +124,7 @@ class RadioDriver(DriverBase):
                     try:
                         self.data_log(["sent", str(packet_from_mqtt)])
                     except Exception as e:
-                        logger.error(f"Exception occurred while logging packet: {e}")
+                        logger.error(f"Exception occurred while logging packet (LOCATION 2): {e}")
 
                     self.log_lock.release()
                 else:
