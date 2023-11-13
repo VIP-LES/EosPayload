@@ -1,3 +1,4 @@
+import traceback
 from queue import Queue
 import logging
 
@@ -91,4 +92,4 @@ class CutdownDriver(PositionAwareDriverBase):
             user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
         except Exception as e:
-            user_data['logger'].error(f"Got exception {e}")
+            user_data['logger'].error(f"Got exception {e}\n{traceback.format_exc()}")
