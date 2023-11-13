@@ -89,7 +89,7 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
-            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+            packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
             data_header = packet_object.data_header
 
             # Try to data log the packet, but we really don't want to block in a callback
@@ -105,8 +105,8 @@ class RadioDriver(DriverBase):
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
-                if isinstance(packet, bytearray):
-                    packet = bytes(packet)
+                # if isinstance(packet, bytearray):
+                #     packet = bytes(packet)
                 self._mqtt.send(mqtt_topic, packet)
             else:
                 logger.info("no mqtt destination mapping")
