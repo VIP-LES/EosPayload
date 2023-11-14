@@ -34,9 +34,6 @@ class PingDriver(DriverBase):
     def setup(self) -> None:
         super().setup()
 
-        # TODO: remove this when ping command format is implemented
-        # raise Exception("Ping driver is temporary disabled until ping format class is implemented")
-
         self.register_thread('device-command', self.device_command)
 
     def device_command(self, logger: logging.Logger) -> None:
@@ -93,7 +90,6 @@ class PingDriver(DriverBase):
         )
 
         packet = Packet(Ping(PingEnum.PING, counter), header)
-        # packet = Packet(Ping(True, counter), header)
         if self._mqtt:
             logger.info("pinging ground: Ping " + f'{counter}')
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet)

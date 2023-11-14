@@ -90,12 +90,13 @@ class RadioDriver(DriverBase):
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
             packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
-            data_header = packet_object.data_header
+
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["received"])
+                    # TODO change this to include packet as a string (encode_to_string function)
+                    self.data_log(["Received Packet"])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -105,8 +106,7 @@ class RadioDriver(DriverBase):
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
-                # if isinstance(packet, bytearray):
-                #     packet = bytes(packet)
+
                 self._mqtt.send(mqtt_topic, packet_object)
             else:
                 logger.info("no mqtt destination mapping")
@@ -124,7 +124,8 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
-                        self.data_log(["sent"])
+                        # TODO change this to include packet as a string (encode_to_string function)
+                        self.data_log(["Sent Packet"])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 
