@@ -108,7 +108,7 @@ class RadioDriver(DriverBase):
                             sender, data type, priority, destination
                     '''
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
-                    self.data_log(["received", t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
+                    self.data_log(["received", f"{t_h.send_seq_num}", f"{t_h.send_rssi}", Device(d_h.sender).name,
                                    Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
@@ -145,7 +145,7 @@ class RadioDriver(DriverBase):
                             sender, data type, priority, destination
                         '''
                         t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
-                        self.data_log(["sent", t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
+                        self.data_log(["sent", f"{t_h.send_seq_num}", f"{t_h.send_rssi}", Device(d_h.sender).name,
                                        Type(d_h.data_type).name, Priority(d_h.priority).name,
                                        Device(d_h.destination).name])
                     except Exception as e:
