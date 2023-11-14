@@ -81,8 +81,7 @@ class CutdownDriver(PositionAwareDriverBase):
     @staticmethod
     def cutdown_trigger_mqtt(client, user_data, message):
         try:
-
-            packet = Packet.decode(message)
+            packet = Packet.decode(message.payload)
             if packet.data_header.data_type != Type.CUTDOWN:
                 user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
                 return
