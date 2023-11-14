@@ -3,6 +3,8 @@ from queue import Queue
 import logging
 
 from EosLib.packet import Packet
+from EosLib.packet.data_header import DataHeader
+from EosLib.packet.definitions import Priority
 
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
@@ -78,8 +80,7 @@ class CutdownDriver(PositionAwareDriverBase):
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         self._logger.info("~~~PULLING PIN LOW~~~")
 
-    @staticmethod
-    def cutdown_trigger_mqtt(client, user_data, message):
+    def cutdown_trigger_mqtt(self, client, user_data, message):
         try:
             packet = Packet.decode(message.payload)
             if packet.data_header.data_type != Type.CUTDOWN:
@@ -90,5 +91,19 @@ class CutdownDriver(PositionAwareDriverBase):
 
             user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
+
+            response_header = DataHeader(
+                data_type=Type.CUTDOWN,
+                sender=self.get_device_id(),
+                priority=Priority.URGENT,
+                destination=packet.data_header.sender
+            )
+
+            response = Packet(CutDown(decoded_msg.ack), response_header)
+            client.send(Topic.RADIO_TRANSMIT, response)
+
+            user_data['logger'].info(f"received ACK for cutdown from device '{packet.data_header.sender}'"
+                                     f" with sequence number '{decoded_msg.ack}'")
+
         except Exception as e:
             user_data['logger'].error(f"Got exception {e}\n{traceback.format_exc()}")
