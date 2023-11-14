@@ -86,32 +86,6 @@ class ValveDriver(PositionAwareDriverBase):
 
     def valve_trigger_mqtt(self, client, user_data, message):
         try:
-            # packet = Packet.decode(message.payload)
-            # if packet.data_header.data_type != Type.VALVE:
-            #     user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected Valve")
-            #     return
-            #
-            # decoded_msg = Valve.decode(packet.body.encode())
-            #
-            # user_data['logger'].info(f"Received valve command {decoded_msg.ack}")
-            # user_data['queue'].put(decoded_msg.ack)
-            #
-            # response_header = DataHeader(
-            #     data_type=Type.VALVE,
-            #     sender=self.get_device_id(),
-            #     priority=Priority.URGENT,
-            #     destination=packet.data_header.sender
-            # )
-            #
-            # response = Packet(Valve(decoded_msg.ack), response_header)
-            # client.send(Topic.RADIO_TRANSMIT, response)
-            #
-            # user_data['logger'].info(f"Received ACK for valve from device '{packet.data_header.sender}'"
-            #                          f" with sequence number '{decoded_msg.ack}'")
-            #
-            # user_data['logger'].info(f"received valve open command {decoded_msg.ack}")
-            # user_data['queue'].put(decoded_msg.ack)
-
             packet = Packet.decode(message.payload)
             if packet.data_header.data_type != Type.VALVE:
                 user_data['logger'].error(f"Incorrect type {packet.data_header.data_type}, expected valve")
@@ -124,13 +98,6 @@ class ValveDriver(PositionAwareDriverBase):
 
             response_header = EosLib.packet.data_header.DataHeader(self.get_device_id(), Type.VALVE, Priority.URGENT, packet.data_header.sender)
 
-            # sending a cutdown command
-            # response_header = DataHeader(
-            #     data_type=Type.CUTDOWN,
-            #     sender=self.get_device_id(),
-            #     priority=Priority.URGENT,
-            #     destination=packet.data_header.sender
-            # )
             valve = Valve(decoded_msg.ack)
 
             response = Packet(
