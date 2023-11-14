@@ -84,12 +84,12 @@ class CutdownDriver(PositionAwareDriverBase):
         try:
             packet = Packet.decode(message.payload)
             if packet.data_header.data_type != Type.CUTDOWN:
-                user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
+                user_data['logger'].error(f"Incorrect type {packet.data_header.data_type}, expected CutDown")
                 return
 
             decoded_msg = CutDown.decode(packet.body.encode())
 
-            user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
+            user_data['logger'].info(f"Received cutdown command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
 
             response_header = DataHeader(
@@ -102,7 +102,7 @@ class CutdownDriver(PositionAwareDriverBase):
             response = Packet(CutDown(decoded_msg.ack), response_header)
             client.send(Topic.RADIO_TRANSMIT, response)
 
-            user_data['logger'].info(f"received ACK for cutdown from device '{packet.data_header.sender}'"
+            user_data['logger'].info(f"Received ACK for cutdown from device '{packet.data_header.sender}'"
                                      f" with sequence number '{decoded_msg.ack}'")
 
         except Exception as e:
