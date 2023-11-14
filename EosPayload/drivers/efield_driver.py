@@ -24,6 +24,7 @@ class ElectricFieldSensor(DriverBase):
         self.pin_1 = "P9_36"
         self.pin_2 = "P9_38"
         self.pin_3 = "P9_40"
+
     def setup(self) -> None:
         super().setup()
         try:
@@ -36,8 +37,10 @@ class ElectricFieldSensor(DriverBase):
         ADC.setup(self.pin_1)
         ADC.setup(self.pin_2)
         ADC.setup(self.pin_3)
+
     def device_read(self, logger: logging.Logger) -> None:
         adc_pins = [self.pin_1, self.pin_2, self.pin_3]
+        voltages = [None, None, None]
         while True:
             try:
                 # Read the voltage from the ADC pin
@@ -47,14 +50,14 @@ class ElectricFieldSensor(DriverBase):
                     self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
 
             except Exception as e:
-                self._logger.info(f"An error occurred: {e}")
+                self._logger.info(f"An error occurred while reading voltages: {e}")
 
             efield_obj = EField(voltages[0], voltages[1], voltages[2])
 
             header = DataHeader(
                 data_type=Type.E_FIELD,
-                sender = self.get_device_id(),
-                priority = Priority.DATA
+                sender=self.get_device_id(),
+                priority=Priority.DATA
             )
             packet = Packet(
                 body=efield_obj,
@@ -63,6 +66,7 @@ class ElectricFieldSensor(DriverBase):
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
 
             self.thread_sleep(logger, 2)
+
     def cleanup(self):
         try:
             ADC.cleanup()
