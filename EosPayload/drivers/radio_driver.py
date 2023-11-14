@@ -16,7 +16,9 @@ from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
 from EosLib.format.decode_factory import decode_factory
+from EosLib.format.definitions import Type
 from EosLib.packet import Packet
+from EosLib.packet.definitions import Priority
 from EosLib.packet.transmit_header import TransmitHeader
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
@@ -106,8 +108,9 @@ class RadioDriver(DriverBase):
                         sender, data type, priority, destination, generate time
                     '''
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
-                    self.data_log(["received", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, d_h.sender.name,
-                                   d_h.data_type.name, d_h.priority.name, d_h.destination.name, d_h.generate_time])
+                    self.data_log(["received", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
+                                   Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name,
+                                   d_h.generate_time])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -143,8 +146,9 @@ class RadioDriver(DriverBase):
                             sender, data type, priority, destination, generate time
                         '''
                         t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
-                        self.data_log(["sent", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, d_h.sender.name,
-                                       d_h.data_type.name, d_h.priority.name, d_h.destination.name, d_h.generate_time])
+                        self.data_log(["sent", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
+                                       Type(d_h.data_type).name, Priority(d_h.priority).name,
+                                       Device(d_h.destination).name, d_h.generate_time])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 
