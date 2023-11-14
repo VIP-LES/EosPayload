@@ -89,15 +89,25 @@ class RadioDriver(DriverBase):
         def data_receive_callback(xbee_message):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
-            logger.info(packet)
-            packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
-
+            try:
+                packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
+            except Exception as e:
+                logger.error(f"Exception occurred while receiving packet: {e}\n{traceback.format_exc()}\n{packet}")
+                return
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    # TODO change this to include packet as a string (encode_to_string function)
-                    self.data_log(["received"])
+                    '''
+                    READING THE CSV FILE
+                    transmit header makes up columns 2-4:
+                        send time, sequence number, RSSI
+                    data header makes up columns 5-9:
+                        sender, data type, priority, destination, generate time
+                    '''
+                    t_h, d_h = packet_object.transmit_header, packet_object.data_header
+                    self.data_log(["received", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, d_h.sender.name,
+                                   d_h.data_type.name, d_h.priority.name, d_h.destination.name, d_h.generate_time])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -125,8 +135,16 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
-                        # TODO change this to include packet as a string (encode_to_string function)
-                        self.data_log(["sent"])
+                        '''
+                        READING THE CSV FILE
+                        transmit header makes up columns 2-4:
+                            send time, sequence number, RSSI
+                        data header makes up columns 5-9:
+                            sender, data type, priority, destination, generate time
+                        '''
+                        t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
+                        self.data_log(["sent", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, d_h.sender.name,
+                                       d_h.data_type.name, d_h.priority.name, d_h.destination.name, d_h.generate_time])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 
