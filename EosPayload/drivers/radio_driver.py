@@ -110,7 +110,7 @@ class RadioDriver(DriverBase):
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
                     self.data_log(["received", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
                                    Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name,
-                                   d_h.generate_time])
+                                   str(d_h.generate_time)])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
