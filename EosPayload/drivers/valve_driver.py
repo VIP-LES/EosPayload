@@ -9,7 +9,6 @@ from EosLib.packet.definitions import Priority
 from EosPayload.lib.base_drivers.position_aware_driver_base import PositionAwareDriverBase
 from EosPayload.lib.mqtt import Topic
 from EosLib.format.formats.valve import Valve
-from EosLib.format.definitions import Type
 from EosLib.packet import Packet
 from EosLib.format.definitions import Type
 

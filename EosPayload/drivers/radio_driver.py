@@ -97,7 +97,7 @@ class RadioDriver(DriverBase):
             if self.log_lock.acquire(blocking=False):
                 try:
                     # TODO change this to include packet as a string (encode_to_string function)
-                    self.data_log(["received"])
+                    self.data_log(["received", str(packet_object)])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
