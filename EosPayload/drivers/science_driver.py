@@ -109,7 +109,6 @@ class ScienceDriver(DriverBase):
                     particulate_25um_per_01L=air_quality_data[9],
                     particulate_50um_per_01L=air_quality_data[10],
                     particulate_100um_per_01L=air_quality_data[11],
-                    timestamp=datetime.now(),
                 )
 
             except Exception as e:
