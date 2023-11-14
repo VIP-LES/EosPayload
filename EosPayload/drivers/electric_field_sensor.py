@@ -1,6 +1,16 @@
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 import time
 import logging
+from EosLib.format.formats.e_field import EField
+from EosLib.packet.data_header import DataHeader
+from EosLib.format import Type
+
+from EosLib.packet import Packet
+
+from EosLib.packet.definitions import Priority
+
+from EosPayload.lib.mqtt import Topic
+
 try:
     import Adafruit_BBIO.ADC as ADC
 except ModuleNotFoundError:
@@ -28,18 +38,31 @@ class ElectricFieldSensor(DriverBase):
         ADC.setup(self.pin_3)
     def device_read(self, logger: logging.Logger) -> None:
         adc_pins = [self.pin_1, self.pin_2, self.pin_3]
-        try:
-            while True:
+        while True:
+            try:
                 # Read the voltage from the ADC pin
                 values = [ADC.read(pin) for pin in adc_pins]
                 voltages = [value * 1.0 for value in values]
                 for i, pin in enumerate(adc_pins):
                     self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
-                self.thread_sleep(logger, 2)
 
-        except Exception as e:
-            self._logger.info(f"An error occurred: {e}")
+            except Exception as e:
+                self._logger.info(f"An error occurred: {e}")
 
+            efield_obj = EField(voltages[0], voltages[1], voltages[2])
+
+            header = DataHeader(
+                data_type=Type.E_FIELD,
+                sender = self.get_device_id(),
+                priority = Priority.DATA
+            )
+            packet = Packet(
+                body=efield_obj,
+                data_header=header,
+            )
+            self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
+
+            self.thread_sleep(logger, 2)
     def cleanup(self):
         try:
             ADC.cleanup()
