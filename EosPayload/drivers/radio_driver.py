@@ -31,7 +31,8 @@ class RadioDriver(DriverBase):
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
-        Device.CUTDOWN: Topic.CUTDOWN_COMMAND
+        Device.CUTDOWN: Topic.CUTDOWN_COMMAND,
+        Device.VALVE: Topic.VALVE_COMMAND
     }
 
     def __init__(self, output_directory: str, config: dict) -> None:
@@ -97,7 +98,7 @@ class RadioDriver(DriverBase):
             if self.log_lock.acquire(blocking=False):
                 try:
                     # TODO change this to include packet as a string (encode_to_string function)
-                    self.data_log(["received"])
+                    self.data_log(["received", str(packet_object)])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
