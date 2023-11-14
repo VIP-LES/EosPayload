@@ -104,13 +104,12 @@ class RadioDriver(DriverBase):
                     READING THE CSV FILE
                     transmit header makes up columns 2-4:
                         send time, sequence number, RSSI
-                    data header makes up columns 5-9:
+                    data header makes up columns 5-8:
                         sender, data type, priority, destination, generate time
                     '''
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
                     self.data_log(["received", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
-                                   Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name,
-                                   f"{d_h.generate_time}"])
+                                   Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -148,7 +147,7 @@ class RadioDriver(DriverBase):
                         t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
                         self.data_log(["sent", t_h.send_time, t_h.send_seq_num, t_h.send_rssi, Device(d_h.sender).name,
                                        Type(d_h.data_type).name, Priority(d_h.priority).name,
-                                       Device(d_h.destination).name, d_h.generate_time])
+                                       Device(d_h.destination).name])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 
