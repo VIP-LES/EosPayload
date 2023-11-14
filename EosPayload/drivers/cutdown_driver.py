@@ -86,7 +86,7 @@ class CutdownDriver(PositionAwareDriverBase):
                 user_data['logger'].error(f"incorrect type {packet.data_header.data_type}, expected CutDown")
                 return
 
-            decoded_msg = CutDown.decode(packet.body)
+            decoded_msg = CutDown.decode(packet.body.encode())
 
             user_data['logger'].info(f"received cutdown command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
