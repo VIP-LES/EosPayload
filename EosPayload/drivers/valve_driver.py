@@ -3,6 +3,7 @@ from queue import Queue
 import logging
 import time
 
+from EosLib.format.formats.cutdown import CutDown
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
 
@@ -112,7 +113,7 @@ class ValveDriver(PositionAwareDriverBase):
 
             packet = Packet.decode(message.payload)
             if packet.data_header.data_type != Type.VALVE:
-                user_data['logger'].error(f"Incorrect type {packet.data_header.data_type}, expected Valve")
+                user_data['logger'].error(f"Incorrect type {packet.data_header.data_type}, expected valve")
                 return
 
             decoded_msg = Valve.decode(packet.body.encode())
@@ -120,18 +121,20 @@ class ValveDriver(PositionAwareDriverBase):
             user_data['logger'].info(f"Received valve command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
 
+            # sending a cutdown command
             response_header = DataHeader(
-                data_type=Type.VALVE,
+                data_type=Type.CUTDOWN,
                 sender=self.get_device_id(),
                 priority=Priority.URGENT,
                 destination=packet.data_header.sender
             )
 
-            response = Packet(Valve(decoded_msg.ack), response_header)
+            response = Packet(CutDown(decoded_msg.ack), response_header)
             client.send(Topic.RADIO_TRANSMIT, response)
 
-            user_data['logger'].info(f"Received ACK for valve from device '{packet.data_header.sender}'"
+            user_data['logger'].info(f"Received ACK for cutdown from device '{packet.data_header.sender}'"
                                      f" with sequence number '{decoded_msg.ack}'")
+
 
         except Exception as e:
             user_data['logger'].error(f"Got exception {e}\n{traceback.format_exc()}")
