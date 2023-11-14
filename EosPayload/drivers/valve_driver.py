@@ -3,6 +3,7 @@ from queue import Queue
 import logging
 import time
 
+import EosLib
 from EosLib.format.formats.cutdown import CutDown
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
@@ -121,15 +122,23 @@ class ValveDriver(PositionAwareDriverBase):
             user_data['logger'].info(f"Received valve command {decoded_msg.ack}")
             user_data['queue'].put(decoded_msg.ack)
 
+            response_header = EosLib.packet.data_header.DataHeader(self.get_device_id(), Type.VALVE, Priority.URGENT, packet.data_header.sender)
+
             # sending a cutdown command
-            response_header = DataHeader(
-                data_type=Type.CUTDOWN,
-                sender=self.get_device_id(),
-                priority=Priority.URGENT,
-                destination=packet.data_header.sender
+            # response_header = DataHeader(
+            #     data_type=Type.CUTDOWN,
+            #     sender=self.get_device_id(),
+            #     priority=Priority.URGENT,
+            #     destination=packet.data_header.sender
+            # )
+            valve = Valve(decoded_msg.ack)
+
+            response = Packet(
+                body=valve,
+                data_header=response_header
             )
 
-            response = Packet(CutDown(decoded_msg.ack), response_header)
+            # response = Packet(valve, response_header)
             client.send(Topic.RADIO_TRANSMIT, response)
 
             user_data['logger'].info(f"Received ACK for cutdown from device '{packet.data_header.sender}'"
