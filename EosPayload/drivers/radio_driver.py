@@ -15,6 +15,7 @@ from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
+from EosLib.format.decode_factory import decode_factory
 from EosLib.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
 
