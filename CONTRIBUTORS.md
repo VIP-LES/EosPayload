@@ -1,7 +1,9 @@
 Daryl Dohner  
 David Reynolds  
 Aryan Battula  
-Shachi Jain
-Thomas Holder
-Jiacheng Zhang
-Jayden Witucki
+Shachi Jain  
+Thomas Holder  
+Jiacheng Zhang  
+Jayden Witucki  
+Ion Li  
+Van Livingston  

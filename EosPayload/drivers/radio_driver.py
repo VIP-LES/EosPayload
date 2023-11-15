@@ -15,6 +15,7 @@ from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
+from EosLib.format.decode_factory import decode_factory
 from EosLib.packet import Packet
 from EosLib.packet.transmit_header import TransmitHeader
 
@@ -30,7 +31,8 @@ class RadioDriver(DriverBase):
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
-        Device.CUTDOWN: Topic.CUTDOWN_COMMAND
+        Device.CUTDOWN: Topic.CUTDOWN_COMMAND,
+        Device.VALVE: Topic.VALVE_COMMAND
     }
 
     def __init__(self, output_directory: str, config: dict) -> None:
@@ -89,12 +91,15 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             logger.info(packet)
-            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+            packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
+
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["received", packet_object.encode()])
+
+                    # TODO change this to include packet as a string (encode_to_string function)
+                    self.data_log(["received", str(packet_object)])
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -104,7 +109,8 @@ class RadioDriver(DriverBase):
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
-                self._mqtt.send(mqtt_topic, packet)
+
+                self._mqtt.send(mqtt_topic, packet_object)
             else:
                 logger.info("no mqtt destination mapping")
 
@@ -121,7 +127,9 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
-                        self.data_log(["sent", packet_from_mqtt.encode()])
+
+                        # TODO change this to include packet as a string (encode_to_string function)
+                        self.data_log(["sent"])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 
