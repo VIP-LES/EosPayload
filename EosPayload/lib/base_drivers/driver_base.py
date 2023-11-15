@@ -333,14 +333,13 @@ class DriverBase:
             succeeded = False
             try:
                 self.__update_thread_statuses()
-                alive_threads = [thread for thread in self.__threads.values() if thread.status == ThreadStatus.ALIVE]
-                alive_thread_count = len(alive_threads)
-                if threading.active_count() != alive_thread_count:
-                    self._logger.error("something is fundamentally wrong, threading.active_count"
-                                       f" ({threading.active_count()}) != number of alive threads in"
-                                       f" self.__threads ({alive_thread_count}).  if using a library that runs a "
-                                       "background thread, be sure to add it to self.__threads for tracking")
-                    return False
+                thread_statuses = [thread.status for thread in self.__threads.values() if thread.name != "main"]
+                alive_thread_count = len([status for status in thread_statuses if status == ThreadStatus.ALIVE])
+                if threading.active_count() > alive_thread_count + 1:
+                    # there must be unmanaged threads (such as Xbee background threads)
+                    # just pad status array with NONEs
+                    # (note: the +1 is because we excluded "main" from thread_statuses)
+                    thread_statuses += [ThreadStatus.NONE]*(threading.active_count() - alive_thread_count - 1)
 
                 header = DataHeader(
                     data_type=Type.DRIVER_HEALTH_REPORT,
