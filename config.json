@@ -54,7 +54,7 @@
       "name": "science-driver",
       "driver_class": "ScienceDriver",
       "device_id": "MISC_SENSOR_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
