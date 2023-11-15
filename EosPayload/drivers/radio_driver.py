@@ -102,9 +102,9 @@ class RadioDriver(DriverBase):
                 try:
                     '''
                     READING THE CSV FILE
-                    transmit header makes up columns 2-3:
+                    transmit header makes up first 2 columns:
                             sequence number, RSSI
-                        data header makes up columns 4-7:
+                        data header makes up last 4 columns:
                             sender, data type, priority, destination
                     '''
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
@@ -139,9 +139,9 @@ class RadioDriver(DriverBase):
                     try:
                         '''
                         READING THE CSV FILE
-                        transmit header makes up columns 2-3:
+                        transmit header makes up first 2 columns:
                             sequence number, RSSI
-                        data header makes up columns 4-7:
+                        data header makes up last 4 columns:
                             sender, data type, priority, destination
                         '''
                         t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
