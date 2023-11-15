@@ -100,7 +100,7 @@ class NewGPSDriver(PositionAwareDriverBase):
                         logger.info("Got first valid GPS fix")
 
                 try:
-                    self._mqtt.send(Topic.POSITION_UPDATE, gps_packet)
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet)
                 except Exception as e:
                     logger.warning(f"exception thrown while logging data: {e}\n{traceback.format_exc()}")
 
