@@ -64,7 +64,6 @@ class TelemetryI2CDriver(DriverBase):
                 logger.warning(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
 
             current_time = datetime.now()
-
             pressure = self.mpr.pressure
             humidity = 1
 

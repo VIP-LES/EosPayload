@@ -60,6 +60,10 @@ class NewGPSDriver(PositionAwareDriverBase):
             gps_sat = geo.numSV  # num satellites
             gps_fix = geo.fixType  # fix type
 
+            logger.info(
+                f"Latitude: {gps_lat}°, Longitude: {gps_long}°, Altitude: {gps_alt} mm, Speed: {gps_speed} "
+                f"mm/s, Satellites: {gps_sat}, Fix Type: {gps_fix}")
+
             # time
             try:
                 # "%H:%M:%S %d/%m/%Y"
