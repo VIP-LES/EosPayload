@@ -56,7 +56,7 @@ class NewGPSDriver(PositionAwareDriverBase):
             gps_lat = geo.lat  # deg
             gps_long = geo.lon  # deg
             gps_alt = geo.hMSL  # mm
-            gps_speed = geo.speed  # mm/s (3D speed)
+            gps_speed = geo.gSpeed  # mm/s (2D speed)
             gps_sat = geo.numSvs  # num satellites
 
             # time
