@@ -37,7 +37,8 @@ class NewGPSDriver(PositionAwareDriverBase):
         logger.info("Starting GPS Driver!")
         while True:
             geo = self.gps.geo_coords()
-            if geo is None:
+            gps_fix = geo.fixType  # fix type
+            if int(gps_fix) == 0:
                 # Try again if we don't have a fix yet.
                 logger.info("Waiting for fix...")
                 self.thread_sleep(logger, 1)
@@ -58,7 +59,7 @@ class NewGPSDriver(PositionAwareDriverBase):
             gps_alt = geo.hMSL  # mm
             gps_speed = geo.gSpeed  # mm/s (2D speed)
             gps_sat = geo.numSV  # num satellites
-            gps_fix = geo.fixType  # fix type
+
 
             logger.info(
                 f"Latitude: {gps_lat}°, Longitude: {gps_long}°, Altitude: {gps_alt} mm, Speed: {gps_speed} "
