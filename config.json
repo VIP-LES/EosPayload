@@ -33,7 +33,7 @@
       "name": "valve-driver",
       "driver_class": "ValveDriver",
       "device_id": "VALVE",
-      "enabled": true
+      "enabled": false
     },
 
     {
@@ -68,7 +68,7 @@
       "name": "position-aware-logging-driver",
       "driver_class": "PositionAwareLoggingDriver",
       "device_id": "MISC_1",
-      "enabled": false
+      "enabled": true
     },
 
     {
