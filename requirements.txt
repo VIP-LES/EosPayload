@@ -24,6 +24,7 @@ adafruit-circuitpython-shtc3
 adafruit-circuitpython-bno055
 adafruit-circuitpython-gps
 adafruit-circuitpython-pm25
+adafruit-circuitpython-mprls
 sparkfun-qwiic
 spidev==3.6
 sparkfun-ublox-gps
