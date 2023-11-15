@@ -8,6 +8,8 @@ import time
 import traceback
 
 from EosLib.device import Device
+from EosLib.format import Type
+from EosLib.format.formats.health.driver_health_report import DriverHealthReport
 from EosLib.packet.packet import Packet
 
 from EosPayload.lib.logger import init_logging
@@ -129,18 +131,19 @@ class OrchEOStrator:
         try:
             try:
                 packet = Packet.decode(message.payload)
+                assert packet.data_header.data_type == Type.DRIVER_HEALTH_REPORT
             except Exception as e:
                 user_data['logger'].error(f"failed to decode health packet: {e}")
                 return
 
             user_data['logger'].info(f"received health packet from device id={packet.data_header.sender}")
 
-            is_healthy, thread_count = packet.body.decode('ascii').split(',', 1)
+            driver_health_report: DriverHealthReport = packet.body
 
             status_update = StatusUpdate(
                 driver_id=packet.data_header.sender,
-                status=Status.HEALTHY if int(is_healthy) else Status.UNHEALTHY,
-                thread_count=thread_count,
+                status=Status.HEALTHY if driver_health_report.is_healthy else Status.UNHEALTHY,
+                thread_count=driver_health_report.num_threads,
                 reporter=packet.data_header.sender,
                 effective=packet.data_header.generate_time
             )

@@ -8,11 +8,12 @@ import traceback
 
 from EosLib.device import Device
 from EosLib.format import Type
+from EosLib.format.formats.health.driver_health_report import DriverHealthReport, ThreadStatus
 from EosLib.packet import Packet
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
 
-from EosPayload.lib.thread_container import ThreadStatus, ThreadContainer
+from EosPayload.lib.thread_container import ThreadContainer
 from EosPayload.lib.logger import init_logging
 from EosPayload.lib.mqtt import MQTT_HOST, Topic
 from EosPayload.lib.mqtt.client import Client
@@ -199,8 +200,6 @@ class DriverBase:
                 if not self.is_healthy():
                     log_message = f"device unhealthy:"
                     for name, thread_container in self.__threads.items():
-                        if thread_container.status == ThreadStatus.ALIVE and not thread_container.thread.is_alive():
-                            thread_container.status = ThreadStatus.DEAD
                         log_message += f"\n\tthread-{name} status: {thread_container.status.name}"
                     self._logger.critical(log_message)
 
@@ -294,6 +293,13 @@ class DriverBase:
         while True:
             self.thread_sleep(logger, 1)
 
+    def __update_thread_statuses(self) -> None:
+        """ Enumerates all threads and marks them dead if they were alive and have since died """
+
+        for name, thread in self.__threads.items():
+            if thread.status == ThreadStatus.ALIVE and not thread.thread.is_alive():
+                self.__threads[name].status = ThreadStatus.DEAD
+
     #
     # HEALTH REPORTING METHODS
     #
@@ -304,13 +310,12 @@ class DriverBase:
         :return: True if all threads are alive, False otherwise
         """
 
-        all_threads_alive = True
+        self.__update_thread_statuses()
+
         for thread_container in self.__threads.values():
             if thread_container.status != ThreadStatus.ALIVE:
                 return False
-            else:
-                all_threads_alive &= thread_container.thread.is_alive()
-        return all_threads_alive
+        return True
 
     def __send_heartbeat(self) -> bool:
         """ Dispatches a heartbeat message to MQTT.
@@ -325,27 +330,34 @@ class DriverBase:
         """
         succeeded = False
         if self._mqtt:
-            header = DataHeader(
-                data_type=Type.TELEMETRY,
-                sender=self.get_device_id(),
-                priority=Priority.NO_TRANSMIT,
-            )
-            status = ','.join([
-                str(int(self.is_healthy())),
-                str(threading.active_count()),
-            ])
-
-            # TODO: undo this after health format classes are implemented
-            self._logger.warning("Health is currently disabled pending format classes."""
-                                 f"  Here is the current status string: {status}")
-            return False
-
-            packet = Packet(
-                data_header=header,
-                body=status.encode('utf8')
-            )
             succeeded = False
             try:
+                self.__update_thread_statuses()
+                alive_threads = [thread for thread in self.__threads.values() if thread.status == ThreadStatus.ALIVE]
+                alive_thread_count = len(alive_threads)
+                if threading.active_count() != alive_thread_count:
+                    self._logger.error("something is fundamentally wrong, threading.active_count"
+                                       f" ({threading.active_count()}) != number of alive threads in"
+                                       f" self.__threads ({alive_thread_count}).  if using a library that runs a "
+                                       "background thread, be sure to add it to self.__threads for tracking")
+                    return False
+
+                header = DataHeader(
+                    data_type=Type.DRIVER_HEALTH_REPORT,
+                    sender=self.get_device_id(),
+                    priority=Priority.NO_TRANSMIT,
+                )
+                body = DriverHealthReport(
+                    self.is_healthy(),
+                    0,  # custom state bitvector, in the future this should be made meaningful
+                    threading.active_count(),
+                    [thread.status for thread in self.__threads.values() if thread.name != "main"],
+                )
+
+                packet = Packet(
+                    data_header=header,
+                    body=body,
+                )
                 succeeded = self._mqtt.send(Topic.HEALTH_HEARTBEAT, packet)
             except Exception as e:
                 self._logger.error(f"exception occurred while attempting to send heartbeat: {e}"
