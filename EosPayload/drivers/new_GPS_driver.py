@@ -62,7 +62,7 @@ class NewGPSDriver(PositionAwareDriverBase):
 
             logger.info(
                 f"Latitude: {gps_lat}°, Longitude: {gps_long}°, Altitude: {gps_alt} mm, Speed: {gps_speed} "
-                f"mm/s, Satellites: {gps_sat}, Fix Type: {gps_fix}")
+                f"mm/s, Satellites: {gps_sat}, Fix Type: {gps_fix}\n")
 
             # time
             try:

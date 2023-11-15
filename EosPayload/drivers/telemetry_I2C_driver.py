@@ -68,6 +68,7 @@ class TelemetryI2CDriver(DriverBase):
             humidity = 1
 
             logger.info(f"Temperature: {temperature}\n")
+            logger.info(f"Pressure: {pressure}\n")
 
             try:
                 telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
