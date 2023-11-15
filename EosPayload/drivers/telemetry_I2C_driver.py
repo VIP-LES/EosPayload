@@ -66,7 +66,7 @@ class TelemetryI2CDriver(DriverBase):
             current_time = datetime.now()
 
             pressure = self.mpr.pressure
-            humidity = -1
+            humidity = 1
 
             logger.info(f"Temperature: {temperature}\n")
 
@@ -76,7 +76,7 @@ class TelemetryI2CDriver(DriverBase):
                 logger.error(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
                 self.thread_sleep(logger, 2)
                 continue
-            
+
             header = DataHeader(
                 data_type=Type.TELEMETRY_DATA,
                 sender=self.get_device_id(),
