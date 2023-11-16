@@ -15,7 +15,7 @@ from EosLib.format.definitions import Type
 from EosPayload.lib.mqtt import Topic
 
 
-class NewGPSDriver(PositionAwareDriverBase):
+class GPSDriver(PositionAwareDriverBase):
     data_time_format = "%H:%M:%S %d/%m/%Y"
 
     def __init__(self, output_directory: str, config: dict) -> None:

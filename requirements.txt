@@ -1,5 +1,4 @@
-
-git+https://github.com/VIP-LES/EosLib@v4.3.5#egg=EosLib
+git+https://github.com/VIP-LES/EosLib@v4.4.0#egg=EosLib
 attrs==22.1.0
 colorama==0.4.5
 digi-xbee==1.4.1
@@ -32,6 +31,6 @@ Adafruit-BBIO~=1.2.0
 Adafruit-Blinka==8.22.4
 adafruit-platformdetect>=3.52.3
 pip>=22.3.1
-wheel~=0.37.1
+wheel~=0.41.3
 setuptools==67.1.0
 board~=1.0
