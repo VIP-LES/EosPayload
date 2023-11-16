@@ -350,7 +350,7 @@ class DriverBase:
                     self.is_healthy(),
                     0,  # custom state bitvector, in the future this should be made meaningful
                     threading.active_count(),
-                    [thread.status for thread in self.__threads.values() if thread.name != "main"],
+                    thread_statuses,
                 )
 
                 packet = Packet(
