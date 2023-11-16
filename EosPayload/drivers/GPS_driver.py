@@ -35,79 +35,80 @@ class GPSDriver(PositionAwareDriverBase):
 
     def device_read(self, logger: logging.Logger) -> None:
         logger.info("Starting GPS Driver!")
-        while True:
-            geo = self.gps.geo_coords()
-            gps_fix = geo.fixType  # fix type
-            if int(gps_fix) < 3:
-                # Try again if we don't have a fix yet.
-                logger.info("Waiting for fix...")
-                self.thread_sleep(logger, 1)
-                continue
+        try:
+            while True:
+                geo = self.gps.geo_coords()
+                gps_fix = geo.fixType  # fix type
+                if int(gps_fix) < 3:
+                    # Try again if we don't have a fix yet.
+                    logger.info("Waiting for fix...")
+                    self.thread_sleep(logger, 1)
+                    continue
 
-            gps_time = self.gps.date_time()
-            time_sec = gps_time.sec
-            time_min = gps_time.min
-            time_hr = gps_time.hour
-            time_day = gps_time.day
-            time_month = gps_time.month
-            time_year = gps_time.year
+                gps_time = self.gps.date_time()
+                time_sec = gps_time.sec
+                time_min = gps_time.min
+                time_hr = gps_time.hour
+                time_day = gps_time.day
+                time_month = gps_time.month
+                time_year = gps_time.year
 
-            # https://content.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_UBX-13003221.pdf
-            # page 304
-            gps_lat = geo.lat  # deg
-            gps_long = geo.lon  # deg
-            gps_alt = geo.hMSL  # mm
-            gps_speed = geo.gSpeed  # mm/s (2D speed)
-            gps_sat = geo.numSV  # num satellites
+                # https://content.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_UBX-13003221.pdf
+                # page 304
+                gps_lat = geo.lat  # deg
+                gps_long = geo.lon  # deg
+                gps_alt = geo.hMSL / 1000  # m
+                gps_speed = geo.gSpeed / 1000  # m/s (2D speed)
+                gps_sat = geo.numSV  # num satellites
 
+                logger.info(
+                    f"Latitude: {gps_lat}°, Longitude: {gps_long}°, Altitude: {gps_alt} mm, Speed: {gps_speed} "
+                    f"mm/s, Satellites: {gps_sat}, Fix Type: {gps_fix}\n")
 
-            logger.info(
-                f"Latitude: {gps_lat}°, Longitude: {gps_long}°, Altitude: {gps_alt} mm, Speed: {gps_speed} "
-                f"mm/s, Satellites: {gps_sat}, Fix Type: {gps_fix}\n")
-
-            # time
-            try:
-                # "%H:%M:%S %d/%m/%Y"
-                data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day,
-                                                                           time_month, time_year)
-                data_datetime = datetime.datetime.strptime(data_datetime_string, NewGPSDriver.data_time_format)
-                date_time = data_datetime.timestamp()
-
-            except Exception as e:
-                data_datetime = datetime.datetime.now()
-                date_time = data_datetime.timestamp()
-                logger.warning(f"Error parsing timestamp from GPS: {e}\n{traceback.format_exc()}"
-                               f"\nGPS time parts: hour={time_hr}, min={time_min}, sec={time_sec}, day={time_day}"
-                               f", month={time_month}, year={time_year}"
-                               "\nusing current system time instead")
-
-            data_points = [date_time, gps_lat, gps_long, gps_alt, gps_speed, gps_sat]
-            try:
-                self.data_log([str(datum) for datum in data_points])
-            except Exception as e:
-                logger.warning(f"exception thrown while logging data: {e}\n{traceback.format_exc()}")
-
-            if None in data_points:
-                logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
-                               f", alt={gps_alt}, speed={gps_speed}, sat={gps_sat}")
-            else:
-                position = Position(data_datetime, float(gps_lat), float(gps_long), float(gps_alt),
-                                    float(gps_speed), int(gps_sat), self.current_flight_state)
-
-                gps_packet = Packet(position, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
-                if self.gotten_first_fix is False:
-                    if position.valid:
-                        self.gotten_first_fix = True
-                        logger.info("Got first valid GPS fix")
-
+                # time
                 try:
-                    self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet)
+                    # "%H:%M:%S %d/%m/%Y"
+                    data_datetime_string = "{:02}:{:02}:{:02} {}/{}/{}".format(time_hr, time_min, time_sec, time_day,
+                                                                               time_month, time_year)
+                    data_datetime = datetime.datetime.strptime(data_datetime_string, GPSDriver.data_time_format)
+                    date_time = data_datetime.timestamp()
+
+                except Exception as e:
+                    data_datetime = datetime.datetime.now()
+                    date_time = data_datetime.timestamp()
+                    logger.warning(f"Error parsing timestamp from GPS: {e}\n{traceback.format_exc()}"
+                                   f"\nGPS time parts: hour={time_hr}, min={time_min}, sec={time_sec}, day={time_day}"
+                                   f", month={time_month}, year={time_year}"
+                                   "\nusing current system time instead")
+
+                data_points = [date_time, gps_lat, gps_long, gps_alt, gps_speed, gps_sat]
+                try:
+                    self.data_log([str(datum) for datum in data_points])
                 except Exception as e:
                     logger.warning(f"exception thrown while logging data: {e}\n{traceback.format_exc()}")
 
-                self.last_transmit_time = datetime.datetime.now()
+                if None in data_points:
+                    logger.warning(f"Invalid GPS packet: time={date_time}, lat={gps_lat}, long={gps_long}"
+                                   f", alt={gps_alt}, speed={gps_speed}, sat={gps_sat}")
+                else:
+                    position = Position(data_datetime, float(gps_lat), float(gps_long), float(gps_alt),
+                                        float(gps_speed), int(gps_sat), self.current_flight_state)
 
+                    gps_packet = Packet(position, DataHeader(Device.GPS, Type.POSITION, Priority.TELEMETRY))
+                    if self.gotten_first_fix is False:
+                        if position.valid:
+                            self.gotten_first_fix = True
+                            logger.info("Got first valid GPS fix")
+
+                    try:
+                        self._mqtt.send(Topic.RADIO_TRANSMIT, gps_packet)
+                        self.last_transmit_time = datetime.datetime.now()
+                    except Exception as e:
+                        logger.warning(f"exception thrown while sending mqtt packet: {e}\n{traceback.format_exc()}")
             self.thread_sleep(logger, 1)
+
+        except Exception as e:
+            logger.warning(f"Main GPS loop has thrown: {e}\n{traceback.format_exc()}")
 
     def cleanup(self):
         if self.uart:
