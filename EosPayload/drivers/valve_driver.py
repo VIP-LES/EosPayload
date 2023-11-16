@@ -21,7 +21,6 @@ except ModuleNotFoundError:
 
 
 class ValveDriver(PositionAwareDriverBase):
-    # Electrical team you will have to change this pin because this is currently used by cutdown
     valve_pin = "P9_21"
     time_valve_open = 5  
     auto_valve_altitude = 17000 
