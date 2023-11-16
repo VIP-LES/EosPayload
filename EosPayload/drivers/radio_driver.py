@@ -101,6 +101,7 @@ class RadioDriver(DriverBase):
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
+
                     '''
                     READING THE CSV FILE
                     transmit header makes up first 2 columns:
@@ -111,6 +112,7 @@ class RadioDriver(DriverBase):
                     t_h, d_h = packet_object.transmit_header, packet_object.data_header
                     self.data_log(["received", f"{t_h.send_seq_num}", f"{t_h.send_rssi}", Device(d_h.sender).name,
                                    Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name])
+
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -138,6 +140,7 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
+
                         '''
                         READING THE CSV FILE
                         transmit header makes up first 2 columns:

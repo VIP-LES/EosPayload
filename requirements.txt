@@ -23,6 +23,10 @@ adafruit-circuitpython-shtc3
 adafruit-circuitpython-bno055
 adafruit-circuitpython-gps
 adafruit-circuitpython-pm25
+adafruit-circuitpython-mprls
+sparkfun-qwiic
+spidev==3.6
+sparkfun-ublox-gps
 Adafruit-BBIO~=1.2.0
 Adafruit-Blinka==8.22.4
 adafruit-platformdetect>=3.52.3

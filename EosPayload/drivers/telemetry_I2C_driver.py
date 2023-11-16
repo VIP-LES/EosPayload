@@ -7,6 +7,7 @@ except NotImplementedError:
 import busio
 from adafruit_bno055 import BNO055_I2C
 from datetime import datetime
+import adafruit_mprls
 
 from EosLib.format import Type
 from EosLib.format.formats.telemetry_data import TelemetryData
@@ -24,6 +25,7 @@ class TelemetryI2CDriver(DriverBase):
         super().__init__(output_directory, config)
         self.bno = None
         self.i2c = None
+        self.mpr = None
 
     def setup(self) -> None:
         super().setup()
@@ -39,6 +41,7 @@ class TelemetryI2CDriver(DriverBase):
         logger.info("Starting to poll for data!")
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.bno = BNO055_I2C(self.i2c)
+        self.mpr = adafruit_mprls.MPRLS(self.i2c, psi_min=0, psi_max=25)
         count = 0
 
         while True:
@@ -61,11 +64,18 @@ class TelemetryI2CDriver(DriverBase):
                 logger.warning(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
 
             current_time = datetime.now()
+            pressure = self.mpr.pressure
+            humidity = 0
 
-            pressure = -1
-            humidity = -1
+            logger.info(f"Temperature: {temperature}\n")
+            logger.info(f"Pressure: {pressure}\n")
 
-            telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
+            try:
+                telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
+            except Exception as e:
+                logger.error(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
+                self.thread_sleep(logger, 2)
+                continue
 
             header = DataHeader(
                 data_type=Type.TELEMETRY_DATA,
