@@ -108,7 +108,7 @@ class ValveDriver(PositionAwareDriverBase):
             # response = Packet(valve, response_header)
             client.send(Topic.RADIO_TRANSMIT, response)
 
-            user_data['logger'].info(f"Received ACK for cutdown from device '{packet.data_header.sender}'"
+            user_data['logger'].info(f"Received ACK for valve from device '{packet.data_header.sender}'"
                                      f" with sequence number '{decoded_msg.ack}'")
 
 
