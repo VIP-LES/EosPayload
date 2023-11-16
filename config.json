@@ -37,7 +37,7 @@
     },
 
     {
-      "name": "gps-driver-new",
+      "name": "gps-driver",
       "driver_class": "GPSDriver",
       "device_id": "GPS",
       "enabled": true
