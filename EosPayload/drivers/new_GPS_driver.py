@@ -38,7 +38,7 @@ class NewGPSDriver(PositionAwareDriverBase):
         while True:
             geo = self.gps.geo_coords()
             gps_fix = geo.fixType  # fix type
-            if int(gps_fix) == 0:
+            if int(gps_fix) < 3:
                 # Try again if we don't have a fix yet.
                 logger.info("Waiting for fix...")
                 self.thread_sleep(logger, 1)
