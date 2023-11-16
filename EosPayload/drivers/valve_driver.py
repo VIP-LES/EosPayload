@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 class ValveDriver(PositionAwareDriverBase):
     valve_pin = "P9_21"
     time_valve_open = 5  
-    auto_valve_altitude = 17000 
+    auto_valve_altitude = 18000
 
     def __init__(self, output_directory: str, config: dict) -> None:
         super().__init__(output_directory, config)
