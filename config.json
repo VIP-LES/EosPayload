@@ -19,28 +19,21 @@
       "name": "camera-driver",
       "driver_class": "CameraDriver",
       "device_id": "CAMERA_1",
-      "enabled": false
+      "enabled": true
     },
 
     {
       "name": "cutdown-driver",
       "driver_class": "CutdownDriver",
       "device_id": "CUTDOWN",
-      "enabled": false
+      "enabled": true
     },
 
     {
       "name": "valve-driver",
       "driver_class": "ValveDriver",
       "device_id": "VALVE",
-      "enabled": false
-    },
-
-    {
-      "name": "gps-driver",
-      "driver_class": "GPSDriver",
-      "device_id": "GPS",
-      "enabled": false
+      "enabled": true
     },
 
     {
@@ -54,7 +47,7 @@
       "name": "science-driver",
       "driver_class": "ScienceDriver",
       "device_id": "MISC_SENSOR_1",
-      "enabled": false
+      "enabled": true
     },
 
     {
