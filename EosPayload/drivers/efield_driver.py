@@ -1,14 +1,14 @@
-from EosPayload.lib.base_drivers.driver_base import DriverBase
-import time
 import logging
+import traceback
+
+
 from EosLib.format.formats.e_field import EField
-from EosLib.packet.data_header import DataHeader
 from EosLib.format import Type
-
 from EosLib.packet import Packet
-
+from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
 
+from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
 
 try:
@@ -44,15 +44,26 @@ class ElectricFieldSensor(DriverBase):
         while True:
             try:
                 # Read the voltage from the ADC pin
-                values = [ADC.read(pin) for pin in adc_pins]
-                voltages = [value * 1.0 for value in values]
-                for i, pin in enumerate(adc_pins):
-                    self._logger.info(f"ADC{pin}, Voltage: {voltages[i]:.2f} V")
+                voltages = [ADC.read(pin) for pin in adc_pins]
 
             except Exception as e:
-                self._logger.info(f"An error occurred while reading voltages: {e}")
+                self._logger.info(f"An error occurred while reading voltages: {e}\n{traceback.format_exc()}")
 
-            efield_obj = EField(voltages[0], voltages[1], voltages[2])
+            try:
+                row = []
+                for value in voltages:
+                    row.append(str(value))
+                # logged as Voltage 1, Voltage 2, Voltage 3
+                self.data_log(row)
+            except Exception as e:
+                logger.error(f"An unhandled exception occurred while logging data: {e}\n{traceback.format_exc()}")
+
+            try:
+                efield_obj = EField(voltages[0], voltages[1], voltages[2])
+            except Exception as e:
+                logger.error(f"exception occurred while creating EField format: {e}\n{traceback.format_exc()}")
+                self.thread_sleep(logger, 2)
+                continue
 
             header = DataHeader(
                 data_type=Type.E_FIELD,
