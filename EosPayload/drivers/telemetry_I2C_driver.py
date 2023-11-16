@@ -65,7 +65,7 @@ class TelemetryI2CDriver(DriverBase):
 
             current_time = datetime.now()
             pressure = self.mpr.pressure
-            humidity = 1
+            humidity = 0
 
             logger.info(f"Temperature: {temperature}\n")
             logger.info(f"Pressure: {pressure}\n")
