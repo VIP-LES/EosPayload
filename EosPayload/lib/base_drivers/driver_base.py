@@ -375,13 +375,14 @@ class DriverBase:
         """ Logs row of data to a CSV file
         This function is not thread safe -- invoke from at most 1 thread.
 
-        :param data: an array of strings, or a pre-encoded csv row
+        :param data: an array of strings, or a pre-encoded csv row.  If array, the current isoformat timestamp is
+                     prepended and a newline is appended.
         :return: True on success, False otherwise
         """
-        timestamp = datetime.now().isoformat()
         if isinstance(data, str):
-            data_str = data + "\n"
+            data_str = data
         else:
+            timestamp = datetime.now().isoformat()
             data_str = ','.join([timestamp, *data]) + "\n"
         self.__data_file.write(data_str)
         self.__data_file.flush()
