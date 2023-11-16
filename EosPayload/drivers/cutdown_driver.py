@@ -20,7 +20,7 @@ except ModuleNotFoundError:
 class CutdownDriver(PositionAwareDriverBase):
     cutdown_pin = "P9_30"
     time_pulled_high = 10  # seconds
-    auto_cutdown_altitude = 23000
+    auto_cutdown_altitude = 24000
 
     def __init__(self, output_directory: str, config: dict) -> None:
         super().__init__(output_directory, config)
