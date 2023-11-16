@@ -19,7 +19,7 @@ except ModuleNotFoundError:
 
 class CutdownDriver(PositionAwareDriverBase):
     cutdown_pin = "P9_30"
-    time_pulled_high = 10  # seconds
+    time_pulled_high = 2  # seconds
     auto_cutdown_altitude = 23000
 
     def __init__(self, output_directory: str, config: dict) -> None:
@@ -52,26 +52,8 @@ class CutdownDriver(PositionAwareDriverBase):
         super().cleanup()
 
     def device_read(self, logger: logging.Logger) -> None:
-        while True:
-            # auto cutdown based on altitude
-            try:
-                altitude = self.latest_position.altitude
-                if not self.has_triggered and altitude > self.auto_cutdown_altitude:
-                    logger.info(f"reached auto cutdown altitude of {self.auto_cutdown_altitude} meters"
-                                f", triggering cutdown")
-                    self.has_triggered = True
-                    self.cutdown_trigger()
-            except TypeError:
-                logger.info("No Altitude Data")
-
-            # manual cutdown based on command from ground station
-            if not self._command_queue.empty():
-                decoded_msg = self._command_queue.get(block=False)
-                logger.info(f"received cutdown command {decoded_msg}, triggering cutdown")
-                self.has_triggered = True
-                self.cutdown_trigger()
-
-            self.thread_sleep(logger, 5)
+        self.cutdown_trigger()
+        self.thread_spin(logger)
 
     def cutdown_trigger(self):
         self._logger.info("~~~PULLING PIN HIGH~~~")
@@ -80,30 +62,3 @@ class CutdownDriver(PositionAwareDriverBase):
         GPIO.output(CutdownDriver.cutdown_pin, GPIO.LOW)
         self._logger.info("~~~PULLING PIN LOW~~~")
 
-    def cutdown_trigger_mqtt(self, client, user_data, message):
-        try:
-            packet = Packet.decode(message.payload)
-            if packet.data_header.data_type != Type.CUTDOWN:
-                user_data['logger'].error(f"Incorrect type {packet.data_header.data_type}, expected CutDown")
-                return
-
-            decoded_msg = CutDown.decode(packet.body.encode())
-
-            user_data['logger'].info(f"Received cutdown command {decoded_msg.ack}")
-            user_data['queue'].put(decoded_msg.ack)
-
-            response_header = DataHeader(
-                data_type=Type.CUTDOWN,
-                sender=self.get_device_id(),
-                priority=Priority.URGENT,
-                destination=packet.data_header.sender
-            )
-
-            response = Packet(CutDown(decoded_msg.ack), response_header)
-            client.send(Topic.RADIO_TRANSMIT, response)
-
-            user_data['logger'].info(f"Received ACK for cutdown from device '{packet.data_header.sender}'"
-                                     f" with sequence number '{decoded_msg.ack}'")
-
-        except Exception as e:
-            user_data['logger'].error(f"Got exception {e}\n{traceback.format_exc()}")
