@@ -72,11 +72,9 @@ class ElectricFieldSensor(DriverBase):
                     data_header=header,
                 )
                 self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
-
-                self.thread_sleep(logger, 2)
+                self.thread_sleep(logger, 1)
             except Exception as e:
                 logger.error(f"exception occurred while creating EField format: {e}\n{traceback.format_exc()}")
-                self.thread_sleep(logger, 1)
 
 
 
