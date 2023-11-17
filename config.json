@@ -66,9 +66,9 @@
     },
 
     {
-      "name": "electric_field_sensor",
+      "name": "electric-field-sensor",
       "driver_class": "ElectricFieldSensor",
-      "device_id": "MISC_3",
+      "device_id": "MISC_SENSOR_3",
       "enabled": true
     }
   ]
