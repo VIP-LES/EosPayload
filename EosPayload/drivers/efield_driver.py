@@ -41,7 +41,9 @@ class ElectricFieldSensor(DriverBase):
     def device_read(self, logger: logging.Logger) -> None:
         adc_pins = [self.pin_1, self.pin_2, self.pin_3]
         voltages = [None, None, None]
+        counter = 0
         while True:
+            counter += 1
             try:
                 # Read the voltage from the ADC pin
                 voltages[0] = ADC.read(self.pin_1)
@@ -60,21 +62,22 @@ class ElectricFieldSensor(DriverBase):
             except Exception as e:
                 logger.error(f"An unhandled exception occurred while logging data: {e}\n{traceback.format_exc()}")
 
-            try:
-                efield_obj = EField(voltages[0], voltages[1], voltages[2])
-                header = DataHeader(
-                    data_type=Type.E_FIELD,
-                    sender=self.get_device_id(),
-                    priority=Priority.DATA
-                )
-                packet = Packet(
-                    body=efield_obj,
-                    data_header=header,
-                )
-                self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
-                self.thread_sleep(logger, 1)
-            except Exception as e:
-                logger.error(f"exception occurred while creating EField format: {e}\n{traceback.format_exc()}")
+            if counter % 5 == 0:
+                try:
+                    efield_obj = EField(voltages[0], voltages[1], voltages[2])
+                    header = DataHeader(
+                        data_type=Type.E_FIELD,
+                        sender=self.get_device_id(),
+                        priority=Priority.DATA
+                    )
+                    packet = Packet(
+                        body=efield_obj,
+                        data_header=header,
+                    )
+                    self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
+                    self.thread_sleep(logger, 1)
+                except Exception as e:
+                    logger.error(f"exception occurred while creating EField format: {e}\n{traceback.format_exc()}")
 
 
 
