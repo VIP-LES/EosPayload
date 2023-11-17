@@ -15,7 +15,10 @@ from digi.xbee.devices import RemoteXBeeDevice
 from digi.xbee.devices import XBee64BitAddress
 
 from EosLib.device import Device
+from EosLib.format.decode_factory import decode_factory
+from EosLib.format.definitions import Type
 from EosLib.packet import Packet
+from EosLib.packet.definitions import Priority
 from EosLib.packet.transmit_header import TransmitHeader
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
@@ -30,7 +33,8 @@ class RadioDriver(DriverBase):
     device_map = {
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
-        Device.CUTDOWN: Topic.CUTDOWN_COMMAND
+        Device.CUTDOWN: Topic.CUTDOWN_COMMAND,
+        Device.VALVE: Topic.VALVE_COMMAND
     }
 
     def __init__(self, output_directory: str, config: dict) -> None:
@@ -88,13 +92,27 @@ class RadioDriver(DriverBase):
         def data_receive_callback(xbee_message):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
-            logger.info(packet)
-            packet_object = Packet.decode(packet)  # convert packet bytearray to packet object
+            try:
+                packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
+            except Exception as e:
+                logger.error(f"Exception occurred while receiving packet: {e}\n{traceback.format_exc()}\n{packet}")
+                return
 
             # Try to data log the packet, but we really don't want to block in a callback
             if self.log_lock.acquire(blocking=False):
                 try:
-                    self.data_log(["received", packet_object.encode_to_string()])
+
+                    '''
+                    READING THE CSV FILE
+                    transmit header makes up first 2 columns:
+                            sequence number, RSSI
+                        data header makes up last 4 columns:
+                            sender, data type, priority, destination
+                    '''
+                    t_h, d_h = packet_object.transmit_header, packet_object.data_header
+                    self.data_log(["received", f"{t_h.send_seq_num}", f"{t_h.send_rssi}", Device(d_h.sender).name,
+                                   Type(d_h.data_type).name, Priority(d_h.priority).name, Device(d_h.destination).name])
+
                 except Exception as e:
                     logger.error(f"Exception occurred while logging packet: {e}")
                 self.log_lock.release()
@@ -104,7 +122,8 @@ class RadioDriver(DriverBase):
             dest = packet_object.data_header.destination  # packet object
             if dest in self.device_map:  # mapping from device to mqtt topic
                 mqtt_topic = self.device_map[dest]
-                self._mqtt.send(mqtt_topic, packet)
+
+                self._mqtt.send(mqtt_topic, packet_object)
             else:
                 logger.info("no mqtt destination mapping")
 
@@ -121,7 +140,18 @@ class RadioDriver(DriverBase):
                 # Store to data file
                 if self.log_lock.acquire(blocking=False):
                     try:
-                        self.data_log(["sent", packet_from_mqtt.encode_to_string()])
+
+                        '''
+                        READING THE CSV FILE
+                        transmit header makes up first 2 columns:
+                            sequence number, RSSI
+                        data header makes up last 4 columns:
+                            sender, data type, priority, destination
+                        '''
+                        t_h, d_h = packet_from_mqtt.transmit_header, packet_from_mqtt.data_header
+                        self.data_log(["sent", f"{t_h.send_seq_num}", f"{t_h.send_rssi}", Device(d_h.sender).name,
+                                       Type(d_h.data_type).name, Priority(d_h.priority).name,
+                                       Device(d_h.destination).name])
                     except Exception as e:
                         logger.error(f"Exception occurred while logging packet: {e}")
 

@@ -17,7 +17,7 @@ class LEDDriver(DriverBase):
 
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
-        self.led_1 = "P9_21"
+        # self.led_1 = "P9_21"
         self.led_2 = "P9_23"
         self.led_3 = "P9_25"
 
@@ -31,14 +31,14 @@ class LEDDriver(DriverBase):
 
         self.register_thread('device-command', self.device_command)
 
-        GPIO.setup(self.led_1, GPIO.OUT)
+        # GPIO.setup(self.led_1, GPIO.OUT)
         GPIO.setup(self.led_2, GPIO.OUT)
         GPIO.setup(self.led_3, GPIO.OUT)
 
     def device_command(self, logger: logging.Logger) -> None:
         pin_state = 0
         while True:
-            GPIO.output(self.led_1, pin_state)
+            GPIO.output(self.led_2, pin_state)
             if pin_state == 0:
                 pin_state = 1
             else:
@@ -47,7 +47,7 @@ class LEDDriver(DriverBase):
 
     def cleanup(self):
         try:
-            GPIO.output(self.led_1, 0)
+            # GPIO.output(self.led_1, 0)
             GPIO.output(self.led_2, 0)
             GPIO.output(self.led_3, 0)
 
