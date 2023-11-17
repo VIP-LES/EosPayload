@@ -69,6 +69,13 @@
       "driver_class": "LEDDriver",
       "device_id": "MISC_2",
       "enabled": true
+    },
+
+    {
+      "name": "electric-field-sensor",
+      "driver_class": "ElectricFieldSensor",
+      "device_id": "MISC_SENSOR_3",
+      "enabled": true
     }
   ]
 }
