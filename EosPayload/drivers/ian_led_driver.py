@@ -36,7 +36,7 @@ class IanLEDDriver(DriverBase):
             else:
                 self.counter += 1
                 pin_state = 0
-                logger.info("Cumulative Number of Blinks: " + self.counter)
+                logger.info(f"Cumulative Number of Blinks: {self.counter}")
                 self.thread_sleep(logger, 0.5)
 
     def cleanup(self):
