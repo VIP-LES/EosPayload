@@ -80,7 +80,7 @@
 
     {
       "name": "test-led-sensor",
-      "driver_class": "TestLed",
+      "driver_class": "LEDDriver1",
       "device_id": "MISC_SENSOR_4",
       "enabled": true
     }
