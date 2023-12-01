@@ -32,7 +32,7 @@ class TestLedDriver(DriverBase):
             if pin_state == 0:
                 pin_state = 1
                 count += 1
-                self._logger.info(count)
+                self._logger.info(str(count))
             else:
                 pin_state = 0
             self.thread_sleep(logger, 3)
