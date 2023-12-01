@@ -5,75 +5,82 @@
       "name": "radio-driver",
       "driver_class": "RadioDriver",
       "device_id": "RADIO",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "ping-driver",
       "driver_class": "PingDriver",
       "device_id": "MISC_RADIO_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "camera-driver",
       "driver_class": "CameraDriver",
       "device_id": "CAMERA_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "cutdown-driver",
       "driver_class": "CutdownDriver",
       "device_id": "CUTDOWN",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "valve-driver",
       "driver_class": "ValveDriver",
       "device_id": "VALVE",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "gps-driver",
       "driver_class": "GPSDriver",
       "device_id": "GPS",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "science-driver",
       "driver_class": "ScienceDriver",
       "device_id": "MISC_SENSOR_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "telemetry-driver",
       "driver_class": "TelemetryI2CDriver",
       "device_id": "MISC_SENSOR_2",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "position-aware-logging-driver",
       "driver_class": "PositionAwareLoggingDriver",
       "device_id": "MISC_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "led-driver",
       "driver_class": "LEDDriver",
       "device_id": "MISC_2",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "electric-field-sensor",
       "driver_class": "ElectricFieldSensor",
+      "device_id": "MISC_SENSOR_3",
+      "enabled": false
+    },
+
+    {
+      "name": "test-led-driver",
+      "driver_class": "TestLedDriver",
       "device_id": "MISC_SENSOR_3",
       "enabled": true
     }

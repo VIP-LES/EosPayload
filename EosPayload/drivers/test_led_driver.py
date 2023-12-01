@@ -10,7 +10,7 @@ from EosPayload.lib.base_drivers.driver_base import DriverBase
 class TestLedDriver(DriverBase):
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
-        self.led_1 = "P8_7"
+        self.led_1 = "P9_21"
 
     def setup(self) -> None:
         super().setup()
