@@ -18,7 +18,7 @@ class LEDDriver1(DriverBase):
             GPIO
         except NameError:
             raise Exception("failed to import GPIO library")
-        self.register_thread("led_controller", self.led_controller)
+        self.register_thread("led-controller", self.led_controller)
         GPIO.setup(self.led, GPIO.OUT)
 
     def led_controller(self, logger: logging.Logger) -> None:
