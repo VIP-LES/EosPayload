@@ -9,7 +9,7 @@ from EosPayload.lib.base_drivers.driver_base import DriverBase
 class LEDDriver(DriverBase):
     def __init__(self, output_directory: str, config: dict):
         super().__init__(output_directory, config)
-        self.led = "P9_12"
+        self.led = "P9_21"
         self.count = 0
 
     def setup(self) -> None:

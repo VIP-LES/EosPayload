@@ -15,11 +15,11 @@ services:
       - .:/usr/src/app:ro
       - /run/udev:/run/udev:ro
       - /dev:/dev
-    restart: always
+#    restart: always
 
   mosquitto:
     image: eclipse-mosquitto:2
     network_mode: "host"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:rw
-    restart: always
+#    restart: always
