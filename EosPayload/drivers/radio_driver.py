@@ -54,7 +54,7 @@ class RadioDriver(DriverBase):
         self.register_thread('device-read', self.device_read)
         self.register_thread('device-command', self.device_command)
 
-        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PG7VE"
+        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PFN6C2"
         context = pyudev.Context()
         device_list = []
         retries_left = 4
@@ -79,7 +79,7 @@ class RadioDriver(DriverBase):
                 self.port.send_data_broadcast("Testing")
                 self._logger.info("Configuring remote")
                 self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
-                    "0013A20041CB8CD8"))  # on the chip itself there is a number on the top right. It should be 4!
+                    "0013A20041CB93E5"))  # on the chip itself there is a number on the top right. It should be 4!
                 self.remote.disable_acknowledgement = True
                 self._logger.info("Successfully initialized XBee")
                 break
