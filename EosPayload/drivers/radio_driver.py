@@ -54,7 +54,7 @@ class RadioDriver(DriverBase):
         self.register_thread('device-read', self.device_read)
         self.register_thread('device-command', self.device_command)
 
-        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PFN6C2"
+        serial_id = "FTDI_XBIB-XBP9XR-0_FT5PFN6C"
         context = pyudev.Context()
         device_list = []
         retries_left = 4
