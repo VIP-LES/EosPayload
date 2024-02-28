@@ -1,4 +1,4 @@
-git+https://github.com/VIP-LES/EosLib@73-downlink-retransmission#egg=EosLib
+git+https://github.com/VIP-LES/EosLib@100-eoslib-downlink-files#egg=EosLib
 attrs==22.1.0
 colorama==0.4.5
 digi-xbee==1.4.1
