@@ -78,8 +78,9 @@ class RadioDriver(DriverBase):
                 self._logger.info("Sending test broadcast")
                 self.port.send_data_broadcast("Testing")
                 self._logger.info("Configuring remote")
-                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
-                    "0013A20041CB93E5"))  # on the chip itself there is a number on the top right. It should be 4!
+                # self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
+                #    "0013A20041CB93E5"))  # on the chip itself there is a number on the top right. It should be 4!
+                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("0013A20041CB8CD8"))
                 self.remote.disable_acknowledgement = True
                 self._logger.info("Successfully initialized XBee")
                 break
