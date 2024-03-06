@@ -34,7 +34,8 @@ class RadioDriver(DriverBase):
         Device.RADIO: Topic.RADIO_TRANSMIT,
         Device.MISC_RADIO_1: Topic.PING_COMMAND,
         Device.CUTDOWN: Topic.CUTDOWN_COMMAND,
-        Device.VALVE: Topic.VALVE_COMMAND
+        Device.VALVE: Topic.VALVE_COMMAND,
+        Device.DOWNLINK: Topic.DOWNLINK_COMMAND
     }
 
     def __init__(self, output_directory: str, config: dict) -> None:

@@ -43,7 +43,7 @@ class PingDriver(DriverBase):
         counter = 0
         while True:
             self.ping_ground(counter, logger)
-            counter = counter + 1
+            counter = (counter + 1) % 256
             self.thread_sleep(logger, 60)
 
     def ping_reply(self, client, user_data, message):
@@ -91,5 +91,5 @@ class PingDriver(DriverBase):
 
         packet = Packet(Ping(PingEnum.PING, counter), header)
         if self._mqtt:
-            logger.info("pinging ground: Ping " + f'{counter}')
+            logger.info(f'pinging ground: Ping {counter}')
             self._mqtt.send(Topic.RADIO_TRANSMIT, packet)
