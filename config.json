@@ -19,21 +19,21 @@
       "name": "camera-driver",
       "driver_class": "CameraDriver",
       "device_id": "CAMERA_1",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "cutdown-driver",
       "driver_class": "CutdownDriver",
       "device_id": "CUTDOWN",
-      "enabled": true
+      "enabled": false
     },
 
     {
       "name": "valve-driver",
       "driver_class": "ValveDriver",
       "device_id": "VALVE",
-      "enabled": true
+      "enabled": false
     },
 
     {
@@ -75,7 +75,7 @@
       "name": "electric-field-sensor",
       "driver_class": "ElectricFieldSensor",
       "device_id": "MISC_SENSOR_3",
-      "enabled": true
+      "enabled": false
     }
   ]
 }
