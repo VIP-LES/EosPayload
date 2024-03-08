@@ -12,7 +12,7 @@
       "name": "ping-driver",
       "driver_class": "PingDriver",
       "device_id": "MISC_RADIO_1",
-      "enabled": false
+      "enabled": true
     },
 
     {
