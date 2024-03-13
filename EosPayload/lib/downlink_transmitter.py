@@ -43,7 +43,7 @@ class DownlinkTransmitter:
         return DownlinkChunkFormat(chunk_num, chunk_body)
 
     def get_next_chunk(self) -> DownlinkChunkFormat | None:
-        # Get the next chunk from the queue
+        # Stop if queue is empty
         if self.chunk_queue.empty():
             return None
 

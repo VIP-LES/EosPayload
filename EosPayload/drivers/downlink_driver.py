@@ -12,6 +12,7 @@ from EosLib.packet.packet import Packet
 from EosLib.device import Device
 
 from EosLib.format.formats.downlink_header_format import DownlinkCommandFormat, DownlinkCommand
+from EosLib.format.formats.downlink_chunk_format import DownlinkChunkFormat
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
@@ -53,8 +54,8 @@ class DownlinkDriver(DriverBase):
                 # send START_ACK packet back with num_chunks
                 self.start_ack(user_data['logger'])
             elif command_type is DownlinkCommand.START_ACK:
-                #TODO start transmission of all chunks to ground station
-                pass
+                # start transmission of all chunks to ground station
+                self.transmit_chunks(user_data['logger'])
             elif command_type is DownlinkCommand.RETRANSMIT_MISSING_CHUNKS:
                 if decoded_packet.missing_chunks:
                     #TODO transmit only the chunk numbers given in packet
@@ -65,25 +66,6 @@ class DownlinkDriver(DriverBase):
             else:
                 pass
                 #TODO print error for invalid command type, and send ERROR packet
-        #
-        #     if command:
-        #         user_data['logger'].info(f"received PING command from device '{packet.data_header.sender}'"
-        #                                  f" with sequence number '{seq_num}'")
-        #
-        #         response_header = DataHeader(
-        #             data_type=Type.PING,
-        #             sender=self.get_device_id(),
-        #             priority=Priority.TELEMETRY,
-        #             destination=packet.data_header.sender
-        #         )
-        #
-        #         response = Packet(Ping(PingEnum.ACK, seq_num), response_header)
-        #         client.send(Topic.RADIO_TRANSMIT, response)
-        #
-        #     else:
-        #         user_data['logger'].info(f"received ACK for ping from device '{packet.data_header.sender}'"
-        #                                  f" with sequence number '{seq_num}'")
-        #
         except Exception as e:
             # this is needed b/c apparently an exception in a callback kills the mqtt thread
             user_data['logger'].error(f"an unhandled exception occurred while processing ping_reply: {e}"
@@ -121,17 +103,27 @@ class DownlinkDriver(DriverBase):
             logger.info('sending START_ACK packet for downlink')
             self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
-    def transmit_chunks(self):
-        pass
+    def transmit_chunks(self, logger: logging.Logger):
+        # loops through all the chunks
+        while (cur_chunk := self.transmitter.get_next_chunk()) is not None:
+            # send chunk to ground station
+            data_header = DataHeader(
+                data_type=Type.DOWNLINK_CHUNK,
+                sender=self.get_device_id(),
+                priority=Priority.DATA,
+            )
+            downlink_packet = Packet(cur_chunk, data_header)
+
+            if self._mqtt:
+                logger.info(f'sending chunk {cur_chunk.chunk_num}')
+                self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
     def cleanup(self):
-
+        if self.downlink_file:
+            self.downlink_file.close()
         super().cleanup()
 
     # def transmit_data(self, logger: logging.Logger):
-    #
-    #         # send packet to receiver in ground station
-    #         send_to_receiver(downlink_packet)
     #
     #         receiver = DownlinkReceiver(downlink_packet, transmitter.get_downlink_header(), png_dir)
     #
