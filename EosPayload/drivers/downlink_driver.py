@@ -66,6 +66,7 @@ class DownlinkDriver(DriverBase):
                     pass
             elif command_type is DownlinkCommand.STOP_TRANSMISSION:
                 # TODO send STOP_TRANSMISSION packet, ending downlink
+                pass
             else:
                 pass
                 #TODO print error for invalid command type, and send ERROR packet
