@@ -58,11 +58,14 @@ class DownlinkDriver(DriverBase):
                 self.transmit_chunks(user_data['logger'])
             elif command_type is DownlinkCommand.RETRANSMIT_MISSING_CHUNKS:
                 if decoded_packet.missing_chunks:
-                    #TODO transmit only the chunk numbers given in packet
-                    pass
+                    # transmit only the missing chunk numbers given in packet
+                    self.transmitter.add_ack(decoded_packet)
+                    self.transmit_chunks(user_data['logger'])
                 else:
-                    #TODO send STOP_TRANSMISSION packet, ending downlink
+                    #TODO print error for invalid command type, and send ERROR packet
                     pass
+            elif command_type is DownlinkCommand.STOP_TRANSMISSION:
+                # TODO send STOP_TRANSMISSION packet, ending downlink
             else:
                 pass
                 #TODO print error for invalid command type, and send ERROR packet
