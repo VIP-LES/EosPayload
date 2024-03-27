@@ -62,14 +62,14 @@ class DownlinkDriver(DriverBase):
                     self.transmitter.add_ack(decoded_packet)
                     self.transmit_chunks(user_data['logger'])
                 else:
-                    #TODO print error for invalid command type, and send ERROR packet
+                    # TODO print error for invalid command type, and send ERROR packet
                     pass
             elif command_type is DownlinkCommand.STOP_TRANSMISSION:
-                # TODO send STOP_TRANSMISSION packet, ending downlink
-                pass
+                # send STOP_TRANSMISSION packet, ending downlink
+                self.stop_transmission(user_data['logger'])
             else:
                 pass
-                #TODO print error for invalid command type, and send ERROR packet
+                # TODO print error for invalid command type, and send ERROR packet
         except Exception as e:
             # this is needed b/c apparently an exception in a callback kills the mqtt thread
             user_data['logger'].error(f"an unhandled exception occurred while processing ping_reply: {e}"
@@ -121,6 +121,20 @@ class DownlinkDriver(DriverBase):
             if self._mqtt:
                 logger.info(f'sending chunk {cur_chunk.chunk_num}')
                 self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
+
+    def stop_transmission(self, logger: logging.Logger):
+        # create STOP_TRANSMISSION packet
+        data_header = DataHeader(
+            data_type=Type.DOWNLINK_COMMAND,
+            sender=self.get_device_id(),
+            priority=Priority.DATA,
+        )
+        downlink_header = self.transmitter.get_downlink_header(DownlinkCommand.STOP_TRANSMISSION)
+        downlink_packet = Packet(downlink_header, data_header)
+
+        if self._mqtt:
+            logger.info('sending STOP_TRANSMISSION packet for downlink')
+            self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
     def cleanup(self):
         if self.downlink_file:
