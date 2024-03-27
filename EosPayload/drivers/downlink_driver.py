@@ -48,7 +48,7 @@ class DownlinkDriver(DriverBase):
                                           f"{Topic.DOWNLINK_COMMAND.value}: {e}")
                 return
 
-            decoded_packet = DownlinkCommandFormat.decode(packet.body.encode())
+            decoded_packet = DownlinkCommandFormat.decode(packet.body) # TODO mess around with packet encoding/decoding
             command_type = decoded_packet.command_type
 
             # pass packet to correct function based on the command type
@@ -68,8 +68,7 @@ class DownlinkDriver(DriverBase):
                     pass
             elif command_type is DownlinkCommand.STOP_TRANSMISSION:
                 # send STOP_TRANSMISSION packet, ending downlink
-                self.stop_transmissio
-                n(user_data['logger'])
+                self.stop_transmission(user_data['logger'])
             else:
                 pass
                 # TODO print error for invalid command type, and send ERROR packet
