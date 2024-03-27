@@ -35,6 +35,8 @@ class DownlinkDriver(DriverBase):
         if self._mqtt:
             self._mqtt.user_data_set({'logger': logger})
             self._mqtt.register_subscriber(Topic.DOWNLINK_COMMAND, self.downlink_packet)
+        while True:
+            self.thread_sleep(logger, 20)
 
     def downlink_packet(self, client, user_data, message):
         try:
@@ -75,7 +77,7 @@ class DownlinkDriver(DriverBase):
             user_data['logger'].error(f"an unhandled exception occurred while processing ping_reply: {e}"
                                       f"\n{traceback.format_exc()}")
 
-    def start_ack(self, logger: logging.Logger):
+    def start_ack(self, logger: logging.Logger) -> None:
         # Define the name of the TAR archive
         archive_name = "EosPayload.tar.gz"
 
@@ -107,7 +109,7 @@ class DownlinkDriver(DriverBase):
             logger.info('sending START_ACK packet for downlink')
             self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
-    def transmit_chunks(self, logger: logging.Logger):
+    def transmit_chunks(self, logger: logging.Logger) -> None:
         # loops through all the chunks
         while (cur_chunk := self.transmitter.get_next_chunk()) is not None:
             # send chunk to ground station
