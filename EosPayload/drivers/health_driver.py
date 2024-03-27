@@ -1,5 +1,4 @@
 import logging
-import os
 import traceback
 from queue import Queue
 
@@ -7,6 +6,9 @@ from EosLib.format import Type
 from EosLib.packet import Packet
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
+from EosLib.format.formats.health.driver_health_report import DriverHealthReport
+from EosLib.format.formats.health.health_query import HealthQuery
+from EosLib.format.formats.health.health_response import HealthResponse
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
