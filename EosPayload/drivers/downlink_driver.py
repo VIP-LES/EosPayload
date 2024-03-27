@@ -68,7 +68,8 @@ class DownlinkDriver(DriverBase):
                     pass
             elif command_type is DownlinkCommand.STOP_TRANSMISSION:
                 # send STOP_TRANSMISSION packet, ending downlink
-                self.stop_transmission(user_data['logger'])
+                self.stop_transmissio
+                n(user_data['logger'])
             else:
                 pass
                 # TODO print error for invalid command type, and send ERROR packet
