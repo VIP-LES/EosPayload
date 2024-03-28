@@ -94,6 +94,7 @@ class RadioDriver(DriverBase):
             packet = xbee_message.data  # raw bytearray packet
             logger.info("Packet received ~~~~~~")
             try:
+                self._logger.info(f"Size of packet {len(packet)}") # just for testing
                 packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
             except Exception as e:
                 logger.error(f"Exception occurred while receiving packet: {e}\n{traceback.format_exc()}\n{packet}")
