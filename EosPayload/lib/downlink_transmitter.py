@@ -34,7 +34,7 @@ class DownlinkTransmitter:
 
     def get_downlink_header(self, command_type: DownlinkCommand) -> DownlinkCommandFormat:
         # Generate and return a DownlinkCommandFormat for the downlink header
-        return DownlinkCommandFormat(self.file_id, self.num_chunks, command_type)
+        return DownlinkCommandFormat(self.file_id, self.num_chunks, command_type, self.unacknowledged_chunks)
 
     def get_chunk(self, chunk_num: int) -> DownlinkChunkFormat:
         # Read and return a specific chunk from the downlink_file
