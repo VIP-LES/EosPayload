@@ -71,6 +71,8 @@ class PingDriver(DriverBase):
                 )
 
                 response = Packet(Ping(PingEnum.ACK, seq_num), response_header)
+                user_data['logger'].info(f"Sending PING RESPONSE from device '{packet.data_header.sender}'"
+                                         f" with sequence number '{seq_num}'")
                 client.send(Topic.RADIO_TRANSMIT, response)
 
             else:
