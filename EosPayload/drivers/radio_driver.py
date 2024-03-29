@@ -97,6 +97,8 @@ class RadioDriver(DriverBase):
                 self._logger.info(f"Size of packet {len(bytes(packet))}") # just for testing
                 packet_object = Packet.decode(bytes(packet))  # convert packet bytearray to packet object
                 self._logger.info(f"Packet received from {packet.data_header}")  # just for testing
+                self._logger.info(f"Packet received from {packet.transmit_header}")  # just for testing
+                self._logger.info(f"Packet received from {packet.body}")  # just for testing
             except Exception as e:
                 logger.error(f"Exception occurred while receiving packet: {e}\n{traceback.format_exc()}\n{packet}")
                 return
