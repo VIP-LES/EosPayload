@@ -62,10 +62,10 @@ class DownlinkDriver(DriverBase):
                 user_data['logger'].info("DOWNLINK TEST: 7")
                 # send START_ACK packet back with num_chunks
                 self.start_ack(user_data['logger'], client)
-            elif command_type is DownlinkCommand.START_ACK:
+            elif command_type == DownlinkCommand.START_ACK:
                 # start transmission of all chunks to ground station
                 self.transmit_chunks(user_data['logger'])
-            elif command_type is DownlinkCommand.RETRANSMIT_MISSING_CHUNKS:
+            elif command_type == DownlinkCommand.RETRANSMIT_MISSING_CHUNKS:
                 if decoded_packet.missing_chunks:
                     # transmit only the missing chunk numbers given in packet
                     self.transmitter.add_ack(decoded_packet)
@@ -110,12 +110,11 @@ class DownlinkDriver(DriverBase):
             sender=self.get_device_id(),
             priority=Priority.DATA,
         )
-        downlink_header = self.transmitter.get_downlink_header(DownlinkCommand.START_ACK)
+        downlink_header = self.transmitter.get_downlink_header_start_ack(DownlinkCommand.START_ACK)
         downlink_packet = Packet(downlink_header, data_header)
 
         if self._mqtt:
             logger.info('sending START_ACK packet for downlink')
-            logger.info(f'packet size: {len(downlink_packet.encode())}')
             self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
     def transmit_chunks(self, logger: logging.Logger) -> None:

@@ -32,6 +32,13 @@ class DownlinkTransmitter:
         for i in range(0, self.num_chunks):
             self.chunk_queue.put(i)
 
+    # TEMPORARY CHANGE: this method is only for creating the data header for START ACK since the packet was too big
+    # sets missing chunks array to an array with one element: the number of total chunks
+    def get_downlink_header_start_ack(self, command_type: DownlinkCommand) -> DownlinkCommandFormat:
+        # Generate and return a DownlinkCommandFormat for the downlink header
+        missing_chunks = [self.num_chunks]
+        return DownlinkCommandFormat(self.file_id, self.num_chunks, command_type, missing_chunks)
+
     def get_downlink_header(self, command_type: DownlinkCommand) -> DownlinkCommandFormat:
         # Generate and return a DownlinkCommandFormat for the downlink header
         return DownlinkCommandFormat(self.file_id, self.num_chunks, command_type, self.unacknowledged_chunks)
