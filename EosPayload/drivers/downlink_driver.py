@@ -87,7 +87,7 @@ class DownlinkDriver(DriverBase):
     def start_ack(self, logger: logging.Logger) -> None:
         logger.info("DOWNLINK TEST: 8")
         # Define the name of the TAR archive
-        archive_name = "EosPayload.tar.gz"
+        archive_name = "./eos_artifacts/EosPayload.tar.gz"
 
         # Define the path to the directory you want to archive
         directory_path = "./"
