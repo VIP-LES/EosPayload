@@ -52,7 +52,7 @@ class ScienceDriver(DriverBase):
         self.barometer = BMP3XX_I2C(self.i2c_bus)
         self.uv_light_sensor = LTR390(self.i2c_bus)
         self.ir_light_sensor = TSL2591(self.i2c_bus)
-        # self.air_quality_sensor = PM25_I2C(self.i2c_bus)
+        self.air_quality_sensor = PM25_I2C(self.i2c_bus)
 
     def cleanup(self):
         if self.i2c_bus is not None:
@@ -82,7 +82,7 @@ class ScienceDriver(DriverBase):
                     atmospheric conditions (288.15 K, 1013.25 hPa), and “environmental” concentrations are those
                     measured in the current atmospheric conditions.
                 '''
-                # air_quality_data = list(self.air_quality_sensor.read().values())
+                air_quality_data = list(self.air_quality_sensor.read().values())
                 data = ScienceData(
                     temperature_celsius=self.temp_humidity_sensor.temperature,
                     relative_humidity_percent=self.temp_humidity_sensor.relative_humidity,
@@ -97,18 +97,18 @@ class ScienceDriver(DriverBase):
                     visible_count=self.ir_light_sensor.visible,
                     full_spectrum_count=self.ir_light_sensor.full_spectrum,
                     ir_visible_lux=self.ir_light_sensor.lux,
-                    # pm10_standard_ug_m3=air_quality_data[0],
-                    # pm25_standard_ug_m3=air_quality_data[1],
-                    # pm100_standard_ug_m3=air_quality_data[2],
-                    # pm10_environmental_ug_m3=air_quality_data[3],
-                    # pm25_environmental_ug_m3=air_quality_data[4],
-                    # pm100_environmental_ug_m3=air_quality_data[5],
-                    # particulate_03um_per_01L=air_quality_data[6],
-                    # particulate_05um_per_01L=air_quality_data[7],
-                    # particulate_10um_per_01L=air_quality_data[8],
-                    # particulate_25um_per_01L=air_quality_data[9],
-                    # particulate_50um_per_01L=air_quality_data[10],
-                    # particulate_100um_per_01L=air_quality_data[11],
+                    pm10_standard_ug_m3=air_quality_data[0],
+                    pm25_standard_ug_m3=air_quality_data[1],
+                    pm100_standard_ug_m3=air_quality_data[2],
+                    pm10_environmental_ug_m3=air_quality_data[3],
+                    pm25_environmental_ug_m3=air_quality_data[4],
+                    pm100_environmental_ug_m3=air_quality_data[5],
+                    particulate_03um_per_01L=air_quality_data[6],
+                    particulate_05um_per_01L=air_quality_data[7],
+                    particulate_10um_per_01L=air_quality_data[8],
+                    particulate_25um_per_01L=air_quality_data[9],
+                    particulate_50um_per_01L=air_quality_data[10],
+                    particulate_100um_per_01L=air_quality_data[11],
                     timestamp=datetime.now(),
                 )
 
