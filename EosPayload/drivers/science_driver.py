@@ -82,35 +82,53 @@ class ScienceDriver(DriverBase):
                     atmospheric conditions (288.15 K, 1013.25 hPa), and “environmental” concentrations are those
                     measured in the current atmospheric conditions.
                 '''
-                air_quality_data = list(self.air_quality_sensor.read().values())
-                data = ScienceData(
-                    temperature_celsius=self.temp_humidity_sensor.temperature,
-                    relative_humidity_percent=self.temp_humidity_sensor.relative_humidity,
-                    temperature_celsius_2=self.barometer.temperature,
-                    pressure_hpa=self.barometer.pressure,
-                    altitude_meters=self.barometer.altitude,
-                    ambient_light_count=self.uv_light_sensor.light,
-                    ambient_light_lux=self.uv_light_sensor.lux,
-                    uv_count=self.uv_light_sensor.uvs,
-                    uv_index=self.uv_light_sensor.uvi,
-                    infrared_count=self.ir_light_sensor.infrared,
-                    visible_count=self.ir_light_sensor.visible,
-                    full_spectrum_count=self.ir_light_sensor.full_spectrum,
-                    ir_visible_lux=self.ir_light_sensor.lux,
-                    pm10_standard_ug_m3=air_quality_data[0],
-                    pm25_standard_ug_m3=air_quality_data[1],
-                    pm100_standard_ug_m3=air_quality_data[2],
-                    pm10_environmental_ug_m3=air_quality_data[3],
-                    pm25_environmental_ug_m3=air_quality_data[4],
-                    pm100_environmental_ug_m3=air_quality_data[5],
-                    particulate_03um_per_01L=air_quality_data[6],
-                    particulate_05um_per_01L=air_quality_data[7],
-                    particulate_10um_per_01L=air_quality_data[8],
-                    particulate_25um_per_01L=air_quality_data[9],
-                    particulate_50um_per_01L=air_quality_data[10],
-                    particulate_100um_per_01L=air_quality_data[11],
-                    timestamp=datetime.now(),
-                )
+                if air_quality_data is not None:
+                    air_quality_data = list(self.air_quality_sensor.read().values())
+                    data = ScienceData(
+                        temperature_celsius=self.temp_humidity_sensor.temperature,
+                        relative_humidity_percent=self.temp_humidity_sensor.relative_humidity,
+                        temperature_celsius_2=self.barometer.temperature,
+                        pressure_hpa=self.barometer.pressure,
+                        altitude_meters=self.barometer.altitude,
+                        ambient_light_count=self.uv_light_sensor.light,
+                        ambient_light_lux=self.uv_light_sensor.lux,
+                        uv_count=self.uv_light_sensor.uvs,
+                        uv_index=self.uv_light_sensor.uvi,
+                        infrared_count=self.ir_light_sensor.infrared,
+                        visible_count=self.ir_light_sensor.visible,
+                        full_spectrum_count=self.ir_light_sensor.full_spectrum,
+                        ir_visible_lux=self.ir_light_sensor.lux,
+                        pm10_standard_ug_m3=air_quality_data[0],
+                        pm25_standard_ug_m3=air_quality_data[1],
+                        pm100_standard_ug_m3=air_quality_data[2],
+                        pm10_environmental_ug_m3=air_quality_data[3],
+                        pm25_environmental_ug_m3=air_quality_data[4],
+                        pm100_environmental_ug_m3=air_quality_data[5],
+                        particulate_03um_per_01L=air_quality_data[6],
+                        particulate_05um_per_01L=air_quality_data[7],
+                        particulate_10um_per_01L=air_quality_data[8],
+                        particulate_25um_per_01L=air_quality_data[9],
+                        particulate_50um_per_01L=air_quality_data[10],
+                        particulate_100um_per_01L=air_quality_data[11],
+                        timestamp=datetime.now(),
+                    )
+                else:
+                    data = ScienceData(
+                        temperature_celsius=self.temp_humidity_sensor.temperature,
+                        relative_humidity_percent=self.temp_humidity_sensor.relative_humidity,
+                        temperature_celsius_2=self.barometer.temperature,
+                        pressure_hpa=self.barometer.pressure,
+                        altitude_meters=self.barometer.altitude,
+                        ambient_light_count=self.uv_light_sensor.light,
+                        ambient_light_lux=self.uv_light_sensor.lux,
+                        uv_count=self.uv_light_sensor.uvs,
+                        uv_index=self.uv_light_sensor.uvi,
+                        infrared_count=self.ir_light_sensor.infrared,
+                        visible_count=self.ir_light_sensor.visible,
+                        full_spectrum_count=self.ir_light_sensor.full_spectrum,
+                        ir_visible_lux=self.ir_light_sensor.lux,
+                        timestamp=datetime.now(),
+                    )
 
             except Exception as e:
                 logger.error(f"An unhandled exception occurred while reading data from sensors: {e}"
