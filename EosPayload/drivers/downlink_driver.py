@@ -39,20 +39,27 @@ class DownlinkDriver(DriverBase):
             self.thread_sleep(logger, 20)
 
     def downlink_packet(self, client, user_data, message):
+        user_data['logger'].info("DOWNLINK TEST: 1")
         try:
+            user_data['logger'].info("DOWNLINK TEST: 2")
             try:
+                user_data['logger'].info("DOWNLINK TEST: 3")
                 packet = Packet.decode(message.payload)
 
             except Exception as e:
                 user_data['logger'].error("failed to decode packet sent to "
                                           f"{Topic.DOWNLINK_COMMAND.value}: {e}")
                 return
-
+            user_data['logger'].info("DOWNLINK TEST: 4")
             decoded_packet = DownlinkCommandFormat.decode(packet.body.encode()) # TODO mess around with packet encoding/decoding
+            user_data['logger'].info("DOWNLINK TEST: 5")
             command_type = decoded_packet.command_type
+            user_data['logger'].info("DOWNLINK TEST: 6")
+            user_data['logger'].info(f'Command Type: {command_type}')
 
             # pass packet to correct function based on the command type
             if command_type is DownlinkCommand.START_REQUEST:
+                user_data['logger'].info("DOWNLINK TEST: 7")
                 # send START_ACK packet back with num_chunks
                 self.start_ack(user_data['logger'])
             elif command_type is DownlinkCommand.START_ACK:
@@ -78,6 +85,7 @@ class DownlinkDriver(DriverBase):
                                       f"\n{traceback.format_exc()}")
 
     def start_ack(self, logger: logging.Logger) -> None:
+        user_data['logger'].info("DOWNLINK TEST: 8")
         # Define the name of the TAR archive
         archive_name = "EosPayload.tar.gz"
 
