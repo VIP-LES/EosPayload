@@ -115,7 +115,7 @@ class DownlinkDriver(DriverBase):
 
         if self._mqtt:
             logger.info('sending START_ACK packet for downlink')
-            logger.info(f'packet size: {len(downlink_packet)}')s
+            logger.info(f'packet size: {len(downlink_packet)}')
             self._mqtt.send(Topic.RADIO_TRANSMIT, downlink_packet)
 
     def transmit_chunks(self, logger: logging.Logger) -> None:
