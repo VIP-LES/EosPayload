@@ -48,7 +48,7 @@ class DownlinkDriver(DriverBase):
                                           f"{Topic.DOWNLINK_COMMAND.value}: {e}")
                 return
 
-            decoded_packet = DownlinkCommandFormat.decode(packet.body) # TODO mess around with packet encoding/decoding
+            decoded_packet = DownlinkCommandFormat.decode(packet.body.encode()) # TODO mess around with packet encoding/decoding
             command_type = decoded_packet.command_type
 
             # pass packet to correct function based on the command type
