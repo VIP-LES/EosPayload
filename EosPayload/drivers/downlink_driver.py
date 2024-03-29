@@ -56,9 +56,9 @@ class DownlinkDriver(DriverBase):
             command_type = decoded_packet.command_type
             user_data['logger'].info("DOWNLINK TEST: 6")
             user_data['logger'].info(f'Command Type: {command_type}')
-
+            user_data['logger'].info(f'DownlinkCommand.START_REQUEST = {DownlinkCommand.START_REQUEST}')
             # pass packet to correct function based on the command type
-            if command_type is DownlinkCommand.START_REQUEST:
+            if command_type == DownlinkCommand.START_REQUEST:
                 user_data['logger'].info("DOWNLINK TEST: 7")
                 # send START_ACK packet back with num_chunks
                 self.start_ack(user_data['logger'])
@@ -85,7 +85,7 @@ class DownlinkDriver(DriverBase):
                                       f"\n{traceback.format_exc()}")
 
     def start_ack(self, logger: logging.Logger) -> None:
-        user_data['logger'].info("DOWNLINK TEST: 8")
+        logger.info("DOWNLINK TEST: 8")
         # Define the name of the TAR archive
         archive_name = "EosPayload.tar.gz"
 
