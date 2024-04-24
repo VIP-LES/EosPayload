@@ -28,13 +28,13 @@ class HealthDriver(DriverBase):
         if self._mqtt:
             self._mqtt.user_data_set({'logger': logger, 'queue': self._health_command_queue})
             self._mqtt.register_subscriber(Topic.HEALTH_HEARTBEAT, self.health_latest_data)
-        while True:
-            if not HealthDriver._health_command_queue.empty():
-                decoded_msg = HealthDriver._health_command_queue.get(block=False)
-                logger.info(f"received health query command {decoded_msg}, sending response")
-                self.health_reply()
-
-            self.thread_sleep(logger, 5)
+            self._mqtt.register_subscriber(Topic.HEALTH_COMMAND, self.health_reply)
+        # while True:
+        #     if not HealthDriver._health_command_queue.empty():
+        #         decoded_msg = HealthDriver._health_command_queue.get(block=False)
+        #         logger.info(f"received health query command {decoded_msg}, sending response")
+        #
+        #     self.thread_sleep(logger, 5)
 
     def health_latest_data(self, client, user_data, message):
         try:
