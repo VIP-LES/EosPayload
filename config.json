@@ -76,6 +76,13 @@
       "driver_class": "ElectricFieldSensor",
       "device_id": "MISC_SENSOR_3",
       "enabled": true
+    },
+
+    {
+      "name": "health-driver",
+      "driver_class": "HealthDriver",
+      "device_id": "HEALTH",
+      "enabled": true
     }
   ]
 }

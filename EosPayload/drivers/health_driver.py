@@ -7,8 +7,8 @@ from EosLib.packet import Packet
 from EosLib.packet.data_header import DataHeader
 from EosLib.packet.definitions import Priority
 from EosLib.format.formats.health.driver_health_report import DriverHealthReport
-from EosLib.format.formats.health.health_query import HealthQuery
-from EosLib.format.formats.health.health_response import HealthResponse
+from EosLib.format.formats.health.health_query import HealthQuery, QueryType
+from EosLib.format.formats.health.health_response import HealthResponse, ResponseType
 
 from EosPayload.lib.base_drivers.driver_base import DriverBase
 from EosPayload.lib.mqtt import Topic
@@ -17,7 +17,7 @@ from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Statu
 
 class HealthDriver(DriverBase):
     _health_command_queue = Queue()
-    _drivers: dict[str, DeviceContainer] = {}
+    _drivers: dict[int, DeviceContainer] = {}
 
     def setup(self) -> None:
         super().setup()
@@ -79,6 +79,12 @@ class HealthDriver(DriverBase):
                 return
 
             decoded_packet = HealthQuery.decode(packet.body.encode())
+            # query_type = decoded_packet.query_type
+            # if query_type is QueryType.DEVICE:
+            #
+            # elif query_type is QueryType.DEVICE_HISTORY:
+            #
+            # elif query_type is QueryType.LOGS:
 
             user_data['logger'].info(f"Received health_query command for device_id {decoded_packet.device_id}")
 
@@ -89,7 +95,7 @@ class HealthDriver(DriverBase):
                 destination=packet.data_header.sender
             )
 
-            response = Packet(HealthResponse(decoded_packet.device_id, decoded_packet.response_type), response_header)
+            response = Packet(HealthResponse(decoded_packet.device_id, ResponseType(decoded_packet.query_type)), response_header)
             client.send(Topic.RADIO_TRANSMIT, response)
 
         except Exception as e:
