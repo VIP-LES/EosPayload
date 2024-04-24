@@ -22,7 +22,7 @@ class HealthDriver(DriverBase):
     def setup(self) -> None:
         super().setup()
 
-        self.register_thread('device-command', self.device_read)
+        self.register_thread('device-read', self.device_read)
 
     def device_read(self, logger: logging.Logger) -> None:
         if self._mqtt:
