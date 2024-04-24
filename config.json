@@ -81,7 +81,7 @@
     {
       "name": "health-driver",
       "driver_class": "HealthDriver",
-      "device_id": "HEALTH",
+      "device_id": "MISC_14",
       "enabled": true
     }
   ]

@@ -17,7 +17,7 @@ from EosPayload.lib.orcheostrator.device_container import DeviceContainer, Statu
 
 class HealthDriver(DriverBase):
     _health_command_queue = Queue()
-    _drivers: dict[int, DeviceContainer] = {}
+    _drivers: dict[int, StatusUpdate] = {}
 
     def setup(self) -> None:
         super().setup()
@@ -57,12 +57,7 @@ class HealthDriver(DriverBase):
                 effective=packet.data_header.generate_time
             )
 
-            self._drivers[status_update.driver_id].update_status(
-                status_update.status,
-                status_update.thread_count,
-                status_update.reporter,
-                status_update.effective,
-            )
+            self._drivers[status_update.driver_id] = status_update
 
             user_data['queue'].put(status_update)
 
