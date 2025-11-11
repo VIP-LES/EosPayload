@@ -6,6 +6,7 @@ except NotImplementedError:
     pass
 import busio
 from adafruit_bno055 import BNO055_I2C
+import Adafruit_BBIO.ADC as ADC
 from datetime import datetime
 import adafruit_mprls
 
@@ -29,7 +30,7 @@ class TelemetryI2CDriver(DriverBase):
 
     def setup(self) -> None:
         super().setup()
-
+        ADC.setup()
         try:
             board
         except NameError:
@@ -52,6 +53,8 @@ class TelemetryI2CDriver(DriverBase):
                 x_rotation = self.bno.euler[0]
                 y_rotation = self.bno.euler[1]
                 z_rotation = self.bno.euler[2]
+                efm = ADC.read("")  # TODO Analog pin here
+                efm = ADC.read("")  # read twice, there is a bug in adafruit, this is workaround
             except Exception as e:
                 logger.error(f"failed to retrieve data from sensor: {e}\n{traceback.format_exc()}")
                 self.thread_sleep(logger, 2)
@@ -65,13 +68,13 @@ class TelemetryI2CDriver(DriverBase):
 
             current_time = datetime.now()
             pressure = self.mpr.pressure
-            humidity = 0
+            humidity = 0 # FIXME
 
             logger.info(f"Temperature: {temperature}\n")
             logger.info(f"Pressure: {pressure}\n")
 
             try:
-                telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation)
+                telemetry_obj = TelemetryData(temperature, pressure, humidity, x_rotation, y_rotation, z_rotation, efm)
             except Exception as e:
                 logger.error(f"exception occurred while logging data: {e}\n{traceback.format_exc()}")
                 self.thread_sleep(logger, 2)

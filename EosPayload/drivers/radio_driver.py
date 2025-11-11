@@ -72,7 +72,7 @@ class RadioDriver(DriverBase):
             self._logger.info(f"Trying to initialize XBee with device {device.device_node}")
             try:
                 self._logger.info("Configuring port")
-                self.port = XBeeDevice(device.device_node, 9600)
+                self.port = XBeeDevice(device.device_node, 9600) # FIXME this is sad problem
                 self._logger.info("Opening port")
                 self.port.open()
                 self._logger.info("Sending test broadcast")
@@ -80,7 +80,9 @@ class RadioDriver(DriverBase):
                 self._logger.info("Configuring remote")
                 # self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string(
                 #    "0013A20041CB93E5"))  # on the chip itself there is a number on the top right. It should be 4!
-                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("0013A20041CB8CD8"))
+                self.remote = RemoteXBeeDevice(self.port, XBee64BitAddress.from_hex_string("0013A20041CB89AE"))
+                self._logger.info("Port Check: ", self.port)
+                self._logger.info("XBee Check: ", self.remote)
                 self.remote.disable_acknowledgement = True
                 self._logger.info("Successfully initialized XBee")
                 break
